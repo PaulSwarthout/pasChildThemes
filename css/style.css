@@ -18,6 +18,14 @@
 	font-variant:small-caps;
 	text-align:center;
 }
+.pasChildTheme_HDR {
+	font-size:24pt;
+	font-weight:bold;
+	font-variant:small-caps;
+	text-align:center;
+	width:100%;
+	color:990000;
+}
 .innerCellLeft {
 	text-align:left;
 	font-size:12pt;

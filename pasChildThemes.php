@@ -13,52 +13,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 $pluginDirectory = plugin_dir_url( __FILE__ );
 
-if (! class_exists('pasChildThemes_activeTheme') ) {
-	class pasChildTheme_currentTheme {
-		private $currentActiveTheme; // WP_Theme Object for the currently active theme
-		private $name;
-		private $themeRoot;
-		private $folder;
-		private $parentName;
-		private $parentFolder;
+require_once(dirname(__FILE__) . '/classes/currentTheme.php');
 
-		function __construct() {
-			$currentActiveTheme = wp_get_theme();
-			$name = $currentActiveTheme->get("Name");
-			$folder = $currentActiveTheme->get_stylesheet();
-			$themeRoot = $currentActiveTheme->get_theme_root();
-			$parent = $currentActiveTheme->parent();
-
-			$parentName = $parent->get("Name");
-			$parentFolder = $parent->get_stylesheet();
-			$parentThemeRoot = $parent->get_theme_root();
-
-			$x = ['WPTHEME' => $currentActiveTheme, 'name' => $name, 'folder' => $folder, 'themeRoot' => $themeRoot, 
-				    'parent' => $parentName, 'parentFolder' => $parentFolder, 'parentThemeRoot' => $parentThemeRoot,
-						'themes folder' => WP_CONTENT_DIR . "/themes"];
-			echo "<pre>" . print_r($x, true) . "</pre>";
-
-			exit;
-		}
-		function name() {
-			return $currentActiveTheme->get('Name');
-		}
-		function themeFolder() {
-			$folder = $currentActiveTheme->get('textDomain');
-			if (!$folder) { $folder = strtolower($currentActiveTheme->get('name')); }
-			return $folder;
-		}
-		function parent() {
-			return ($currentActiveTheme->get('Template'));
-		}
-
-	}
-}
-$x = new pasChildTheme_currentTheme();
 register_deactivation_hook(__FILE__, 'pas_version_deactivate' );
 
 add_action('admin_menu', 'pasChildTheme_admin' );
 add_action('admin_enqueue_scripts', 'pasChildThemes_styles' );
+add_action('admin_enqueue_scripts', 'pasChildThemes_scripts');
 
 function isWin() {
 	return (substr(PHP_OS, 0, 3) == "WIN" ? true : false);
@@ -66,14 +27,20 @@ function isWin() {
 
 function pasChildThemes_styles() {
 	$pluginDirectory = plugin_dir_url( __FILE__ );
-	wp_enqueue_style('pasChildThemes', $pluginDirectory . "css/style.css", false);
+	$debugging = constant('WP_DEBUG');
+	wp_enqueue_style('pasChildThemes', $pluginDirectory . "css/style.css" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
+}
+function pasChildThemes_scripts() {
+	$pluginDirectory = plugin_dir_url(__FILE__);
+	$debugging = constant('WP_DEBUG');
+	wp_enqueue_script('pasChildThemes_Script', $pluginDirectory . "js/pasChildThemes.js" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
 }
 
-$currentThemeObject = wp_get_theme(); // Get current WP_THEME object.
-$currentThemeInformation = [ 'name' => $currentThemeObject->Name, 'parent' => $currentThemeObject->get('Template') ];
+$currentThemeObject = new pasChildTheme_currentTheme();
+$allThemes = enumerateThemes();
 
 function enumerateThemes() {
-	global $currentThemeInformation;
+	global $currentThemeObject;
 	$themes = array();
 
 	// Loads all theme data
@@ -82,47 +49,41 @@ function enumerateThemes() {
 	// Loads theme names into themes array
 	foreach ($all_themes as $theme) {
 		$name = $theme->get('Name');
-		$domain = $theme->get('TextDomain');
+		$stylesheet = $theme->get_stylesheet();
+
 		$parent = $theme->get('Template');
+		$parentStylesheet = $theme->get_stylesheet();
 
-		$domain = ($domain == "" ? strtolower($name) : $domain);
-
-		if ($currentThemeInformation['name'] == $name) { $currentThemeInformation['name'] = $domain; }
-
-		$themes[$domain] = Array ('themeName' => $name, 'themeDomain' => $domain, 'themeParent' => $parent);
+		$themes[$stylesheet] = Array ('themeName' => $name, 'themeStylesheet' => $stylesheet, 'themeParent' => $parent, 'parentStylesheet' => $parentStylesheet);
 	}
-	return Array( 'allThemesList' => $themes, 'currentTheme' => $currentThemeInformation);
+
+	return $themes;
 }
 function pasChildTheme_admin() {
 	add_menu_page( 'ChildThemes', 'Child Theme Tools', 'manage_options', 'manage_child_themes', 'manage_child_themes');
 }
 function getThemeSelect($type = "parent") {
-	global $currentThemeInformation;
+	global $allThemes;
+	global $currentThemeObject;
 
-	$themesInformation = enumerateThemes();
-	$listOfThemes = $themesInformation['allThemesList'];
-	$currentThemeInfo = $themesInformation['currentTheme'];
-
-	echo "List all themes:<br>";
-	echo "<pre>" . print_r($listOfThemes, true) . "</pre>";
-	echo "End All Themes List<br><br><br>";
-
-	if (count($listOfThemes) > 0) {
+	if (count($allThemes) > 0) {
 		$htmlSelect = "<select><option value=''>Choose Target Theme</option>";
 		if ($type == "current") {
-			$selectedTheme = $currentThemeInfo['name'];
+			$selectedTheme = $currentThemeObject->name();
+
+			foreach ($allThemes as $key => $theme) {
+				$selected = ($key == $currentThemeObject->themeStylesheet() ? " SELECTED " : "");
+				$htmlSelect .= "<option value='$key' $selected>" . $theme['themeName'] . "</option>";
+			}
+
 		} else {
-			$selectedTheme = $currentThemeInfo['parent'];
+			$selectedTheme = $currentThemeObject->parent();
+			foreach ($allThemes as $key => $theme) {
+				$selected = ($key == $currentThemeObject->parentStylesheet() ? " SELECTED " : "");
+				$htmlSelect .= "<option value='$key' $selected>" . $theme['themeName'] . "</option>";
+			}
 		}
 
-		echo "List of Themes: <br>";
-		echo "<pre>" . print_r($listOfThemes, true) . "</pre>";
-		echo "END List of Themes.<br><br><br>";
-		foreach ($listOfThemes as $key => $theme) {
-			echo "<br>Selected: $selectedTheme, Current Theme Name: " . $theme['themeName'] . "<br>";
-			$selected = ($selectedTheme == $theme['themeName'] ? " SELECTED " : "");
-			$htmlSelect .= "<option value='$key' $selected >" . $theme['themeName'] . "</option>";
-		}
 		$htmlSelect .= "</select>";
 
 		return $htmlSelect;
@@ -131,32 +92,49 @@ function getThemeSelect($type = "parent") {
 	}
 }
 function showActiveChildTheme() {
-		echo getThemeSelect("current");
+	global $allThemes;
+	global $currentThemeObject;
 
-		$delimiter = (isWin() ? "\\" : "/");
-		$folderSegments = explode($delimiter, dirname(__FILE__));
-		unset($folderSegments[count($folderSegments) - 1]);
-		unset($folderSegments[count($folderSegments) - 1]);
-		$folderSegments[count($folderSegments)] = "themes";
-		$folderSegments[count($folderSegments)] = get_current_theme();
-		$folder = implode($delimiter, $folderSegments);
+	$currentThemeInfo = $currentThemeObject; // this is an object.
+	if ($currentThemeObject->parentStylesheet()) {
+		echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
+	}
+	echo getThemeSelect("current");
 
-		echo "<div class='innerCellLeft'>";
-		listFolderFiles($folder);
-		echo "</div>";
+	$delimiter = (isWin() ? "\\" : "/");
+	$folderSegments = explode($delimiter, $currentThemeObject->themeRoot());
+	unset($folderSegments[count($folderSegments) - 1]);
+	unset($folderSegments[count($folderSegments) - 1]);
+	$folderSegments[count($folderSegments)] = "themes";
+	$folderSegments[count($folderSegments)] = $currentThemeObject->themeStylesheet();
+
+	$folder = implode($delimiter, $folderSegments);
+
+	echo "<div class='innerCellLeft'>";
+	listFolderFiles($folder);
+	echo "</div>";
 }
 
 function showActiveParentTheme() {
+		global $currentThemeObject;
+		if (! $currentThemeObject->parentStylesheet()) {
+			echo "Current Theme is <u><b>NOT</b></u> a child theme.";
+			return false;
+		}
+		echo "<p class='pasChildTheme_HDR'>THEME TEMPLATE</p>";
 		echo getThemeSelect("parent");
-		$parentTheme = get_template();
+		$parentTheme = $currentThemeObject->parentStylesheet();
+		$parentThemeRoot = $currentThemeObject->parentThemeRoot();
 
 		$delimiter = (isWin() ? "\\" : "/");
-		$folderSegments = explode($delimiter, dirname(__FILE__));
+		$folderSegments = explode($delimiter, $parentThemeRoot);
 		unset($folderSegments[count($folderSegments) - 1]);
 		unset($folderSegments[count($folderSegments) - 1]);
 		$folderSegments[count($folderSegments)] = "themes";
 		$folderSegments[count($folderSegments)] = $parentTheme;
 		$folder = implode($delimiter, $folderSegments);
+
+//		echo "<pre>" . print_r($folder, true) . "</pre>";
 
 		echo "<div class='innerCellLeft'>";
 		listFolderFiles($folder);
@@ -183,6 +161,8 @@ function manage_child_themes() {
 
 function listFolderFiles($dir){
     $ffs = scandir($dir);
+		echo "<br>Directory: " . $dir . "<br>";
+		echo "<pre>" . print_r($ffs, true) . "</pre>";
 
     unset($ffs[array_search('.', $ffs, true)]);
     unset($ffs[array_search('..', $ffs, true)]);
@@ -195,7 +175,7 @@ function listFolderFiles($dir){
 
     echo '<ul>';
     foreach($ffs as $ff){
-      echo '<li>'.$ff;
+      echo '<li ondblclick="javascript:copyFile(this);">'.$ff;
 
 			if(is_dir($dir.'/'.$ff)) listFolderFiles($dir.'/'.$ff);
 			echo "</li>";
