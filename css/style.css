@@ -1,13 +1,13 @@
 .pas-grid-container {
   display: inline-grid;
   grid-template-columns: auto auto auto;
-  background-color:yellow;
+  background-color:rgb(255,255,240);
   padding: 10px;
   width:100%;
 }
 .pas-grid-item {
-  background-color: rgba(255, 255, 255, 0.8);
-  border: 1px solid rgba(0, 0, 0, 0.8);
+  background-color: rgba(255, 255, 255, 1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   padding: 20px;
   font-size: 14px;
   text-align: left;
@@ -33,6 +33,12 @@
 
 .clt, .clt ul, .clt li {
      position: relative;
+}
+
+.pasChildThemes_directory {
+	font-style:italic;
+	font-size:14pt;
+	color:#990000;
 }
 
 .clt ul {

@@ -161,8 +161,8 @@ function manage_child_themes() {
 
 function listFolderFiles($dir){
     $ffs = scandir($dir);
-		echo "<br>Directory: " . $dir . "<br>";
-		echo "<pre>" . print_r($ffs, true) . "</pre>";
+//		echo "<br>Directory: " . $dir . "<br>";
+//		echo "<pre>" . print_r($ffs, true) . "</pre>";
 
     unset($ffs[array_search('.', $ffs, true)]);
     unset($ffs[array_search('..', $ffs, true)]);
@@ -175,9 +175,12 @@ function listFolderFiles($dir){
 
     echo '<ul>';
     foreach($ffs as $ff){
-      echo '<li ondblclick="javascript:copyFile(this);">'.$ff;
-
-			if(is_dir($dir.'/'.$ff)) listFolderFiles($dir.'/'.$ff);
+			if (is_dir($dir . '/' . $ff)) {
+				echo "<li><p class='pasChildThemes_directory'>" . $ff . "</p>";
+				if(is_dir($dir.'/'.$ff)) listFolderFiles($dir.'/'.$ff);
+			} else {
+				echo '<li onclick="javascript:highlight(this);">'.$ff;
+			}
 			echo "</li>";
     }
     echo '</ul>';
