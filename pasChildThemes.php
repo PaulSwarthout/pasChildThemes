@@ -20,9 +20,16 @@ register_deactivation_hook(__FILE__, 'pas_version_deactivate' );
 add_action('admin_menu', 'pasChildTheme_admin' );
 add_action('admin_enqueue_scripts', 'pasChildThemes_styles' );
 add_action('admin_enqueue_scripts', 'pasChildThemes_scripts');
+add_action('wp_ajax_fileSelect', 'pasChildThemes_selectFile');
 
 function isWin() {
 	return (substr(PHP_OS, 0, 3) == "WIN" ? true : false);
+}
+
+function pasChildThemes_selectFile() {
+	foreach ($_POST as $key => $value) {
+		echo $key . " = " . $value . "<br>";
+	}
 }
 
 function pasChildThemes_styles() {
@@ -34,6 +41,7 @@ function pasChildThemes_scripts() {
 	$pluginDirectory = plugin_dir_url(__FILE__);
 	$debugging = constant('WP_DEBUG');
 	wp_enqueue_script('pasChildThemes_Script', $pluginDirectory . "js/pasChildThemes.js" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
+	wp_localize_script( 'pasChildThemes_Script', 'ajaxObject', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
 }
 
 $currentThemeObject = new pasChildTheme_currentTheme();
@@ -111,7 +119,7 @@ function showActiveChildTheme() {
 	$folder = implode($delimiter, $folderSegments);
 
 	echo "<div class='innerCellLeft'>";
-	listFolderFiles($folder);
+	listFolderFiles($folder, "child");
 	echo "</div>";
 }
 
@@ -137,7 +145,7 @@ function showActiveParentTheme() {
 //		echo "<pre>" . print_r($folder, true) . "</pre>";
 
 		echo "<div class='innerCellLeft'>";
-		listFolderFiles($folder);
+		listFolderFiles($folder, "parent");
 		echo "</div>";
 }
 
@@ -159,7 +167,7 @@ function manage_child_themes() {
 	echo "</div>"; // end grid container
 }
 
-function listFolderFiles($dir){
+function listFolderFiles($dir, $themeType){
     $ffs = scandir($dir);
 //		echo "<br>Directory: " . $dir . "<br>";
 //		echo "<pre>" . print_r($ffs, true) . "</pre>";
@@ -177,9 +185,9 @@ function listFolderFiles($dir){
     foreach($ffs as $ff){
 			if (is_dir($dir . '/' . $ff)) {
 				echo "<li><p class='pasChildThemes_directory'>" . $ff . "</p>";
-				if(is_dir($dir.'/'.$ff)) listFolderFiles($dir.'/'.$ff);
+				if(is_dir($dir.'/'.$ff)) listFolderFiles($dir.'/'.$ff, $themeType);
 			} else {
-				echo '<li onclick="javascript:highlight(this);">'.$ff;
+				echo "<li data-dir='$dir' data-file='$ff' data-type='$themeType' onclick='javascript:highlight(this);'>" . $ff;
 			}
 			echo "</li>";
     }

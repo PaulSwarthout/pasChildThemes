@@ -26,6 +26,14 @@
 	width:100%;
 	color:990000;
 }
+.pasChildTheme_boxHeader {
+	font-size:18pt;
+	font-weight:bold;
+	text-align:center;
+	width:100%;
+	display:inline;
+	visibility:visible;
+}
 .innerCellLeft {
 	text-align:left;
 	font-size:12pt;
