@@ -24,22 +24,58 @@
 	font-variant:small-caps;
 	text-align:center;
 	width:100%;
-	color:990000;
+	color:#990000;
+}
+.actionReminder {
+	position:relative;
+	top:-35px;
+	font-size:10pt;
+	font-weight:normal;
+	text-align:center;
+	width:100%;
+	color:#990000;
 }
 #actionBox {
 	position:fixed;
 	top:50%;
 	left:50%;
-	margin-top:-250px;
-	margin-left:-400px;
-	width:800px;
-	height:500px;
+	width:450px;
+	height:250px;
+	margin-left:-225px;
+	margin-top:-125px;
+	padding:25px;
 	background-color:rgba(255,255,240,1);
-	border:solid 1pt black;
-	font-size:8pt;
+	border:solid 1pt red;
+	box-shadow:10px 15px 40px #400000;
+	border-radius:25px;
+	font-size:10pt;
 	color:black;
 	display:inline;
 	visibility:visible;
+}
+.warningHeading {
+	font-size:18pt;
+	font-weight:bold;
+	font-variant:small-caps;
+	color:#500000;
+	text-align:center;
+	width:100%;
+	display:inline;
+}
+.emphasize {
+	font-weight:bold;
+	text-decoration:underline double;
+}
+.questionPrompt {
+	text-align:center;
+	width:100%;
+}
+.blueButton {
+	font-family:courier-new;
+	font-size:12pt;
+	background-color:blue;
+	color:white;
+	width:150px;
 }
 .pasChildTheme_boxHeader {
 	font-size:18pt;

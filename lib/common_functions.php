@@ -1,5 +1,5 @@
 <?PHP
-function files_are_equal($a, $b, $blocksize = 1024)
+function files_are_identical($a, $b, $blocksize = 1024)
 {
   // Check if filesize is different
   if(filesize($a) !== filesize($b))
@@ -31,4 +31,8 @@ function file_count($dir) {
 	unset($files[array_search('..', $files, true)]);
 
 	return count($files);
+}
+
+function is_folder_empty($dir) {
+	return (file_count($dir) == 0 ? true : false);
 }

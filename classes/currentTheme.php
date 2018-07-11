@@ -8,6 +8,7 @@ if (! class_exists('pasChildThemes_activeTheme') ) {
 		private $parentName;
 		private $parentStylesheet;
 		private $parentThemeRoot;
+		public  $status;
 
 		function __construct() {
 			$this->currentActiveTheme = wp_get_theme();
@@ -20,10 +21,11 @@ if (! class_exists('pasChildThemes_activeTheme') ) {
 				$this->parentName = $parent->get("Name");
 				$this->parentStylesheet = $parent->get_stylesheet();
 				$this->parentThemeRoot = $this->fixDelimiters($parent->get_theme_root() . (isWin() ? "\\" : "/") . $this->parentStylesheet);
+				$this->status = true;
+			} else {
+				$this->status = false;
+				// current theme is not a child theme. Bow out gracefully.
 			}
-			$x = [ 'current theme' => $this->name, 'current stylesheet' => $this->stylesheet, 'current theme root' => $this->themeRoot,
-				     'parent theme' => $this->parentName, 'parent stylesheet' => $this->parentStylesheet, 'parent theme root' => $this->parentThemeRoot ];
-//			echo "<pre>" . print_r($x, true) . "</pre>";
 		}
 		private function fixDelimiters($path) {
 			if (isWin()) {
