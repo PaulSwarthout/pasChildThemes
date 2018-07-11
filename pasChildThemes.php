@@ -26,7 +26,7 @@ add_action('wp_ajax_copyFile', 'pasChildThemes_copyFile');
 add_action('wp_ajax_deleteFile', 'pasChildThemes_deleteFile');
 
 function isWin() {
-	return (substr(PHP_OS, 0, 3) == "WIN" ? true : false);
+	return (strtoupper(substr(PHP_OS, 0, 3)) == "WIN" ? true : false);
 }
 
 $currentThemeObject = new pasChildTheme_currentTheme();
@@ -72,7 +72,7 @@ function killChildFile($args) {
 
 	unlink($childFile);
 
-	// Walk the folder tree backwards, from depth to root
+	// Walk the folder tree backwards, from endpoint node to root
 	// If each folder successive is empty, remove the folder, otherwise break out, we're done.
 	$folderSegments = explode($delimiter, $directory);
 	for ($ndx = count($folderSegments) - 1; $ndx >= 0; $ndx--) {
