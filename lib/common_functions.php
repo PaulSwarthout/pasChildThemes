@@ -36,3 +36,26 @@ function file_count($dir) {
 function is_folder_empty($dir) {
 	return (file_count($dir) == 0 ? true : false);
 }
+function killChildFile($args) {
+	$childFile = $args['file'];
+	$directory = $args['directory'];
+	$delimiter = $args['delimiter'];
+	$themeRoot = $args['themeRoot'];
+
+	unlink($childFile);
+
+	// Walk the folder tree backwards, from endpoint node to root
+	// If each folder successive is empty, remove the folder, otherwise break out, we're done.
+	$folderSegments = explode($delimiter, $directory);
+	for ($ndx = count($folderSegments) - 1; $ndx >= 0; $ndx--) {
+		$dir = $themeRoot . $delimiter . implode($delimiter, $folderSegments);
+		if (is_folder_empty($dir)) {
+			// Folder is empty, remove it.
+			rmdir($dir);
+		} else {
+			// Folder is not empty. Break out, we're done.
+			break;
+		}
+		unset($folderSegments[count($folderSegments)-1]);
+	}
+}

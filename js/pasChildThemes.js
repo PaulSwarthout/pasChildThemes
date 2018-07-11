@@ -49,15 +49,13 @@ function deleteChildFile(element) {
 				if (response.length <= 0) {
 					location.reload()
 				} else {
-					showBox(element)
-					document.getElementById("actionBox").innerHTML = response
+					showBox(element).innerHTML = response
 				}
 				break;
 
 			case 400:
-				showBox(element); // creates "DIV" with id="actionBox" and displays it.
 				msg = "400 Error:<br>" + xmlhttp.statusText
-				document.getElementById("actionBox").innerHTML = msg
+				showBox(element).innerHTML = msg
 				break;
 		}
 	}
@@ -85,15 +83,13 @@ function overwriteFile(element) {
 					if (response.length <= 0) {
 						location.reload();
 					} else {
-						showBox(element);
-						document.getElementById("actionBox").innerHTML = response
+						showBox(element).innerHTML = response
 					}
 					break;
 
 				case 400: // There was an error
-					showBox(element); // creates "DIV" with id="actionBox" and displays it.
 					msg = "400 Error:<br>" + xmlhttp.statusText
-					document.getElementById("actionBox").innerHTML = msg
+					showBox(element).innerHTML = msg
 					break;
 			}
 		}
@@ -130,15 +126,13 @@ function copyFile(element) {
 					if (response.length <= 0) {
 						location.reload();
 					} else {
-						showBox(element);
-						document.getElementById("actionBox").innerHTML = response
+						showBox(element).innerHTML = response
 					}
 					break;
 
 				case 400: // There was an error
-					showBox(element); // creates "DIV" with id="actionBox" and displays it.
 					msg = "400 Error:<br>" + xmlhttp.statusText
-					document.getElementById("actionBox").innerHTML = msg
+					showBox(element).innerHTML = msg
 					break;
 			}
 		}
@@ -154,5 +148,6 @@ function showBox(element) {
 		box.setAttribute("id", "actionBox");
 		theBody.appendChild(box);
 	}
+	return box;
 
 }

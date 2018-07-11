@@ -1,4 +1,4 @@
-<?php
+7/11/2018<?php
    /*
    Plugin Name: Child Themes Helper
    Plugin URI: http://www.paulswarthout.com/index.php/wordpress/
@@ -16,14 +16,12 @@ $pluginDirectory = plugin_dir_url( __FILE__ );
 require_once(dirname(__FILE__) . '/classes/currentTheme.php');
 require_once(dirname(__FILE__) . '/lib/common_functions.php');
 
-register_deactivation_hook(__FILE__, 'pas_version_deactivate' );
-
-add_action('admin_menu', 'pasChildTheme_admin' );
+add_action('admin_menu',            'pasChildTheme_admin' );
 add_action('admin_enqueue_scripts', 'pasChildThemes_styles' );
 add_action('admin_enqueue_scripts', 'pasChildThemes_scripts');
-add_action('wp_ajax_selectFile', 'pasChildThemes_selectFile');
-add_action('wp_ajax_copyFile', 'pasChildThemes_copyFile');
-add_action('wp_ajax_deleteFile', 'pasChildThemes_deleteFile');
+add_action('wp_ajax_selectFile',    'pasChildThemes_selectFile');
+add_action('wp_ajax_copyFile',      'pasChildThemes_copyFile');
+add_action('wp_ajax_deleteFile',    'pasChildThemes_deleteFile');
 
 function isWin() {
 	return (strtoupper(substr(PHP_OS, 0, 3)) == "WIN" ? true : false);
@@ -63,29 +61,6 @@ function getRelativePathBeyondRoot($inputs) {
 	}
 	// The $directory is the path into the child and into the template where the chosen file is located.
 	return (implode($delimiter, $folderSegments));
-}
-function killChildFile($args) {
-	$childFile = $args['file'];
-	$directory = $args['directory'];
-	$delimiter = $args['delimiter'];
-	$themeRoot = $args['themeRoot'];
-
-	unlink($childFile);
-
-	// Walk the folder tree backwards, from endpoint node to root
-	// If each folder successive is empty, remove the folder, otherwise break out, we're done.
-	$folderSegments = explode($delimiter, $directory);
-	for ($ndx = count($folderSegments) - 1; $ndx >= 0; $ndx--) {
-		$dir = $themeRoot . $delimiter . implode($delimiter, $folderSegments);
-		if (is_folder_empty($dir)) {
-			// Folder is empty, remove it.
-			rmdir($dir);
-		} else {
-			// Folder is not empty. Break out, we're done.
-			break;
-		}
-		unset($folderSegments[count($folderSegments)-1]);
-	}
 }
 // AJAX target:
 function pasChildThemes_selectFile() {
