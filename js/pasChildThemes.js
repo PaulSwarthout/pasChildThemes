@@ -151,3 +151,13 @@ function showBox(element) {
 	return box;
 
 }
+
+function resetForm(frm) {
+	frm.reset();
+}
+
+function createChildTheme(element) {
+	var xmlhttp = new XMLHttpRequest()
+	var data = new FormData()
+
+}

@@ -26,7 +26,6 @@ add_action('wp_ajax_copyFile',      'pasChildThemes_copyFile');
 add_action('wp_ajax_deleteFile',    'pasChildThemes_deleteFile');
 
 $currentThemeObject = new pasChildTheme_currentTheme();
-$allThemes = enumerateThemes();
 
 // $inputs is an associative array with the following values:
 // --- directory - folder path to the file clicked on.
@@ -140,18 +139,41 @@ function showActiveParentTheme() {
 
 function manage_child_themes() {
 	global $currentThemeObject;
+
+	$allThemes = enumerateThemes();
+	$select = "<label for='availableThemes'>Template Theme<br><select name='availableThemes' id='availableThemes'>";
+	foreach ($allThemes as $key => $value) {
+		$selected = (strtoupper($currentThemeObject->name()) == strtoupper($value['themeName']) ? " SELECTED " : "");
+		$select .= "<option value='$key' $selected>" . $value['themeName'] . "</option>";
+	}
+	$select .= "</select>";
+
+	if (!current_user_can('manage_options')) { exit; }
+
 	if (! $currentThemeObject->status) {
-		echo "<div id='actionBox'>";
-		echo "<p class='warningHeading'>Error</p><br><br>";
-		echo "The current theme is <u><b>NOT</b></u> a child theme. ";
-		echo "This plugin is designed to help you, the developer, work with child themes. ";
-		echo "It is useful for moving files between the parent theme template and the child theme. ";
-		echo "When your current theme is not a child theme, this plugin is useless.";
+		echo "<div class='createChildThemeBox'>";
+		echo "<p class='warningHeading'>Warning</p><br><br>";
+		echo "The current theme <u>" . $currentThemeObject->name() . "</u> is <u>not</u> a child theme.<br><br>";
+		echo "Do you want to create a child theme?<br><br>";
+		echo "<form method='post' action='" . admin_url( 'admin-ajax.php' ) . "'>";
+		echo "<input type='hidden' name='action' value='createChildTheme'>";
+		echo "<label for='childThemeName'>Child Theme Name:<br><input type='text' name='childThemeName' id='childThemeName' value=''></label><br>";
+//		echo "<label for='templateThemeName'>Template Theme Name:<br><input type='text' name='templateThemeName' id='templateThemeName' value='" . $currentThemeObject->name() . "'></label><br>";
+		echo $select . "<br>";
+		echo "<label for='ThemeURI'>Theme URI<br><input type='text' name='themeURI' id='themeURI' value=''></label><br>";
+		echo "<label for='Description'>Theme Description<br><textarea id='description' name='description'></textarea></label><br>";
+		echo "<label for='authorName'>Author Name:<br><input type='text' id='authorName' name='authorName' value=''></label><br>";
+		echo "<label for='authorURI'>Author URI:<br><input type='text' id='authorURI' name='authorURI' value=''></label><br>";
+		echo "<label for='version'>Version:<br><input type='text' id='version' name='version' value='0.0.1' readonly></label><br>";
+
+		echo "<br>";
+		echo "<div class='questionPrompt'>";
+		echo "<input type='button' value='Create Child Theme' class='blueButton' onclick='javascript:createChildTheme(this);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='button' value='Reset' class='blueButton' onclick='javascript:resetForm(this.form);'>";
+		echo "</div>";
+
 		echo "</div>";
 		return false;
 	}
-
-	if (!current_user_can('manage_options')) { exit; }
 
 	echo "<div class='pas-grid-container'>";
 	echo "<div class='pas-grid-item'>"; // Start grid item 1
