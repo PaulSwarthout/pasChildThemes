@@ -1,4 +1,7 @@
 <?PHP
+function isWin() {
+	return (strtoupper(substr(PHP_OS, 0, 3)) == "WIN" ? true : false);
+}
 function files_are_identical($a, $b, $blocksize = 1024)
 {
   // Check if filesize is different
