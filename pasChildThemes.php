@@ -113,30 +113,11 @@ function pasChildThemes_selectFile() {
 			$templateFile = $currentThemeObject->parentThemeRoot() . $delimiter . $directory . $delimiter . $file;
 
 			if (files_are_identical($childFile, $templateFile)) {
-/*
-				killChildFile(Array('file'=>$_POST['fileToDelete'],
-														'directory'=>$_POST['directory'],
-														'themeRoot'=>$_POST['themeRoot'],
-														'delimiter'=>$_POST['delimiter'],
-														'stylesheet'=>$_POST['childStylesheet']));
-*/
-				// Selected Child Theme file is identical to the original Template File. DELETE IT!!
-				unlink($childFile);
-
-				// Walk the folder tree backwards, from depth to root
-				// If each folder successive is empty, remove the folder, otherwise break out, we're done.
-				$folderSegments = explode($delimiter, $directory);
-				for ($ndx = count($folderSegments) - 1; $ndx >= 0; $ndx--) {
-					$dir = $currentThemeObject->themeRoot() . $delimiter . implode($delimiter, $folderSegments);
-					if (is_folder_empty($dir)) {
-						// Folder is empty, remove it.
-						rmdir($dir);
-					} else {
-						// Folder is not empty. Break out, we're done.
-						break;
-					}
-					unset($folderSegments[count($folderSegments)-1]);
-				}
+				// kills the child file and any empty folders made that way because the child file was deleted.
+				killChildFile(Array('file'=>$childFile,
+					                  'directory'=>$directory,
+														'themeRoot'=>$currentThemeObject->themeRoot(),
+														'delimiter'=>$delimiter ) );
 			} else {
 				$JSData = json_encode(Array('childFileToRemove'=>$childFile,
 					                          'delimiter'=>$delimiter,
