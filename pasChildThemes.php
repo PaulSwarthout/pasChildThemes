@@ -1,4 +1,4 @@
-7/11/2018<?php
+<?php
    /*
    Plugin Name: Child Themes Helper
    Plugin URI: http://www.paulswarthout.com/index.php/wordpress/
