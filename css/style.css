@@ -26,6 +26,21 @@
 	width:100%;
 	color:990000;
 }
+#actionBox {
+	position:fixed;
+	top:50%;
+	left:50%;
+	margin-top:-250px;
+	margin-left:-400px;
+	width:800px;
+	height:500px;
+	background-color:rgba(255,255,240,1);
+	border:solid 1pt black;
+	font-size:8pt;
+	color:black;
+	display:inline;
+	visibility:visible;
+}
 .pasChildTheme_boxHeader {
 	font-size:18pt;
 	font-weight:bold;

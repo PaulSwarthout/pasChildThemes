@@ -14,6 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 $pluginDirectory = plugin_dir_url( __FILE__ );
 
 require_once(dirname(__FILE__) . '/classes/currentTheme.php');
+require_once(dirname(__FILE__) . '/lib/common_functions.php');
 
 register_deactivation_hook(__FILE__, 'pas_version_deactivate' );
 
@@ -26,10 +27,81 @@ function isWin() {
 	return (substr(PHP_OS, 0, 3) == "WIN" ? true : false);
 }
 
+$currentThemeObject = new pasChildTheme_currentTheme();
+$allThemes = enumerateThemes();
+
 function pasChildThemes_selectFile() {
-	foreach ($_POST as $key => $value) {
-		echo $key . " = " . $value . "<br>";
+	global $currentThemeObject;
+
+	$directory = $_POST['directory'];
+	$delimiter = $_POST['delimiter'];
+	$themeType = $_POST['type'];
+	$file = $_POST['file'];
+
+	$folderSegments = explode($delimiter, $directory);
+	if ($themeType == "child") {
+		$needle = $currentThemeObject->themeStylesheet();
+	} else {
+		$needle = $currentThemeObject->parentStylesheet();
 	}
+	$indexOffset = array_search($needle, $folderSegments);
+	if ($indexOffset === false) {
+		echo "0";
+		exit;
+	}
+	// Remove ThemeRoot. Will use childRoot and templateRoot to rebuild the path, later.
+	for ($ndx = $indexOffset; $ndx >= 0; $ndx--) {
+		unset($folderSegments[$ndx]);
+	}
+	// The $directory is the path into the child and into the template where the chosen file is located.
+	$directory = implode($delimiter, $folderSegments);
+
+	switch ($themeType) {
+		case "child": // Child Selected, attempting to REMOVE child object.
+			$childFile = $currentThemeObject->themeRoot() . $delimiter . $directory . $delimiter . $file;
+			$templateFile = $currentThemeObject->parentThemeRoot() . $delimiter . $directory . $delimiter . $file;
+
+			if (files_are_equal($childFile, $templateFile)) {
+				echo "Files were identical.....<br>Deleting $childFile<br>In directory: $directory. ";
+				unlink($childFile);
+				$folderSegments = explode($delimiter, $directory);
+				for ($ndx = count($folderSegments) - 1; $ndx >= 0; $ndx--) {
+					$dir = $currentThemeObject->themeRoot() . $delimiter . implode($delimiter, $folderSegments);
+					unset($folderSegments[count($folderSegments)-1]);
+					$fc = file_count($dir);
+					echo "<br>checking folder: $dir ( $fc )<br>";
+					if ($fc == 0) {
+						rmdir($dir);
+					} else {
+						break;
+					}
+				}
+			} else {
+				echo "Files not identical: Ask before deleting";
+			}
+			break;
+		case "parent": // Parent Selected, attempting to COPY parent theme file to child theme file.
+			$childFile = $currentThemeObject->themeRoot() . $delimiter . $directory . $delimiter . $file;
+			$templateFile = $currentThemeObject->parentThemeRoot() . $delimiter . $directory . $delimiter . $file;
+
+			if (!file_exists($childFile)) {
+				$folderSegments = explode($delimiter, $directory);
+				$dir = $currentThemeObject->themeRoot() . $delimiter;
+				for ($ndx = 0; $ndx < count($folderSegments); $ndx++) {
+					$dir .= $delimiter . $folderSegments[$ndx];
+					if (! file_exists($dir)) {
+						mkdir($dir);
+					}
+				}
+				echo (copy($templateFile, $childFile) ? "Copy Succeeded<br>" : "Copy Failed<br>");
+			}
+			break;
+	}
+
+	echo "<form method='post' action='" . admin_url("admin-ajax.php") . "'>";
+	echo "<input type='hidden' name='action' value='pasActionItem'>";
+
+
 }
 
 function pasChildThemes_styles() {
@@ -41,11 +113,7 @@ function pasChildThemes_scripts() {
 	$pluginDirectory = plugin_dir_url(__FILE__);
 	$debugging = constant('WP_DEBUG');
 	wp_enqueue_script('pasChildThemes_Script', $pluginDirectory . "js/pasChildThemes.js" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
-	wp_localize_script( 'pasChildThemes_Script', 'ajaxObject', array( 'ajax_url' => admin_url( 'admin-ajax.php' ) ) );
 }
-
-$currentThemeObject = new pasChildTheme_currentTheme();
-$allThemes = enumerateThemes();
 
 function enumerateThemes() {
 	global $currentThemeObject;
@@ -168,9 +236,8 @@ function manage_child_themes() {
 }
 
 function listFolderFiles($dir, $themeType){
+		$delimiter = (isWin() ? "\\" : "/");
     $ffs = scandir($dir);
-//		echo "<br>Directory: " . $dir . "<br>";
-//		echo "<pre>" . print_r($ffs, true) . "</pre>";
 
     unset($ffs[array_search('.', $ffs, true)]);
     unset($ffs[array_search('..', $ffs, true)]);
@@ -183,11 +250,11 @@ function listFolderFiles($dir, $themeType){
 
     echo '<ul>';
     foreach($ffs as $ff){
-			if (is_dir($dir . '/' . $ff)) {
+			if (is_dir($dir . $delimiter . $ff)) {
 				echo "<li><p class='pasChildThemes_directory'>" . $ff . "</p>";
-				if(is_dir($dir.'/'.$ff)) listFolderFiles($dir.'/'.$ff, $themeType);
+				if(is_dir($dir.$delimiter.$ff)) listFolderFiles($dir.$delimiter.$ff, $themeType);
 			} else {
-				echo "<li data-dir='$dir' data-file='$ff' data-type='$themeType' onclick='javascript:highlight(this);'>" . $ff;
+				echo "<li data-dir='$dir' data-file='$ff' data-type='$themeType' data-delimiter='$delimiter' onclick='javascript:highlight(this);'>" . $ff;
 			}
 			echo "</li>";
     }
