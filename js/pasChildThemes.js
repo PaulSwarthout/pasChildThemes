@@ -1,5 +1,24 @@
 // pasChildThemes.js
+if(typeof String.prototype.ltrim == "undefined") String.prototype.ltrim = function(){return this.replace(/^\s+/,"");}
+if(typeof String.prototype.rtrim == "undefined") String.prototype.rtrim = function(){return this.replace(/\s+$/,"");}
+if(typeof String.prototype.trim == "undefined") String.prototype.trim = function(){var str = this.ltrim();return str.rtrim();}
+if(typeof String.prototype.right == "undefined") String.prototype.right = function(n){return this.substring(this.length - n, this.length)}
+if(typeof String.prototype.left == "undefined") String.prototype.left = function(n) { return this.substring(0, n); }
 
+// KillMe kills the error message boxes.
+function killMe(element) {
+	var elements
+	element.parentNode.removeChild(element);
+	element.remove();
+
+	elements = document.getElementsByName("errorMessageBox")
+	if (elements.length == 0) {
+		var actionBox = document.getElementById("actionBox")
+		actionBox.parentNode.removeChild(actionBox)
+		actionBox.remove()
+	}
+
+}
 function clearHighlights() {
 	liElements = document.getElementsByTagName("li")
 	for (ndx = 0; ndx < liElements.length; ndx++) {
@@ -76,7 +95,6 @@ function overwriteFile(element) {
 	xmlhttp.onreadystatechange = function () {
 		if (xmlhttp.readyState == 4) {
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
-			debugger
 
 			switch (xmlhttp.status) {
 				case 200: // Everything is okay
@@ -157,7 +175,53 @@ function resetForm(frm) {
 }
 
 function createChildTheme(element) {
+	var frm = element.form
+	var formElements = frm.elements
 	var xmlhttp = new XMLHttpRequest()
 	var data = new FormData()
+	var jsInput
 
+	for (ndx = 0; ndx < formElements.length; ndx++) {
+		switch (formElements[ndx].tagName.toUpperCase()) {
+			case "INPUT":
+				data.append(formElements[ndx].name, formElements[ndx].value)
+				break;
+			case "TEXTAREA":
+				data.append(formElements[ndx].name, formElements[ndx].value)
+				break;
+			case "SELECT":
+				data.append(formElements[ndx].name, formElements[ndx].options[formElements[ndx].selectedIndex].value)
+				break;
+			case "BUTTON":
+				// ignore
+				break;
+		}
+	}
+	xmlhttp.open("POST", ajaxurl, true);
+	xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4) {
+			// strip the AJAX zero from wp_die() WORDPRESS ONLY
+			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
+
+			switch (xmlhttp.status) {
+				case 200: // Everything is Okay
+					// If responseText is not empty, there might be a request to overwrite
+					// or a request to delete that needs to be displayed.
+					// else, reload the page.
+					// <= 1 accounts for the AJAX return of zero that sometimes shows up despite my best efforts to avoid that.
+					if (response.left("SUCCESS:".length) == "SUCCESS:") {
+						location.href="/wp-admin/themes.php"
+					} else if (response.length >= 1) {
+						showBox(element).innerHTML = response
+					}
+					break;
+
+				case 400: // There was an error
+					msg = "400 Error:<br>" + xmlhttp.statusText + "<br>" + response;
+					showBox(element).innerHTML = msg
+					break;
+			}
+		}
+	}
+	xmlhttp.send(data);
 }

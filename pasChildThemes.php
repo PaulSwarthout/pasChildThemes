@@ -18,12 +18,20 @@ require_once(dirname(__FILE__) . '/lib/common_functions.php');
 require_once(dirname(__FILE__) . '/lib/ajax_functions.php');
 require_once(dirname(__FILE__) . '/lib/helper_functions.php');
 
-add_action('admin_menu',            'pasChildTheme_admin' );
-add_action('admin_enqueue_scripts', 'pasChildThemes_styles' );
-add_action('admin_enqueue_scripts', 'pasChildThemes_scripts');
-add_action('wp_ajax_selectFile',    'pasChildThemes_selectFile');
-add_action('wp_ajax_copyFile',      'pasChildThemes_copyFile');
-add_action('wp_ajax_deleteFile',    'pasChildThemes_deleteFile');
+if (isWin()) {
+	define('SEPARATOR', '\\');
+} else {
+	define('SEPARATOR', '/');
+}
+define('NEWLINE', "\n");
+
+add_action('admin_menu',							 'pasChildTheme_admin' );
+add_action('admin_enqueue_scripts',		 'pasChildThemes_styles' );
+add_action('admin_enqueue_scripts',		 'pasChildThemes_scripts');
+add_action('wp_ajax_selectFile',			 'pasChildThemes_selectFile');
+add_action('wp_ajax_copyFile',				 'pasChildThemes_copyFile');
+add_action('wp_ajax_deleteFile',			 'pasChildThemes_deleteFile');
+add_action('wp_ajax_createChildTheme', 'pasChildThemes_createChildTheme');
 
 $currentThemeObject = new pasChildTheme_currentTheme();
 
@@ -141,7 +149,7 @@ function manage_child_themes() {
 	global $currentThemeObject;
 
 	$allThemes = enumerateThemes();
-	$select = "<label for='availableThemes'>Template Theme<br><select name='availableThemes' id='availableThemes'>";
+	$select = "<label for='templateTheme'>Template Theme (defaults to currently active theme)<br><select name='templateTheme' id='templateTheme'>";
 	foreach ($allThemes as $key => $value) {
 		$selected = (strtoupper($currentThemeObject->name()) == strtoupper($value['themeName']) ? " SELECTED " : "");
 		$select .= "<option value='$key' $selected>" . $value['themeName'] . "</option>";
@@ -155,10 +163,10 @@ function manage_child_themes() {
 		echo "<p class='warningHeading'>Warning</p><br><br>";
 		echo "The current theme <u>" . $currentThemeObject->name() . "</u> is <u>not</u> a child theme.<br><br>";
 		echo "Do you want to create a child theme?<br><br>";
-		echo "<form method='post' action='" . admin_url( 'admin-ajax.php' ) . "'>";
+		echo "<form method='post' >";
 		echo "<input type='hidden' name='action' value='createChildTheme'>";
+		echo "<input type='hidden' name='href' value='" . admin_url("themes.php") . "'>";
 		echo "<label for='childThemeName'>Child Theme Name:<br><input type='text' name='childThemeName' id='childThemeName' value=''></label><br>";
-//		echo "<label for='templateThemeName'>Template Theme Name:<br><input type='text' name='templateThemeName' id='templateThemeName' value='" . $currentThemeObject->name() . "'></label><br>";
 		echo $select . "<br>";
 		echo "<label for='ThemeURI'>Theme URI<br><input type='text' name='themeURI' id='themeURI' value=''></label><br>";
 		echo "<label for='Description'>Theme Description<br><textarea id='description' name='description'></textarea></label><br>";

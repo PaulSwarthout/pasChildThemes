@@ -62,3 +62,18 @@ function killChildFile($args) {
 		unset($folderSegments[count($folderSegments)-1]);
 	}
 }
+function displayError($heading, $message) {
+	echo "<div name='errorMessageBox' class='errorMessageBox' onclick='javascript:killMe(this);'>";
+	echo "<p id='errorMessageHeader'>$heading</p><br><br>";
+	echo $message;
+	echo "<p id='clickBox'>Dismiss</p>";
+	echo "</div>";
+}
+
+function fixFolderSeparators($path) {
+	// SEPARATOR is defined according to the operating system at the top of the pasChildThemes.php file.
+	$path = str_replace("\\", "|+|", $path);
+	$path = str_replace("/", "|+|", $path);
+	$path = str_replace("|+|", SEPARATOR, $path);
+	return $path;
+}

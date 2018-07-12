@@ -5,6 +5,7 @@ function pasChildThemes_selectFile() {
 	if ( !current_user_can( 'manage_options' ) )  {
 		wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 	}
+
 	// Posted from Javascript AJAX call
 	$directory	= $_POST['directory'];
 	$file				= $_POST['file'];
@@ -16,8 +17,21 @@ function pasChildThemes_selectFile() {
 																							 'currentThemeObject'=>$currentThemeObject, 
 																							 'themeType'=>$themeType, 
 																							 'delimiter'=>$delimiter) );
-
-
+	$lowerFile = strtolower($file);
+	if (($lowerFile == "style.css" && strlen($directory) == 0) ||
+		  ($lowerFile == "functions.php" && strlen($directory) == 0)) {
+		$msg = "Your child theme is the active theme. Allowing you to overwrite or delete the '$file' file <span class='emphasize'>could cause your website to crash.</span>"
+				 . "You cannot use this plugin to destroy your active theme."
+				 . "<br><br>"
+				 . "If you must delete or overwrite the '$file' file:"
+				 . "<ol class='errorList'>"
+				 . "<li>Change your active theme</li>" 
+				 . "<li>Use your favorite FTP client to delete or overwrite the '$file' file.</li>"
+				 . "</ol>";
+		displayError("Cannot Delete or Overwrite File", $msg);
+		unset($msg);
+	}
+	unset($lowerFile);
 	switch ($themeType) {
 		case "child": // Child Selected, attempting to REMOVE child object.
 			$childFile = $currentThemeObject->themeRoot() . $delimiter . $directory . $delimiter . $file;
@@ -102,4 +116,64 @@ function pasChildThemes_deleteFile() {
 											'themeRoot'=>$_POST['themeRoot'],
 											'delimiter'=>$_POST['delimiter'],
 											'stylesheet'=>$_POST['childStylesheet']));
+}
+
+function pasChildThemes_createChildTheme() {
+	global $currentThemeObject;
+
+	if (strlen(trim($_POST['childThemeName'])) == 0) {
+		displayError("Notice", "Child Theme Name cannot be blank.");
+	}
+
+	if (strlen(trim($_POST['templateTheme'])) == 0) {
+		displayError("Notice", "Template Theme is required.");
+	}
+
+	if (strlen(trim($_POST['description'])) == 0) {
+		displayError("Notice", "Please write a meaningful description for your theme.");
+	}
+
+	if (strlen(trim($_POST['authorName'])) == 0) {
+		displayError("Notice", "You didn't specify your name as the author name. That's okay, if this is your only error, we'll use my name by default.");
+	}
+
+	if (strlen(trim($_POST['authorURI'])) == 0) {
+		displayError("Notice", "If you do not specify your URL, we'll use mine: http://www.PaulSwarthout.com/wordpress");
+	}
+
+	$themeRoot = fixFolderSeparators(get_theme_root());
+	$childThemeName = $_POST['childThemeName'];
+	$childThemeStylesheet = strtolower(preg_replace("/\s/", "", $_POST['childThemeName']));
+	$childThemePath = $themeRoot . SEPARATOR . $childThemeStylesheet;
+
+	if (file_exists($childThemePath)) {
+		displayError("ERROR", "Child theme: <span style='text-decoration:double underline;'>" . $_POST['childThemeName'] . "</span> already exists");
+		return;
+	}
+
+	mkdir($childThemePath);
+
+	$styleFile = fopen($childThemePath . SEPARATOR . "style.css", "w");
+	fwrite($styleFile, "/*" . NEWLINE);
+	fwrite($styleFile, " Theme Name:    " . $childThemeName . NEWLINE);
+	fwrite($styleFile, " Theme URI:     " . $_POST['themeURI'] . NEWLINE);
+	fwrite($styleFile, " Description:   " . $_POST['description'] . NEWLINE);
+	fwrite($styleFile, " Author:        " . $_POST['authorName'] . NEWLINE);
+	fwrite($styleFile, " Author URI:    " . $_POST['authorURI'] . NEWLINE);
+	fwrite($styleFile, " Template:      " . $_POST['templateTheme'] . NEWLINE);
+	fwrite($styleFile, " Version:       " . $_POST['version'] . NEWLINE);
+	fwrite($styleFile, "*/" . NEWLINE);
+	fclose($styleFile);
+
+	$functionsFile = fopen($childThemePath . SEPARATOR . "functions.php", "w");
+	fwrite($functionsFile, "<" . "?" . "PHP" . NEWLINE);
+	fwrite($functionsFile, "add_action( 'wp_enqueue_scripts', '" . $childThemeStylesheet . "_theme_styles');" . NEWLINE);
+	fwrite($functionsFile, "function " . $childThemeStylesheet . "_theme_styles() {" . NEWLINE);
+	fwrite($functionsFile, "\twp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );" . NEWLINE);
+	fwrite($functionsFile, "\twp_enqueue_style( '" . $childThemeStylesheet . "-style', dirname(__FILE__) . '/style.css');" . NEWLINE);
+	fwrite($functionsFile, "}" . NEWLINE);
+	fwrite($functionsFile, "?>");
+	fclose($functionsFile);
+
+	echo "SUCCESS:" . $_POST['href'];
 }
