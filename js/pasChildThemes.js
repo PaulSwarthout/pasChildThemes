@@ -19,17 +19,6 @@ function killMe(element) {
 	}
 
 }
-function clearHighlights() {
-	liElements = document.getElementsByTagName("li")
-	for (ndx = 0; ndx < liElements.length; ndx++) {
-		if (liElements[ndx].getAttribute("data-bgc")) {
-			liElements[ndx].style.backgroundColor = liElements[ndx].getAttribute("data-bgc")
-			liElements[ndx].style.color = liElements[ndx].getAttribute("data-c")
-			liElements[ndx].removeAttribute("data-bgc")
-			liElements[ndx].removeAttribute("data-c")
-		}
-	}
-}
 function cancelOverwrite(element) {
 	var box = document.getElementById("actionBox")
 	if (box.parentNode == null) {
