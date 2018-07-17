@@ -105,7 +105,6 @@ function showActiveChildTheme() {
 		echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
 		echo "<p class='actionReminder'>Clicking these files removes them from the child theme</p>";
 	}
-	echo "HELLO";
 	echo getThemeSelect("current");
 
 	$delimiter = (isWin() ? "\\" : "/");
