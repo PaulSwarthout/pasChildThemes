@@ -204,6 +204,7 @@ function listFolderFiles($dir, $themeType){
 
     unset($ffs[array_search('.', $ffs, true)]);
     unset($ffs[array_search('..', $ffs, true)]);
+		unset($ffs[array_search('.git', $ffs, true)]);
 
     // prevent empty ordered elements
     if (count($ffs) < 1)
@@ -224,7 +225,7 @@ function listFolderFiles($dir, $themeType){
 						 'delimiter'=>$delimiter 
 						]
 					);
-				echo "<li data-jsdata='$jsdata' onclick='javascript:copyFile(this);'>" . $ff;
+				echo "<li>" . "<p class='file' data-jsdata='$jsdata' onclick='javascript:copyFile(this);'><nobr>$ff</nobr></p>";
 			}
 			echo "</li>";
     }

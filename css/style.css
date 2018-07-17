@@ -208,3 +208,8 @@
 .clt ul > li:last-child::after {
     height: 8px;
 }
+.file {
+	width:10px;
+	font-size:12pt;
+	overflow:visible;
+}
