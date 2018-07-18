@@ -40,10 +40,10 @@ function is_folder_empty($dir) {
 	return (file_count($dir) == 0 ? true : false);
 }
 function killChildFile($args) {
-	$childFile = $args['file'];
+	$childFile = $args['childFileToRemove'];
 	$directory = $args['directory'];
 	$delimiter = $args['delimiter'];
-	$themeRoot = $args['themeRoot'];
+	$themeRoot = $args['childThemeRoot'];
 
 	unlink($childFile);
 

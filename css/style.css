@@ -69,7 +69,7 @@
 	height:250px;
 	margin-left:-225px;
 	margin-top:-125px;
-	padding:25px;
+	padding:10px 25px 15px 25px;
 	background-color:rgba(255,255,240,1);
 	border:solid 1pt black;
 	box-shadow:10px 20px 50px #C09090;
@@ -77,6 +77,25 @@
 	font-size:10pt;
 	color:black;
 	display:inline;
+	visibility:visible;
+	overflow:hidden;
+}
+#themeMenu {
+	position:fixed;
+	top:50%;
+	left:50%;
+	width:450px;
+	height:250px;
+	margin-left:-225px;
+	margin-top:-125px;
+	padding:0px 25px 15px 25px;
+	background-color:rgba(255,255,240,1);
+	border:solid 1pt black;
+	box-shadow:10px 20px 50px darkgray;
+	border-radius:25px;
+	font-size:10pt;
+	color:black;
+	display:inline-block;
 	visibility:visible;
 	overflow:hidden;
 }
@@ -142,7 +161,27 @@
 	color:#500000;
 	text-align:center;
 	width:100%;
-	display:inline;
+	line-height:25px;
+	display:inline-block;
+	margin:10px 0px 0px 0px;
+}
+#fileLabel {
+	font-family:courier-new;
+	font-size:14pt;
+	font-variant:small-caps;
+	line-height:20px;
+	display:inline-block;
+	border:solid 1px #E0E0E0;
+	padding:6px;
+	margin-bottom:30px;
+}
+#fileDisplay {
+	font-family:courier-new;
+	font-size:14pt;
+	font-variant:normal;
+	line-height:20px;
+	padding-left:15px;
+	display:inline-block;
 }
 .emphasize {
 	font-weight:bold;
@@ -158,6 +197,15 @@
 	background-color:blue;
 	color:white;
 	width:150px;
+	border-radius:15px;
+	box-shadow:3px 3px 3px #8080FF;
+}
+.wideBlueButton {
+	font-family:courier-new;
+	font-size:12pt;
+	background-color:blue;
+	color:white;
+	width:250px;
 	border-radius:15px;
 	box-shadow:3px 3px 3px #8080FF;
 }

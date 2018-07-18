@@ -24,6 +24,8 @@ if (isWin()) {
 	define('SEPARATOR', '/');
 }
 define('NEWLINE', "\n");
+define('CHILDTHEME', "child");
+define('TEMPLATETHEME', "parent");
 
 add_action('admin_menu',							 'pasChildTheme_admin' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_styles' );
@@ -32,6 +34,7 @@ add_action('wp_ajax_selectFile',			 'pasChildThemes_selectFile');
 add_action('wp_ajax_copyFile',				 'pasChildThemes_copyFile');
 add_action('wp_ajax_deleteFile',			 'pasChildThemes_deleteFile');
 add_action('wp_ajax_createChildTheme', 'pasChildThemes_createChildTheme');
+add_action('wp_ajax_verifyRemoveFile', 'pasChildThemes_verifyRemoveFile');
 
 $currentThemeObject = new pasChildTheme_currentTheme();
 
@@ -151,8 +154,10 @@ function manage_child_themes() {
 	$allThemes = enumerateThemes();
 	$select = "<label for='templateTheme'>Template Theme (defaults to currently active theme)<br><select name='templateTheme' id='templateTheme'>";
 	foreach ($allThemes as $key => $value) {
-		$selected = (strtoupper($currentThemeObject->name()) == strtoupper($value['themeName']) ? " SELECTED " : "");
-		$select .= "<option value='$key' $selected>" . $value['themeName'] . "</option>";
+		if (! $value['childTheme']) {
+			$selected = (strtoupper($currentThemeObject->name()) == strtoupper($value['themeName']) ? " SELECTED " : "");
+			$select .= "<option value='$key' $selected>" . $value['themeName'] . "</option>";
+		}
 	}
 	$select .= "</select>";
 

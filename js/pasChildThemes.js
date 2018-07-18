@@ -37,6 +37,44 @@ function cancelDeleteChild(element) {
 		box.parentNode.removeChild(box);
 	}
 }
+// removeChildFile will call deleteChildFile once it has been determined that the file being deleted hasn't been
+//    modified and if it has, the user has decided to delete it anyway.
+function removeChildFile(element) {
+	var xmlhttp = new XMLHttpRequest()
+	var data = new FormData()
+	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
+
+	xmlhttp.open("POST", ajaxurl, true)
+
+	data.append("childThemeRoot", jsInput['childThemeRoot'] );
+	data.append("parentThemeRoot", jsInput["parentThemeRoot"]);
+	data.append("directory", jsInput['directory'] );
+	data.append("childFileToRemove", jsInput['childFileToRemove']);
+	data.append("delimiter", jsInput['delimiter'] );
+	data.append("action", jsInput['action']); // verifyRemoveFile
+
+	xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4) {
+			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
+
+			switch (xmlhttp.status) {
+				case 200: // Everything is okay
+					if (response.length <= 0) {
+						location.reload()
+					} else {
+						showBox().innerHTML = response
+					}
+					break;
+
+				case 400:
+					msg = "400 Error:<br>" + xmlhttp.statusText
+					showBox().innerHTML = msg
+					break;
+			}
+		}
+	}
+	xmlhttp.send(data)
+}
 function deleteChildFile(element) {
 	var xmlhttp = new XMLHttpRequest()
 	var data = new FormData()
@@ -50,21 +88,23 @@ function deleteChildFile(element) {
 	data.append("action", jsInput['action']);
 
 	xmlhttp.onreadystatechange = function () {
-		var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
+		if (xmlhttp.readyState == 4) {
+			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
 
-		switch (xmlhttp.status) {
-			case 200: // Everything is okay
-				if (response.length <= 0) {
-					location.reload()
-				} else {
-					showBox(element).innerHTML = response
-				}
-				break;
+			switch (xmlhttp.status) {
+				case 200: // Everything is okay
+					if (response.length <= 0) {
+						location.reload()
+					} else {
+						showBox().innerHTML = response
+					}
+					break;
 
-			case 400:
-				msg = "400 Error:<br>" + xmlhttp.statusText
-				showBox(element).innerHTML = msg
-				break;
+				case 400:
+					msg = "400 Error:<br>" + xmlhttp.statusText
+					showBox().innerHTML = msg
+					break;
+			}
 		}
 	}
 	xmlhttp.send(data)
@@ -90,13 +130,13 @@ function overwriteFile(element) {
 					if (response.length <= 0) {
 						location.reload();
 					} else {
-						showBox(element).innerHTML = response
+						showBox().innerHTML = response
 					}
 					break;
 
 				case 400: // There was an error
 					msg = "400 Error:<br>" + xmlhttp.statusText
-					showBox(element).innerHTML = msg
+					showBox().innerHTML = msg
 					break;
 			}
 		}
@@ -133,20 +173,28 @@ function copyFile(element) {
 					if (response.length <= 0) {
 						location.reload();
 					} else {
-						showBox(element).innerHTML = response
+						if (response.left("MENU:{".length).toUpperCase() == "MENU:{") {
+							response = response.right(response.length - "menu:{".length)
+							response = response.left(response.length - 1);
+							box = showBox()
+							box.setAttribute("id", "themeMenu")
+							box.innerHTML = response;
+						} else {
+							showBox().innerHTML = response
+						}
 					}
 					break;
 
 				case 400: // There was an error
 					msg = "400 Error:<br>" + xmlhttp.statusText
-					showBox(element).innerHTML = msg
+					showBox().innerHTML = msg
 					break;
 			}
 		}
 	}
 	xmlhttp.send(data);
 }
-function showBox(element) {
+function showBox() {
 	var box = document.getElementById("actionBox")
 	var e;
 	if (box == null || box == undefined) {
@@ -154,6 +202,7 @@ function showBox(element) {
 		var theBody = document.getElementsByTagName("body")[0];
 		box.setAttribute("id", "actionBox");
 		theBody.appendChild(box);
+		box.onclick=function () {this.parentNode.removeChild(this);this.remove();}
 	}
 	return box;
 
@@ -201,13 +250,13 @@ function createChildTheme(element) {
 					if (response.left("SUCCESS:".length) == "SUCCESS:") {
 						location.href="/wp-admin/themes.php"
 					} else if (response.length >= 1) {
-						showBox(element).innerHTML = response
+						showBox().innerHTML = response
 					}
 					break;
 
 				case 400: // There was an error
 					msg = "400 Error:<br>" + xmlhttp.statusText + "<br>" + response;
-					showBox(element).innerHTML = msg
+					showBox().innerHTML = msg
 					break;
 			}
 		}

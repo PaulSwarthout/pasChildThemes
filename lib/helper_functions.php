@@ -11,10 +11,15 @@ function enumerateThemes() {
 		$name = $theme->get('Name');
 		$stylesheet = $theme->get_stylesheet();
 
+		if ($theme->parent()) {
+			$status = true;
+		} else {
+			$status = false;
+		}
 		$parent = $theme->get('Template');
 		$parentStylesheet = $theme->get_stylesheet();
 
-		$themes[$stylesheet] = Array ('themeName' => $name, 'themeStylesheet' => $stylesheet, 'themeParent' => $parent, 'parentStylesheet' => $parentStylesheet);
+		$themes[$stylesheet] = Array ('themeName' => $name, 'themeStylesheet' => $stylesheet, 'themeParent' => $parent, 'parentStylesheet' => $parentStylesheet, 'childTheme' => $status);
 	}
 
 	return $themes;

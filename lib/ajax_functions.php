@@ -1,4 +1,59 @@
 <?PHP
+function pasChildThemes_verifyRemoveFile() {
+	// Posted from Javascript AJAX call
+	
+	$directory				= $_POST['directory'];
+	$delimiter				= $_POST['delimiter'];
+	$parentThemeRoot	= $_POST['parentThemeRoot'];
+	$childThemeRoot		= $_POST['childThemeRoot'];
+	$childFileToRemove= $_POST['childFileToRemove'];
+
+	$childThemeFile = $childThemeRoot . $delimiter . $directory . $delimiter . $file;
+	$templateThemeFile = $parentThemeRoot . $delimiter . $directory . $delimiter . $file;
+
+	if (files_are_identical($childThemeFile, $templateThemeFile)) {
+		// kills the child file and any empty folders made that way because the child file was deleted.
+		killChildFile(Array('childFileToRemove'=>$childFileToRemove,
+												'directory'				 =>$directory,
+												'childThemeRoot'				 =>$childThemeRoot,
+												'delimiter'				 =>$delimiter ) );
+	} else {
+		// Files are not identical. Child file is different than the original template file.
+		// This might be because the user modified the file, but it could also be,
+		// that the template file was changed due to an update.
+
+		$folderSegments = explode($delimiter, $childThemeRoot);
+		$childStylesheet = $folderSegments[count($folderSegments)-1];
+		unset($folderSegments);
+
+		$folderSegments = explode($delimiter, $parentThemeRoot);
+		$parentStylesheet = $folderSegments[count($folderSegments)-1];
+		unset($folderSegments);
+
+		$JSData = json_encode(Array('childFileToRemove'=>$childFileToRemove,
+																'delimiter'=>$delimiter,
+																'directory'=>$directory,
+																'action'=>'deleteFile',
+																'childThemeRoot'=>$childThemeRoot ) );
+
+		echo "<p class='warningHeading'>Files are Different</p><br><br>";
+		echo "Child Theme File: <u>" . $childStylesheet . $delimiter . $directory . $delimiter . $file . "</u><br>";
+		echo "Template Theme File: <u>" . $parentStylesheet . $delimiter . $directory . $delimiter . $file . "</u><br><br>";
+
+		echo "There are 2 possible reasons for this:<br>";
+		echo "<ol type='1'>";
+		echo "<li>You have modified the child theme since you copied it to the child theme.</li>";
+		echo "<li>You have updated the template theme since you copied the file to the child theme.</li>";
+		echo "</ol>";
+
+		echo "<span class='emphasize'>If you proceed, you will LOSE any changes or differences.</span><br><br>";
+		echo "Do you want to proceed and <u>DELETE</u> the file from your child theme?<br><br>";
+		echo "<div class='questionPrompt'>";
+		echo "<INPUT data-jsdata='$JSData' type='button' value='DELETE FILE' class='blueButton' onclick='javascript:deleteChildFile(this);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+		echo "<INPUT type='button' value='Cancel' class='blueButton' onclick='javascript:cancelDeleteChild(this);'>";
+		echo "</div>";
+	}
+}
 function pasChildThemes_selectFile() {
 	global $currentThemeObject;
 
@@ -17,6 +72,7 @@ function pasChildThemes_selectFile() {
 																							 'currentThemeObject'=>$currentThemeObject, 
 																							 'themeType'=>$themeType, 
 																							 'delimiter'=>$delimiter) );
+	
 	$lowerFile = strtolower($file);
 	if (($lowerFile == "style.css" && strlen($directory) == 0) ||
 		  ($lowerFile == "functions.php" && strlen($directory) == 0)) {
@@ -29,9 +85,38 @@ function pasChildThemes_selectFile() {
 				 . "<li>Use your favorite FTP client to delete or overwrite the '$file' file.</li>"
 				 . "</ol>";
 		displayError("Cannot Delete or Overwrite File", $msg);
+		return false;
 		unset($msg);
 	}
 	unset($lowerFile);
+
+	$jsdata = json_encode(Array(
+							'directory' => $directory,
+							'childFileToRemove' => $file,
+							'themeType' => $themeType,
+							'delimiter' => $delimiter,
+							'childThemeRoot' => $currentThemeObject->themeRoot(),
+							'parentThemeRoot' => $currentThemeObject->parentThemeRoot(),
+							'action' => 'verifyRemoveFile'
+						));
+	echo "MENU:{";
+	echo "<p class='warningHeading'>What do you want to do?</p><br>";
+
+	echo "<p id='fileLabel'>Selected File:<span id='fileDisplay'>" . $directory . $delimiter . $file . "</span></p><br>";
+
+	switch ($themeType) {
+		case CHILDTHEME:
+			echo "<input data-jsdata='$jsdata' type='button' value='Remove File from Child' class='wideBlueButton' onclick='javascript:removeChildFile(this);'><br><br>";
+			break;
+		case TEMPLATETHEME:
+			echo "<input data-jsdata='$jsdata' type='button' value='Copy File to Child' class='wideBlueButton' onclick='javascript:copyTemplateFile(this);'><br><br>";
+			break;
+	}
+	echo "<input data-jsdata='$jsdata' type='button' value='Edit File' class='wideBlueButton' onclick='javascript:editFile(this);'>";
+	echo "<p id='clickBox'>Dismiss</p>";
+	echo "}";
+
+/*
 	switch ($themeType) {
 		case "child": // Child Selected, attempting to REMOVE child object.
 			$childFile = $currentThemeObject->themeRoot() . $delimiter . $directory . $delimiter . $file;
@@ -94,6 +179,7 @@ function pasChildThemes_selectFile() {
 			}
 			break;
 	}
+*/
 }
 function pasChildThemes_copyFile() {
 	$sourceFile = $_POST['sourceFile'];
@@ -105,17 +191,10 @@ function pasChildThemes_copyFile() {
 	exit;
 }
 function pasChildThemes_deleteFile() {
-	$fileToDelete = $_POST['fileToDelete'];
-	$directory = $_POST['directory'];
-	$themeRoot = $_POST['themeRoot'];
-	$delimiter = $_POST['delimiter'];
-	$childStylesheet = $_POST['childStyleSheet'];
-
-	killChildFile(Array('file'=>$_POST['fileToDelete'],
+	killChildFile(Array('file'=>$_POST['childFileToDelete'],
 										  'directory'=>$_POST['directory'],
-											'themeRoot'=>$_POST['themeRoot'],
-											'delimiter'=>$_POST['delimiter'],
-											'stylesheet'=>$_POST['childStylesheet']));
+											'themeRoot'=>$_POST['childThemeRoot'],
+											'delimiter'=>$_POST['delimiter']));
 }
 
 function pasChildThemes_createChildTheme() {
