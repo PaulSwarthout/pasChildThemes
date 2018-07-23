@@ -46,23 +46,24 @@ function removeChildFile(element) {
 
 	xmlhttp.open("POST", ajaxurl, true)
 
-	data.append("childThemeRoot", jsInput['childThemeRoot'] );
-	data.append("parentThemeRoot", jsInput["parentThemeRoot"]);
-	data.append("directory", jsInput['directory'] );
-	data.append("childFileToRemove", jsInput['childFileToRemove']);
-	data.append("delimiter", jsInput['delimiter'] );
-	data.append("action", jsInput['action']); // verifyRemoveFile
+	data.append("childThemeRoot",			jsInput['childThemeRoot'] );
+	data.append("childStylesheet",		jsInput['childStylesheet']);
+	data.append("templateThemeRoot",	jsInput["templateThemeRoot"]);
+	data.append("templateStylesheet", jsInput['templateStylesheet']);
+	data.append("directory",					jsInput['directory'] );
+	data.append("childFileToRemove",	jsInput['childFileToRemove']);
+	data.append("action",							jsInput['action']); // verifyRemoveFile
 
 	xmlhttp.onreadystatechange = function () {
 		if (xmlhttp.readyState == 4) {
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
-
+debugger
 			switch (xmlhttp.status) {
 				case 200: // Everything is okay
 					if (response.length <= 0) {
 						location.reload()
 					} else {
-						showBox().innerHTML = response
+						processResponse(response);
 					}
 					break;
 
@@ -81,11 +82,12 @@ function deleteChildFile(element) {
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
 
 	xmlhttp.open("POST", ajaxurl, true)
-	data.append("themeRoot", jsInput['childThemeRoot'] );
-	data.append("directory", jsInput['directory'] );
+
+	data.append("themeRoot",		jsInput['childThemeRoot'] );
+	data.append("stylesheet",		jsInput['childStylesheet'] );
+	data.append("directory",		jsInput['directory'] );
 	data.append("fileToDelete", jsInput['childFileToRemove']);
-	data.append("delimiter", jsInput['delimiter'] );
-	data.append("action", jsInput['action']);
+	data.append("action",				jsInput['action']);
 
 	xmlhttp.onreadystatechange = function () {
 		if (xmlhttp.readyState == 4) {
@@ -96,7 +98,7 @@ function deleteChildFile(element) {
 					if (response.length <= 0) {
 						location.reload()
 					} else {
-						showBox().innerHTML = response
+						processResponse(response);
 					}
 					break;
 
@@ -144,7 +146,7 @@ function overwriteFile(element) {
 
 	xmlhttp.send(data);
 }
-function copyFile(element) {
+function selectFile(element) {
 	var xmlhttp = new XMLHttpRequest()
 	var data = new FormData()
 	var jsInput
@@ -153,11 +155,10 @@ function copyFile(element) {
 
 	xmlhttp.open("POST", ajaxurl,true) // AJAX call to "function pasChildThemes_selectFile()" in pasChildThemes.php
 
-	data.append("action", "selectFile")
-	data.append("directory", jsInput["directory"])
-	data.append("file", jsInput["file"])
-	data.append("type", jsInput["type"])
-	data.append("delimiter", jsInput["delimiter"])
+	data.append("action",			"selectFile") // '/wp-content/plugins/pasChildThemes/lib/ajax_functions.php' function pasChildThemes_selectFile()
+	data.append("directory",	jsInput["directory"])
+	data.append("fileName",		jsInput["fileName"])
+	data.append("themeType",	jsInput["themeType"])
 
 	xmlhttp.onreadystatechange = function () {
 		if (xmlhttp.readyState == 4) {
@@ -173,15 +174,7 @@ function copyFile(element) {
 					if (response.length <= 0) {
 						location.reload();
 					} else {
-						if (response.left("MENU:{".length).toUpperCase() == "MENU:{") {
-							response = response.right(response.length - "menu:{".length)
-							response = response.left(response.length - 1);
-							box = showBox()
-							box.setAttribute("id", "themeMenu")
-							box.innerHTML = response;
-						} else {
-							showBox().innerHTML = response
-						}
+						processResponse(response);
 					}
 					break;
 
@@ -193,6 +186,28 @@ function copyFile(element) {
 		}
 	}
 	xmlhttp.send(data);
+}
+function processResponse(response) {
+	if (response.left("MENU:{".length).toUpperCase() == "MENU:{") {
+		menuResponse = response.right(response.length - "menu:{".length)
+		menuResponse = menuResponse.left(menuResponse.length - 1);
+		box = showBox()
+		box.setAttribute("id", "themeMenu")
+		box.innerHTML = menuResponse;
+
+	} else if (response.left("DEBUG:{".length).toUpperCase() == "DEBUG:{") {
+		actionBox = document.getElementById("actionBox")
+		if (actionBox != null && actionBox != undefined) {
+			actionBox.parentNode.removeChild(actionBox);
+			actionBox.remove();
+		}
+		debugResponse = response.right(response.length - "debug:{".length)
+		debugResponse = debugResponse.left(debugResponse.length - 1);
+		box = createBox('debugBox', 'debug')
+		box.innerHTML = debugResponse;
+	} else {
+		showBox().innerHTML = response
+	}
 }
 function showBox() {
 	var box = document.getElementById("actionBox")
@@ -206,6 +221,20 @@ function showBox() {
 	}
 	return box;
 
+}
+function createBox(id,className) {
+	var box = document.getElementById(id)
+	if (box != null && box != undefined) {
+		box.parentNode.removeChild(box);
+		box.remove();
+	}
+	box = document.createElement("div")
+	box.setAttribute("id", id)
+	box.className = className
+	theBody = document.getElementsByTagName("body")[0];
+	theBody.appendChild(box)
+	box.onclick= function () { this.parentNode.removeChild(this); this.remove();}
+	return box;
 }
 
 function resetForm(frm) {
@@ -262,4 +291,43 @@ function createChildTheme(element) {
 		}
 	}
 	xmlhttp.send(data);
+}
+
+function showData(element) {
+	var normalClass = "debugger"
+	var pauseClass = "debuggerHide"
+
+	var jsdata = element.getAttribute("data-jsdata")
+	var d = document.getElementById("debugger")
+	if (d == null || d == undefined) {
+		d = document.getElementById("debuggerHide")
+		if (d == null || d == undefined) {
+			d = document.createElement("div")
+			var theBody = document.getElementsByTagName("body")[0];
+			d.setAttribute("id", "debugger")
+			theBody.appendChild(d);
+		}
+	}
+	// Set the "id" to normalClass for normal display, or pauseClass for mostly hidden, but left as
+	//   reminder that this code needs to be removed.
+	d.setAttribute("id", pauseClass)
+	d.onmouseover = function () {
+		if (d.id == "debugger") {
+			d.style.fontSize = "14pt"
+		} else {
+			d.setAttribute("id", "debugger");
+		}
+	}
+	d.onmouseout = function () {
+		d.style.fontSize = "8pt"
+	}
+	d.onclick = function () {
+		if (d.id == "debugger") {
+			d.setAttribute("id", "debuggerHide")
+		} else {
+			d.parentNode.removeChild(d)
+			d.remove();
+		}
+	}
+	d.innerHTML = jsdata
 }

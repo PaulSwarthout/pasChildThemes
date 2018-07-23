@@ -12,20 +12,38 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 $pluginDirectory = plugin_dir_url( __FILE__ );
+$pluginName = "Child Themes Helper";
+$pluginFolder = "pasChildThemes";
 
 require_once(dirname(__FILE__) . '/classes/currentTheme.php');
 require_once(dirname(__FILE__) . '/lib/common_functions.php');
 require_once(dirname(__FILE__) . '/lib/ajax_functions.php');
 require_once(dirname(__FILE__) . '/lib/helper_functions.php');
+require_once(dirname(__FILE__) . '/classes/debug.php');
 
-if (isWin()) {
-	define('SEPARATOR', '\\');
-} else {
-	define('SEPARATOR', '/');
-}
 define('NEWLINE', "\n");
 define('CHILDTHEME', "child");
 define('TEMPLATETHEME', "parent");
+
+define('WINSEPARATOR', '\\');
+define('SEPARATOR', "/");
+
+function setPath($path) {
+	$path = str_replace("\\", "|+|", $path);
+	$path = str_replace("/", "|+|", $path);
+	$path = str_replace("|+|", SEPARATOR, $path);
+	return $path;
+}
+function getPath($path) {
+	if (isWin()) {
+		$subfolders = explode(SEPARATOR, $path);
+		$path = implode(WINSEPARATOR, $subfolders);
+	}
+	return $path;
+}
+function combinePaths($subFolders = Array()) {
+	return (implode(SEPARATOR, $subFolders));
+}
 
 add_action('admin_menu',							 'pasChildTheme_admin' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_styles' );
@@ -37,39 +55,6 @@ add_action('wp_ajax_createChildTheme', 'pasChildThemes_createChildTheme');
 add_action('wp_ajax_verifyRemoveFile', 'pasChildThemes_verifyRemoveFile');
 
 $currentThemeObject = new pasChildTheme_currentTheme();
-
-// $inputs is an associative array with the following values:
-// --- directory - folder path to the file clicked on.
-// --- currentThemeObject - an class object containing information on the current active theme
-// --- folder path delimiter - is different depending upon Windows vs Linux.
-// --- theme type = "child" or "parent". Shows whether click was in the left pane or right pane.
-// Function strips everything up to and including the stylesheet folder.
-// So if the theme is MyTheme, and the folder path is: d:\inetpub\mysite\wp-content\themes\mytheme\template-parts\header and the file clicked on is: header-image.php
-// Then this function will return: template-parts\header
-function getRelativePathBeyondRoot($inputs) {
-	$directory = $inputs['directory'];
-	$delimiter = $inputs['delimiter'];
-	$currentThemeObject = $inputs['currentThemeObject'];
-	$themeType = $inputs['themeType'];
-
-	$folderSegments = explode($delimiter, $directory);
-	if ($themeType == "child") {
-		$needle = $currentThemeObject->themeStylesheet();
-	} else {
-		$needle = $currentThemeObject->parentStylesheet();
-	}
-	$indexOffset = array_search($needle, $folderSegments);
-	if ($indexOffset === false) {
-		echo "0";
-		return false;
-	}
-	// Remove ThemeRoot. Will use childRoot and templateRoot to rebuild the path, later.
-	for ($ndx = $indexOffset; $ndx >= 0; $ndx--) {
-		unset($folderSegments[$ndx]);
-	}
-	// The $directory is the path into the child and into the template where the chosen file is located.
-	return (implode($delimiter, $folderSegments));
-}
 
 function pasChildThemes_styles() {
 	$pluginDirectory = plugin_dir_url( __FILE__ );
@@ -86,15 +71,15 @@ function pasChildTheme_admin() {
 	add_menu_page( 'ChildThemesHelper', 'Child Theme Helper', 'manage_options', 'manage_child_themes', 'manage_child_themes');
 }
 
-function getThemeSelect($type = "parent") {
+function getThemeSelect($type = TEMPLATETHEME) {
 	global $currentThemeObject;
 
 	switch ($type) {
-		case "current":
-			return "<p class='themeName'>" . $currentThemeObject->name() . "</p>";
+		case CHILDTHEME:
+			return "<p class='themeName'>" . $currentThemeObject->childThemeName . "</p>";
 			break;
-		case "parent":
-			return "<p class='themeName'>" . $currentThemeObject->parent() . "</p>";
+		case TEMPLATETHEME:
+			return "<p class='themeName'>" . $currentThemeObject->templateThemeName . "</p>";
 			break;
 	}
 
@@ -104,23 +89,16 @@ function showActiveChildTheme() {
 	global $currentThemeObject;
 
 	$currentThemeInfo = $currentThemeObject; // this is an object.
-	if ($currentThemeObject->parentStylesheet()) {
+	if ($currentThemeObject->templateStylesheet) {
 		echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
 		echo "<p class='actionReminder'>Clicking these files removes them from the child theme</p>";
 	}
-	echo getThemeSelect("current");
+	echo getThemeSelect(CHILDTHEME);
 
-	$delimiter = (isWin() ? "\\" : "/");
-	$folderSegments = explode($delimiter, $currentThemeObject->themeRoot());
-	unset($folderSegments[count($folderSegments) - 1]);
-	unset($folderSegments[count($folderSegments) - 1]);
-	$folderSegments[count($folderSegments)] = "themes";
-	$folderSegments[count($folderSegments)] = $currentThemeObject->themeStylesheet();
-
-	$folder = implode($delimiter, $folderSegments);
+	$childThemeFolder = $currentThemeObject->getChildFolder();
 
 	echo "<div class='innerCellLeft'>";
-	listFolderFiles($folder, "child");
+	listFolderFiles($childThemeFolder, CHILDTHEME);
 	echo "</div>";
 }
 
@@ -129,22 +107,12 @@ function showActiveParentTheme() {
 
 	echo "<p class='pasChildTheme_HDR'>THEME TEMPLATE</p>";
 	echo "<p class='actionReminder'>Clicking these files copies them to the child theme.</p>";
-	echo getThemeSelect("parent");
-	$parentTheme = $currentThemeObject->parentStylesheet();
-	$parentThemeRoot = $currentThemeObject->parentThemeRoot();
+	echo getThemeSelect(TEMPLATETHEME);
 
-	$delimiter = (isWin() ? "\\" : "/");
-	$folderSegments = explode($delimiter, $parentThemeRoot);
-	unset($folderSegments[count($folderSegments) - 1]);
-	unset($folderSegments[count($folderSegments) - 1]);
-	$folderSegments[count($folderSegments)] = "themes";
-	$folderSegments[count($folderSegments)] = $parentTheme;
-	$folder = implode($delimiter, $folderSegments);
-
-//		echo "<pre>" . print_r($folder, true) . "</pre>";
+	$parentFolder = $currentThemeObject->getTemplateFolder();
 
 	echo "<div class='innerCellLeft'>";
-	listFolderFiles($folder, "parent");
+	listFolderFiles($parentFolder, TEMPLATETHEME);
 	echo "</div>";
 }
 
@@ -155,7 +123,7 @@ function manage_child_themes() {
 	$select = "<label for='templateTheme'>Template Theme (defaults to currently active theme)<br><select name='templateTheme' id='templateTheme'>";
 	foreach ($allThemes as $key => $value) {
 		if (! $value['childTheme']) {
-			$selected = (strtoupper($currentThemeObject->name()) == strtoupper($value['themeName']) ? " SELECTED " : "");
+			$selected = (strtoupper($currentThemeObject->childThemeName) == strtoupper($value['themeName']) ? " SELECTED " : "");
 			$select .= "<option value='$key' $selected>" . $value['themeName'] . "</option>";
 		}
 	}
@@ -204,7 +172,6 @@ function manage_child_themes() {
 }
 
 function listFolderFiles($dir, $themeType){
-		$delimiter = (isWin() ? "\\" : "/");
     $ffs = scandir($dir);
 
     unset($ffs[array_search('.', $ffs, true)]);
@@ -219,18 +186,17 @@ function listFolderFiles($dir, $themeType){
 
     echo '<ul>';
     foreach($ffs as $ff){
-			if (is_dir($dir . $delimiter . $ff)) {
+			if (is_dir($dir . SEPARATOR . $ff)) {
 				echo "<li><p class='pasChildThemes_directory'>" . $ff . "</p>";
-				if(is_dir($dir.$delimiter.$ff)) listFolderFiles($dir.$delimiter.$ff, $themeType);
+				if(is_dir($dir.SEPARATOR.$ff)) listFolderFiles($dir.SEPARATOR.$ff, $themeType);
 			} else {
 				$jsdata = json_encode(
 						['directory'=>$dir, 
-						 'file'=>$ff, 
-						 'type'=>$themeType, 
-						 'delimiter'=>$delimiter 
+						 'fileName'=>$ff,
+						 'themeType'=>$themeType
 						]
 					);
-				echo "<li>" . "<p class='file' data-jsdata='$jsdata' onclick='javascript:copyFile(this);'><nobr>$ff</nobr></p>";
+				echo "<li>" . "<p class='file' data-jsdata='$jsdata' onmouseover='javascript:showData(this);' onclick='javascript:selectFile(this);'><nobr>$ff</nobr></p>";
 			}
 			echo "</li>";
     }
