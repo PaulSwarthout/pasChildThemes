@@ -53,6 +53,7 @@ add_action('wp_ajax_copyFile',				 'pasChildThemes_copyFile');
 add_action('wp_ajax_deleteFile',			 'pasChildThemes_deleteFile');
 add_action('wp_ajax_createChildTheme', 'pasChildThemes_createChildTheme');
 add_action('wp_ajax_verifyRemoveFile', 'pasChildThemes_verifyRemoveFile');
+add_action('wp_ajax_verifyCopyFile',	 'pasChildThemes_verifyCopyFile');
 
 $currentThemeObject = new pasChildTheme_currentTheme();
 

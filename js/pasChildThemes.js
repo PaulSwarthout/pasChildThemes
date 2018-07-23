@@ -51,13 +51,13 @@ function removeChildFile(element) {
 	data.append("templateThemeRoot",	jsInput["templateThemeRoot"]);
 	data.append("templateStylesheet", jsInput['templateStylesheet']);
 	data.append("directory",					jsInput['directory'] );
-	data.append("childFileToRemove",	jsInput['childFileToRemove']);
-	data.append("action",							jsInput['action']); // verifyRemoveFile
+	data.append("childFileToRemove",	jsInput['file']);
+	data.append("action",							jsInput['delete_action']); // verifyRemoveFile
 
 	xmlhttp.onreadystatechange = function () {
 		if (xmlhttp.readyState == 4) {
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
-debugger
+
 			switch (xmlhttp.status) {
 				case 200: // Everything is okay
 					if (response.length <= 0) {
@@ -76,6 +76,43 @@ debugger
 	}
 	xmlhttp.send(data)
 }
+function copyTemplateFile(element) {
+	var xmlhttp = new XMLHttpRequest()
+	var data = new FormData()
+	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
+
+	xmlhttp.open("POST", ajaxurl, true)
+
+	data.append("childThemeRoot",			jsInput['childThemeRoot'] );
+	data.append("childStylesheet",		jsInput['childStylesheet']);
+	data.append("templateThemeRoot",	jsInput["templateThemeRoot"]);
+	data.append("templateStylesheet", jsInput['templateStylesheet']);
+	data.append("directory",					jsInput['directory'] );
+	data.append("templateFileToCopy",	jsInput['file']);
+	data.append("action",							jsInput['copy_action']); // verifyCopyFile
+
+	xmlhttp.onreadystatechange = function () {
+		if (xmlhttp.readyState == 4) {
+			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
+			switch (xmlhttp.status) {
+				case 200: // Everything is okay
+					if (response.length <= 0) {
+						location.reload()
+					} else {
+						processResponse(response);
+					}
+					break;
+
+				case 400:
+					msg = "400 Error:<br>" + xmlhttp.statusText
+					showBox().innerHTML = msg
+					break;
+			}
+		}
+	}
+	xmlhttp.send(data)
+}
+
 function deleteChildFile(element) {
 	var xmlhttp = new XMLHttpRequest()
 	var data = new FormData()
@@ -118,10 +155,13 @@ function overwriteFile(element) {
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
 
 	xmlhttp.open("POST", ajaxurl, true) // AJAX call to "function pasChildThemes_copyFile()" in pasChildThemes.php
-	data.append("sourceFile", jsInput["sourceFile"])
-	data.append("destinationFile", jsInput["destinationFile"])
-	data.append("delimiter", jsInput["delimiter"])
-	data.append("action", jsInput["action"]) // defines the php function: 'wp_ajax_copyFile' --> pasChildThemes_copyFile()
+	data.append("childThemeRoot",			jsInput["childThemeRoot"])
+	data.append("childStylesheet",		jsInput["childStylesheet"])
+	data.append("templateThemeRoot",	jsInput["templateThemeRoot"])
+	data.append("templateStylesheet",	jsInput["templateStylesheet"])
+	data.append("directory",					jsInput["directory"])
+	data.append("fileToCopy",					jsInput["templateFileToCopy"])
+	data.append("action",							jsInput["action"]) // defines the php function: 'wp_ajax_copyFile' --> pasChildThemes_copyFile()
 
 	xmlhttp.onreadystatechange = function () {
 		if (xmlhttp.readyState == 4) {
@@ -132,7 +172,7 @@ function overwriteFile(element) {
 					if (response.length <= 0) {
 						location.reload();
 					} else {
-						showBox().innerHTML = response
+						processResponse(response);
 					}
 					break;
 
@@ -155,7 +195,7 @@ function selectFile(element) {
 
 	xmlhttp.open("POST", ajaxurl,true) // AJAX call to "function pasChildThemes_selectFile()" in pasChildThemes.php
 
-	data.append("action",			"selectFile") // '/wp-content/plugins/pasChildThemes/lib/ajax_functions.php' function pasChildThemes_selectFile()
+	data.append("action",			"selectFile") // '/plugins/pasChildThemes/lib/ajax_functions.php' function pasChildThemes_selectFile()
 	data.append("directory",	jsInput["directory"])
 	data.append("fileName",		jsInput["fileName"])
 	data.append("themeType",	jsInput["themeType"])

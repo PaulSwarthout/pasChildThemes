@@ -37,13 +37,14 @@ function pasChildThemes_selectFile() {
 
 	$jsdata = (Array(
 							'directory'						=> $directory,
-							'childFileToRemove'		=> $file,
+							'file'								=> $file,
 							'themeType'						=> $themeType,
 							'childThemeRoot'			=> $currentThemeObject->childThemeRoot,
 							'childStylesheet'			=> $currentThemeObject->childStylesheet,
 							'templateThemeRoot'		=> $currentThemeObject->templateThemeRoot,
 							'templateStylesheet'	=> $currentThemeObject->templateStylesheet,
-							'action'							=> 'verifyRemoveFile'
+							'delete_action'				=> 'verifyRemoveFile',
+							'copy_action'					=> 'verifyCopyFile'
 						));
 	$jsdata = json_encode($jsdata);
 	echo "MENU:{";
@@ -116,15 +117,74 @@ function pasChildThemes_verifyRemoveFile() {
 		echo "</div>";
 	}
 }
-function pasChildThemes_copyFile() {
-	$sourceFile = $_POST['sourceFile'];
-	$destinationFile = $_POST['destinationFile'];
+function pasChildThemes_verifyCopyFile() {
+	global $currentThemeObject;
+	// Posted from Javascript AJAX call
+	
+	$childThemeFile			= $_POST['childThemeRoot'] . SEPARATOR . $_POST['childStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['templateFileToCopy'];
+	$templateThemeFile	= $_POST['templateThemeRoot'] . SEPARATOR . $_POST['templateStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['templateFileToCopy'];
+
+	if (! file_exists($childThemeFile) ) {
+		pasChildThemes_copyFile($_POST);
+	} else if (files_are_identical($childThemeFile, $templateThemeFile)) {
+		pasChildThemes_copyFile($_POST);
+	} else {
+		// File exists and the files are not identical
+		$JSData = Array('childThemeRoot'			=>$_POST['childThemeRoot'],
+										'childStylesheet'			=>$_POST['childStylesheet'],
+										'templateThemeRoot'		=>$_POST['templateThemeRoot'],
+										'templateStylesheet'  =>$_POST['templateStylesheet'],
+										'directory'						=>$_POST['directory'],
+										'templateFileToCopy'	=>$_POST['templateFileToCopy'],
+										'action'							=>'copyFile' );
+		$JSData = json_encode($JSData);
+
+		echo "<p class='warningHeading'>Files are Different</p><br><br>";
+		echo "Child Theme File: <u>" . $_POST['childStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['templateFileToCopy'] . "</u><br>";
+		echo "Template Theme File: <u>" . $_POST['templateStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['templateFileToCopy'] . "</u><br><br>";
+
+		echo "There are 2 possible reasons for this:<br>";
+		echo "<ol type='1'>";
+		echo "<li>You have modified the child theme since you copied it to the child theme.</li>";
+		echo "<li>You have updated the template theme since you copied the file to the child theme.</li>";
+		echo "</ol>";
+
+		echo "<span class='emphasize'>If you proceed, you will LOSE any differences between the two files.</span><br><br>";
+		echo "Do you want to proceed and <u>OVERWRITE</u> the file from your child theme?<br><br>";
+		echo "<div class='questionPrompt'>";
+		echo "<INPUT data-jsdata='$JSData' type='button' value='OVERWRITE FILE' class='blueButton' onclick='javascript:overwriteFile(this);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+		echo "<INPUT type='button' value='Cancel' class='blueButton' onclick='javascript:cancelDeleteChild(this);'>";
+		echo "</div>";
+	}
+}
+function pasChildThemes_copyFile($post) {
+	$directory = $post['directory'];
+	$childThemeRoot = $post['childThemeRoot'];
+	$childStylesheet = $post['childStylesheet'];
+	$templateThemeRoot = $post['templateThemeRoot'];
+	$templateStylesheet = $post['templateStylesheet'];
+	$fileToCopy = $post['templateFileToCopy'];
+
+	$destinationRoot = $childThemeRoot . SEPARATOR . $childStylesheet . SEPARATOR;
+	$folderSegments = explode(SEPARATOR, $directory);
+	$dir = $destinationRoot;
+
+	for ($ndx = 0; $ndx < count($folderSegments); $ndx++) {
+		$dir .= SEPARATOR . $folderSegments[$ndx];
+		if (! file_exists($dir)) {
+			mkdir($dir);
+		}
+	}
+
+	$sourceFile = $post['templateThemeRoot'] . SEPARATOR . $post['templateStylesheet'] . SEPARATOR . $post['directory'] . SEPARATOR . $post['templateFileToCopy'];
+	$destinationFile = $post['childThemeRoot'] . SEPARATOR . $post['childStylesheet'] . SEPARATOR . $post['directory'] . SEPARATOR . $post['templateFileToCopy'];
 	$result = copy($sourceFile, $destinationFile);
 	if ($result === false) {
-		echo "Failed to copy $sourceFile to $destinationFile<br>";
+		echo "Failed to copy<br>$sourceFile<br>to<br>$destinationFile<br>";
 	}
 	exit;
 }
+
 function pasChildThemes_deleteFile() {
 	killChildFile( Array (
 			'themeRoot'					=>$_POST['themeRoot'],
