@@ -135,7 +135,7 @@ function manage_child_themes() {
 	if (! $currentThemeObject->status) {
 		echo "<div class='createChildThemeBox'>";
 		echo "<p class='warningHeading'>Warning</p><br><br>";
-		echo "The current theme <u>" . $currentThemeObject->name() . "</u> is <u>not</u> a child theme.<br><br>";
+		echo "The current theme <u>" . $currentThemeObject->childThemeName . "</u> is <u>not</u> a child theme.<br><br>";
 		echo "Do you want to create a child theme?<br><br>";
 		echo "<form method='post' >";
 		echo "<input type='hidden' name='action' value='createChildTheme'>";
@@ -197,7 +197,7 @@ function listFolderFiles($dir, $themeType){
 						 'themeType'=>$themeType
 						]
 					);
-				echo "<li>" . "<p class='file' data-jsdata='$jsdata' onmouseover='javascript:showData(this);' onclick='javascript:selectFile(this);'><nobr>$ff</nobr></p>";
+				echo "<li>" . "<p class='file' data-jsdata='$jsdata' onclick='javascript:selectFile(this);'><nobr>$ff</nobr></p>";
 			}
 			echo "</li>";
     }

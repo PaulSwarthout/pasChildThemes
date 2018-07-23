@@ -19,6 +19,9 @@ function killMe(element) {
 	}
 
 }
+function editFile(element) {
+	alert("Coming soon. This feature is not yet implemented.")
+}
 function cancelOverwrite(element) {
 	var box = document.getElementById("actionBox")
 	if (box.parentNode == null) {

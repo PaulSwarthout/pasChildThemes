@@ -100,8 +100,8 @@ function pasChildThemes_verifyRemoveFile() {
 																'action'						=>'deleteFile' ) );
 
 		echo "<p class='warningHeading'>Files are Different</p><br><br>";
-		echo "Child Theme File: <u>" . $childStylesheet . SEPARATOR . $directory . SEPARATOR . $childFileToRemove . "</u><br>";
-		echo "Template Theme File: <u>" . $templateStylesheet . SEPARATOR . $directory . SEPARATOR . $childFileToRemove . "</u><br><br>";
+		echo "Child&nbsp;&nbsp;&nbsp;: <u>" . $childStylesheet . SEPARATOR . $directory . SEPARATOR . $childFileToRemove . "</u><br>";
+		echo "Template: <u>" . $templateStylesheet . SEPARATOR . $directory . SEPARATOR . $childFileToRemove . "</u><br><br>";
 
 		echo "There are 2 possible reasons for this:<br>";
 		echo "<ol type='1'>";

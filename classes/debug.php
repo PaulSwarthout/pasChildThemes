@@ -38,6 +38,8 @@ if (! class_exists('pasDebug') ) {
 //  However, the same arguments may be passed as are used in the __construct() function.
 //  This allows the __construct() function to dump data as well as instantiate the class.
 		function dump($args = null) {
+			// if WordPress WP_DEBUG constant is not set to true, write out nothing and exit.
+			if (!WP_DEBUG) { return false; }
 			if ($this->ajax == true) { echo "DEBUG:{"; }
 			for ($ndx = 0; $ndx < count($this->debugOutput); $ndx++) {
 				echo "<div class='debugHeading'>" . $this->debugOutput[$ndx]['heading'] . "</div>";
