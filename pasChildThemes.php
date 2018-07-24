@@ -20,10 +20,14 @@ require_once(dirname(__FILE__) . '/lib/common_functions.php');
 require_once(dirname(__FILE__) . '/lib/ajax_functions.php');
 require_once(dirname(__FILE__) . '/lib/helper_functions.php');
 require_once(dirname(__FILE__) . '/classes/debug.php');
+require_once(dirname(__FILE__) . '/classes/createScreenShot.php');
 
 define('NEWLINE', "\n");
 define('CHILDTHEME', "child");
 define('TEMPLATETHEME', "parent");
+
+define('PASCHILDTHEMES_DEFAULT_IMAGE_WIDTH', 1200);
+define('PASCHILDTHEMES_DEFAULT_IMAGE_HEIGHT', 900);
 
 define('WINSEPARATOR', '\\');
 define('SEPARATOR', "/");
@@ -150,7 +154,8 @@ function manage_child_themes() {
 
 		echo "<br>";
 		echo "<div class='questionPrompt'>";
-		echo "<input type='button' value='Create Child Theme' class='blueButton' onclick='javascript:createChildTheme(this);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type='button' value='Reset' class='blueButton' onclick='javascript:resetForm(this.form);'>";
+		echo "<input type='button' value='Create Child Theme' class='blueButton' onclick='javascript:createChildTheme(this);'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+		   . "<input type='button' value='Reset' class='blueButton' onclick='javascript:resetForm(this.form);'>";
 		echo "</div>";
 
 		echo "</div>";

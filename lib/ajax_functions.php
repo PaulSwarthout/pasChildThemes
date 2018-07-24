@@ -250,6 +250,15 @@ function pasChildThemes_createChildTheme() {
 	fwrite($functionsFile, "?>");
 	fclose($functionsFile);
 
+	$args = [
+		'targetFile' => $childThemePath . SEPARATOR . "screenshot.png",
+		'childThemeName' => $childThemeName,
+		'templateThemeName' => $_POST['templateTheme']
+		];
+
+	$status = new pasChildTheme_ScreenShot($args);
+	unset($status);
+
 	echo "SUCCESS:" . $_POST['href'];
 }
 
