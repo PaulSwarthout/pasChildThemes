@@ -1,5 +1,11 @@
 # Child Themes Helper plugin
-The Child Themes Helper plugin was developed to solve a problem that I was struggling with. Copying files from a template theme to the child theme was never easy. Step one involved copying the template theme file down to my local computer via FTP. That was easy enough. Step two was creating the matching directory structure in my child theme. That was a bit more time-consuming. Invariably I'd create a folder wrong and wouldn't notice until I tried to access my website and my changes wouldn't be seen. The third step was copying the file from my local computer, that I downloaded in step one, to the newly created path in the child theme. The last step was editing the file and expecting to see my changes when I refresh the browser. There has to be a better way. I looked around and didn't really find one. So, being a programmer at heart, I wrote one. In fact, I wrote THIS one.
+The Child Themes Helper plugin was developed to solve a problem that I was struggling with. Copying files from a template theme to the child theme was never easy.
+1. Copy the template theme file down to my local computer via FTP. That was easy enough.
+1. Create the matching directory structure in my child theme. That was a bit more time-consuming. Invariably I would create a folder wrong and wouldn't notice until I tried to see my changes. I would reload the page and it would look the same. I would spend a ton of wasted time trying to figure out why my changes did not show up. Then I'd see it. A typo in a folder name. A missed subfolder in the tree. Or some other bonehead error.
+1. Copy the file I downloaded in step 1 to the newly created path in the child theme.
+1. Finally, I would start editing the file and look forward to seeing my changes when I refresh the browser.
+
+There has to be a better way. I looked around and didn't really find one. So, being a programmer at heart, I wrote one. In fact, I wrote *THIS* one.
 
 ## Copy Files between Themes
 The Child Themes Helper plugin solves the above problem with a nice elegant solution. The files in the child theme and the files in the template theme are displayed on the screen using a pair of CSS Grid boxes (child theme is listed on the left and template theme is listed on the right). The developer only needs to click on the file from the template theme and viola! the file is immediately copied to the child theme and all of the subfolders in the path are perfectly duplicated in the child theme.
