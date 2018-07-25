@@ -28,6 +28,7 @@
 	text-align:center;
 	width:100%;
 	color:#990000;
+	margin-top:-10px;
 }
 .actionReminder {
 	position:relative;
@@ -36,7 +37,8 @@
 	font-weight:normal;
 	text-align:center;
 	width:100%;
-	color:#990000;
+	color:#FF0000;
+	margin-bottom:0px;
 }
 .themeName {
 	font-size:14pt;
@@ -44,6 +46,7 @@
 	border-top:solid 1pt #990000;
 	border-bottom:solid 1pt #990000;
 	text-align:center;
+	margin-top:0px;
 }
 #clickBox {
 	border:solid 1px black;

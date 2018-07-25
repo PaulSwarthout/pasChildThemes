@@ -1,20 +1,26 @@
 <?php
-   /*
-   Plugin Name: Child Themes Helper
-   Plugin URI: http://www.paulswarthout.com/index.php/wordpress/
-   Description: It is such a hassle to open up an FTP connection, copy a file from the parent theme template to the local system, then FTP it back to the child theme. This plugin solves that by moving the file directly.
-   Version: 1.1
-   Author: Paul A. Swarthout
-   License: GPL2
-   */
+/*
+	Plugin Name: Child Themes Helper
+	Plugin URI: http://www.paulswarthout.com/WordPress/
+	Description: (1) Copies files from the template theme to the child theme, perfectly duplicating the path structure. (2) Removes file from the child theme, and removes any empty folders that were made empty by the removal of the child theme file. (3) Creates new child themes from installed template themes.
+	Version: 1.0
+	Author: Paul A. Swarthout
+	License: GPL2
+*/
+
+/*
+	The Child Themes Helper plugin makes heavy use of AJAX. The process flow is as follows.
+
+*/
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$pluginDirectory = plugin_dir_url( __FILE__ );
-$pluginName = "Child Themes Helper";
-$pluginFolder = "pasChildThemes";
+$pluginDirectory	= plugin_dir_url( __FILE__ );
+$pluginName				= "Child Themes Helper";
+$pluginFolder			= "pasChildThemes";
 
+require_once(dirname(__FILE__) . '/lib/plugin_constants.php');
 require_once(dirname(__FILE__) . '/classes/currentTheme.php');
 require_once(dirname(__FILE__) . '/lib/common_functions.php');
 require_once(dirname(__FILE__) . '/lib/ajax_functions.php');
@@ -22,43 +28,29 @@ require_once(dirname(__FILE__) . '/lib/helper_functions.php');
 require_once(dirname(__FILE__) . '/classes/debug.php');
 require_once(dirname(__FILE__) . '/classes/createScreenShot.php');
 
-define('NEWLINE', "\n");
-define('CHILDTHEME', "child");
-define('TEMPLATETHEME', "parent");
-
-define('PASCHILDTHEMES_DEFAULT_IMAGE_WIDTH', 1200);
-define('PASCHILDTHEMES_DEFAULT_IMAGE_HEIGHT', 900);
-
-define('WINSEPARATOR', '\\');
-define('SEPARATOR', "/");
-
-function setPath($path) {
-	$path = str_replace("\\", "|+|", $path);
-	$path = str_replace("/", "|+|", $path);
-	$path = str_replace("|+|", SEPARATOR, $path);
-	return $path;
-}
-function getPath($path) {
-	if (isWin()) {
-		$subfolders = explode(SEPARATOR, $path);
-		$path = implode(WINSEPARATOR, $subfolders);
-	}
-	return $path;
-}
-function combinePaths($subFolders = Array()) {
-	return (implode(SEPARATOR, $subFolders));
-}
-
-add_action('admin_menu',							 'pasChildTheme_admin' );
+add_action('admin_menu',							 'pasChildThemes_admin' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_styles' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_scripts');
-add_action('wp_ajax_selectFile',			 'pasChildThemes_selectFile');
-add_action('wp_ajax_copyFile',				 'pasChildThemes_copyFile');
-add_action('wp_ajax_deleteFile',			 'pasChildThemes_deleteFile');
-add_action('wp_ajax_createChildTheme', 'pasChildThemes_createChildTheme');
-add_action('wp_ajax_verifyRemoveFile', 'pasChildThemes_verifyRemoveFile');
-add_action('wp_ajax_verifyCopyFile',	 'pasChildThemes_verifyCopyFile');
 
+/* AJAX functions may be found in the 'lib/ajax_functions.php' file */
+// The first click of a file from either the child theme or the template theme will send execution to
+// the pasChildThemes_selectFile function. The selectFile function will display a menu to the user.
+// If a child theme file was clicked, the user will be prompted to remove the file from the child theme.
+// If a template theme file was clicked, the user will be prompted to copy the file to the child theme.
+add_action('wp_ajax_selectFile',			 'pasChildThemes_selectFile');
+
+// If the child theme file was clicked, and this plugin discovers that the 
+add_action('wp_ajax_verifyRemoveFile', 'pasChildThemes_verifyRemoveFile');
+add_action('wp_ajax_deleteFile',			 'pasChildThemes_deleteFile');
+
+add_action('wp_ajax_verifyCopyFile',	 'pasChildThemes_verifyCopyFile');
+add_action('wp_ajax_copyFile',				 'pasChildThemes_copyFile');
+
+// The createChildTheme function is triggered with an AJAX call from Javascript when the
+// Create Child Theme button is clicked.
+add_action('wp_ajax_createChildTheme', 'pasChildThemes_createChildTheme');
+
+// Go get the current theme information.
 $currentThemeObject = new pasChildTheme_currentTheme();
 
 function pasChildThemes_styles() {
@@ -71,9 +63,13 @@ function pasChildThemes_scripts() {
 	$debugging = constant('WP_DEBUG');
 	wp_enqueue_script('pasChildThemes_Script', $pluginDirectory . "js/pasChildThemes.js" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
 }
-
-function pasChildTheme_admin() {
-	add_menu_page( 'ChildThemesHelper', 'Child Theme Helper', 'manage_options', 'manage_child_themes', 'manage_child_themes');
+/*
+function pasChildThemes_admin() {
+	add_theme_page( 'ChildThemesHelper', '<font style="background-color:white;color:black;font-weight:bold;">Child Theme Helper</font>', 'manage_options', 'manage_this_themes', 'manage_child_themes', "", 2);
+}
+*/
+function pasChildThemes_admin() {
+	add_menu_page( 'ChildThemesHelper', 'Child Theme Helper', 'manage_options', 'manage_child_themes', 'manage_child_themes', "", 61);
 }
 
 function getThemeSelect($type = TEMPLATETHEME) {
@@ -96,7 +92,7 @@ function showActiveChildTheme() {
 	$currentThemeInfo = $currentThemeObject; // this is an object.
 	if ($currentThemeObject->templateStylesheet) {
 		echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
-		echo "<p class='actionReminder'>Clicking these files removes them from the child theme</p>";
+		echo "<p class='actionReminder'>Click a file to <u>REMOVE</u> it from the child theme</p>";
 	}
 	echo getThemeSelect(CHILDTHEME);
 
@@ -111,7 +107,7 @@ function showActiveParentTheme() {
 	global $currentThemeObject;
 
 	echo "<p class='pasChildTheme_HDR'>THEME TEMPLATE</p>";
-	echo "<p class='actionReminder'>Clicking these files copies them to the child theme.</p>";
+	echo "<p class='actionReminder'>Click a file to <u>COPY</u> it to the child theme.</p>";
 	echo getThemeSelect(TEMPLATETHEME);
 
 	$parentFolder = $currentThemeObject->getTemplateFolder();
@@ -176,7 +172,7 @@ function manage_child_themes() {
 	echo "</div>"; // end grid item 2
 	echo "</div>"; // end grid container
 }
-
+// The listFolderFiles function is the heart of the file listings. It is called recursively until all of the themes' files are listed.
 function listFolderFiles($dir, $themeType){
     $ffs = scandir($dir);
 
