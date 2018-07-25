@@ -87,5 +87,9 @@ function fixFolderSeparators($path) {
 	// when it will be used to access a file on the OS.
 	// GENERIC_SEPARATOR and SEPARATOR are defined at the top of the pasChildThemes.php file.
 
-	return setPath($path);
+	$path = str_replace("\\", "|+|", $path);
+	$path = str_replace("/", "|+|", $path);
+	$path = str_replace("|+|", SEPARATOR, $path);
+
+	return $path;
 }
