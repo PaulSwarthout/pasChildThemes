@@ -16,8 +16,8 @@ function pasChildThemes_selectFile() {
 	$directory = getRelativePathBeyondRoot(Array('directory'=>$directory, 'themeType'=>$themeType ) );
 
 	$lowerCaseFile = strtolower($file);
-	if (($lowerCaseFile == "style.css" && strlen($directory) == 0) ||
-		  ($lowerCaseFile == "functions.php" && strlen($directory) == 0)) {
+	if (("style.css" === $lowerCaseFile && 0 === strlen($directory)) ||
+		  ("functions.php" === $lowerCaseFile && 0 === strlen($directory))) {
 		$msg = "You cannot delete or overwrite the current theme\'s 'style.css' or 'functions.php' files. "
 				 . "Your theme is defined, as a minimum, by these two files. "
 				 . "Overwriting or deleting either one could cause your WordPress website to crash."
@@ -68,20 +68,19 @@ function pasChildThemes_verifyRemoveFile() {
 	global $currentThemeObject;
 	// Posted from Javascript AJAX call
 	
-	$childThemeRoot			= $_POST['childThemeRoot'];
+//	$childThemeRoot			= $_POST['childThemeRoot'];
 	$childStylesheet		= $_POST['childStylesheet'];
-	$templateThemeRoot	= $_POST['templateThemeRoot'];
+//	$templateThemeRoot	= $_POST['templateThemeRoot'];
 	$templateStylesheet = $_POST['templateStylesheet'];
 	$directory					= $_POST['directory'];
 	$childFileToRemove	= $_POST['childFileToRemove'];
 
-	$childThemeFile			= $_POST['childThemeRoot'] . SEPARATOR . $_POST['childStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['childFileToRemove'];
-	$templateThemeFile	= $_POST['templateThemeRoot'] . SEPARATOR . $_POST['templateStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['childFileToRemove'];
+	$childThemeFile			= $currentThemeObject->childThemeRoot . SEPARATOR . $_POST['childStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['childFileToRemove'];
+	$templateThemeFile	= $currentThemeObject->templateThemeRoot . SEPARATOR . $_POST['templateStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['childFileToRemove'];
 
 	if (files_are_identical($childThemeFile, $templateThemeFile)) {
 		// kills the child file and any empty folders made that way because the child file was deleted.
 		killChildFile( Array (
-				'themeRoot'					=>$_POST['childThemeRoot'],
 				'stylesheet'				=>$_POST['childStylesheet'],
 				'directory'					=>$_POST['directory'],
 				'fileToDelete'			=>$_POST['childFileToRemove'] ) );
@@ -93,8 +92,7 @@ function pasChildThemes_verifyRemoveFile() {
 		$childStylesheet = $currentThemeObject->childStylesheet;
 		$templateStylesheet = $currentThemeObject->templateStylesheet;
 
-		$JSData = json_encode(Array('childThemeRoot'		=>$childThemeRoot,
-																'childStylesheet'		=>$childStylesheet,
+		$JSData = json_encode(Array('childStylesheet'		=>$childStylesheet,
 																'directory'					=>$directory,
 																'childFileToRemove'	=>$childFileToRemove,
 																'action'						=>'deleteFile' ) );
@@ -179,7 +177,7 @@ function pasChildThemes_copyFile($post) {
 	$sourceFile = $post['templateThemeRoot'] . SEPARATOR . $post['templateStylesheet'] . SEPARATOR . $post['directory'] . SEPARATOR . $post['templateFileToCopy'];
 	$destinationFile = $post['childThemeRoot'] . SEPARATOR . $post['childStylesheet'] . SEPARATOR . $post['directory'] . SEPARATOR . $post['templateFileToCopy'];
 	$result = copy($sourceFile, $destinationFile);
-	if ($result === false) {
+	if (! $result) {
 		echo "Failed to copy<br>$sourceFile<br>to<br>$destinationFile<br>";
 	}
 	exit;
@@ -187,7 +185,6 @@ function pasChildThemes_copyFile($post) {
 
 function pasChildThemes_deleteFile() {
 	killChildFile( Array (
-			'themeRoot'					=>$_POST['themeRoot'],
 			'stylesheet'				=>$_POST['stylesheet'],
 			'directory'					=>$_POST['directory'],
 			'fileToDelete'			=>$_POST['fileToDelete'] ) );
@@ -196,23 +193,23 @@ function pasChildThemes_deleteFile() {
 function pasChildThemes_createChildTheme() {
 	global $currentThemeObject;
 
-	if (strlen(trim($_POST['childThemeName'])) == 0) {
+	if (0 === strlen(trim($_POST['childThemeName']))) {
 		displayError("Notice", "Child Theme Name cannot be blank.");
 	}
 
-	if (strlen(trim($_POST['templateTheme'])) == 0) {
+	if (0 === strlen(trim($_POST['templateTheme']))) {
 		displayError("Notice", "Template Theme is required.");
 	}
 
-	if (strlen(trim($_POST['description'])) == 0) {
+	if (0 === strlen(trim($_POST['description']))) {
 		displayError("Notice", "Please write a meaningful description for your theme.");
 	}
 
-	if (strlen(trim($_POST['authorName'])) == 0) {
+	if (0 === strlen(trim($_POST['authorName']))) {
 		displayError("Notice", "You didn't specify your name as the author name. That's okay, if this is your only error, we'll use my name by default.");
 	}
 
-	if (strlen(trim($_POST['authorURI'])) == 0) {
+	if (0 === strlen(trim($_POST['authorURI']))) {
 		displayError("Notice", "If you do not specify your URL, we'll use mine: http://www.PaulSwarthout.com/wordpress");
 	}
 
@@ -292,7 +289,7 @@ function getRelativePathBeyondRoot($inputs) {
 	$folderSegments = explode(SEPARATOR, $directory);
 
 	$indexOffset = array_search($needle, $folderSegments);
-	if ($indexOffset === false) {
+	if (! $indexOffset) {
 		wp_die("ERROR: Cannot find the needle in the haystack. This should never happen. This is a bug.", "Unrecoverable Error: $pluginFolder", 500);
 		return false;
 	}

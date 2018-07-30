@@ -5,14 +5,14 @@ if(typeof String.prototype.trim == "undefined") String.prototype.trim = function
 if(typeof String.prototype.right == "undefined") String.prototype.right = function(n){return this.substring(this.length - n, this.length)}
 if(typeof String.prototype.left == "undefined") String.prototype.left = function(n) { return this.substring(0, n); }
 
-// KillMe kills the error message boxes.
+// KillMe kills the error message boxes. After the last box has been destroyed, kill the actionBox div too.
 function killMe(element) {
 	var elements
 	element.parentNode.removeChild(element);
 	element.remove();
 
 	elements = document.getElementsByName("errorMessageBox")
-	if (elements.length == 0) {
+	if (0 == elements.length) {
 		var actionBox = document.getElementById("actionBox")
 		actionBox.parentNode.removeChild(actionBox)
 		actionBox.remove()
@@ -24,7 +24,7 @@ function editFile(element) {
 }
 function cancelOverwrite(element) {
 	var box = document.getElementById("actionBox")
-	if (box.parentNode == null) {
+	if (null == box.parentNode) {
 		var theBody = document.getElementsByTagName("body")[0];
 		theBody.removeChild(box);
 	} else {
@@ -33,7 +33,7 @@ function cancelOverwrite(element) {
 }
 function cancelDeleteChild(element) {
 	var box = document.getElementById("actionBox")
-	if (box.parentNode == null) {
+	if (null == box.parentNode) {
 		var theBody = document.getElementsByTagName("body")[0];
 		theBody.removeChild(box);
 	} else {
@@ -49,16 +49,16 @@ function removeChildFile(element) {
 
 	xmlhttp.open("POST", ajaxurl, true)
 
-	data.append("childThemeRoot",			jsInput['childThemeRoot'] );
+//	data.append("childThemeRoot",			jsInput['childThemeRoot'] );
 	data.append("childStylesheet",		jsInput['childStylesheet']);
-	data.append("templateThemeRoot",	jsInput["templateThemeRoot"]);
+//	data.append("templateThemeRoot",	jsInput["templateThemeRoot"]);
 	data.append("templateStylesheet", jsInput['templateStylesheet']);
 	data.append("directory",					jsInput['directory'] );
 	data.append("childFileToRemove",	jsInput['file']);
 	data.append("action",							jsInput['delete_action']); // verifyRemoveFile
 
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4) {
+		if (4 == xmlhttp.readyState) {
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
 
 			switch (xmlhttp.status) {
@@ -95,7 +95,7 @@ function copyTemplateFile(element) {
 	data.append("action",							jsInput['copy_action']); // verifyCopyFile
 
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4) {
+		if (4 == xmlhttp.readyState) {
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
 			switch (xmlhttp.status) {
 				case 200: // Everything is okay
@@ -130,7 +130,7 @@ function deleteChildFile(element) {
 	data.append("action",				jsInput['action']);
 
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4) {
+		if (4 == xmlhttp.readyState) {
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
 
 			switch (xmlhttp.status) {
@@ -167,7 +167,7 @@ function overwriteFile(element) {
 	data.append("action",							jsInput["action"]) // defines the php function: 'wp_ajax_copyFile' --> pasChildThemes_copyFile()
 
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4) {
+		if (4 == xmlhttp.readyState) {
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
 
 			switch (xmlhttp.status) {
@@ -204,7 +204,7 @@ function selectFile(element) {
 	data.append("themeType",	jsInput["themeType"])
 
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4) {
+		if (4 == xmlhttp.readyState) {
 			// strip the AJAX zero from wp_die() WORDPRESS ONLY
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
 
@@ -231,14 +231,14 @@ function selectFile(element) {
 	xmlhttp.send(data);
 }
 function processResponse(response) {
-	if (response.left("MENU:{".length).toUpperCase() == "MENU:{") {
+	if ("MENU:{" == response.left("MENU:{".length).toUpperCase()) {
 		menuResponse = response.right(response.length - "menu:{".length)
 		menuResponse = menuResponse.left(menuResponse.length - 1);
 		box = showBox()
 		box.setAttribute("id", "themeMenu")
 		box.innerHTML = menuResponse;
 
-	} else if (response.left("DEBUG:{".length).toUpperCase() == "DEBUG:{") {
+	} else if ("DEBUG:{" == response.left("DEBUG:{".length).toUpperCase()) {
 		actionBox = document.getElementById("actionBox")
 		if (actionBox != null && actionBox != undefined) {
 			actionBox.parentNode.removeChild(actionBox);
@@ -255,7 +255,7 @@ function processResponse(response) {
 function showBox() {
 	var box = document.getElementById("actionBox")
 	var e;
-	if (box == null || box == undefined) {
+	if (null == box || undefined == box) {
 		var box = document.createElement("div")
 		var theBody = document.getElementsByTagName("body")[0];
 		box.setAttribute("id", "actionBox");
@@ -309,7 +309,7 @@ function createChildTheme(element) {
 	}
 	xmlhttp.open("POST", ajaxurl, true);
 	xmlhttp.onreadystatechange = function () {
-		if (xmlhttp.readyState == 4) {
+		if (4 == xmlhttp.readyState) {
 			// strip the AJAX zero from wp_die() WORDPRESS ONLY
 			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
 
@@ -319,7 +319,7 @@ function createChildTheme(element) {
 					// or a request to delete that needs to be displayed.
 					// else, reload the page.
 					// <= 1 accounts for the AJAX return of zero that sometimes shows up despite my best efforts to avoid that.
-					if (response.left("SUCCESS:".length) == "SUCCESS:") {
+					if ("SUCCESS:" == response.left("SUCCESS:".length)) {
 						location.href="/wp-admin/themes.php"
 					} else if (response.length >= 1) {
 						showBox().innerHTML = response
@@ -342,9 +342,9 @@ function showData(element) {
 
 	var jsdata = element.getAttribute("data-jsdata")
 	var d = document.getElementById("debugger")
-	if (d == null || d == undefined) {
+	if (null == d || undefined == d) {
 		d = document.getElementById("debuggerHide")
-		if (d == null || d == undefined) {
+		if (null == d || undefined == d) {
 			d = document.createElement("div")
 			var theBody = document.getElementsByTagName("body")[0];
 			d.setAttribute("id", "debugger")
@@ -355,7 +355,7 @@ function showData(element) {
 	//   reminder that this code needs to be removed.
 	d.setAttribute("id", pauseClass)
 	d.onmouseover = function () {
-		if (d.id == "debugger") {
+		if ("debugger" == d.id) {
 			d.style.fontSize = "14pt"
 		} else {
 			d.setAttribute("id", "debugger");
@@ -365,7 +365,7 @@ function showData(element) {
 		d.style.fontSize = "8pt"
 	}
 	d.onclick = function () {
-		if (d.id == "debugger") {
+		if ("debugger" == d.id) {
 			d.setAttribute("id", "debuggerHide")
 		} else {
 			d.parentNode.removeChild(d)

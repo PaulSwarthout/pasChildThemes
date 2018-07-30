@@ -1,6 +1,6 @@
 <?PHP
 function isWin() {
-	return (strtoupper(substr(PHP_OS, 0, 3)) == "WIN" ? true : false);
+	return ("WIN" === strtoupper(substr(PHP_OS, 0, 3)) ? true : false);
 }
 function files_are_identical($a, $b, $blocksize = 1024)
 {
@@ -45,10 +45,11 @@ function file_count($dir) {
 }
 
 function is_folder_empty($dir) {
-	return (file_count($dir) == 0 ? true : false);
+	return (0 === file_count($dir) ? true : false);
 }
 function killChildFile($args) {					
-	$themeRoot = $args['themeRoot'];			
+	global $currentThemeObject;
+	$themeRoot = $currentThemeObject->childThemeRoot;
 	$themeStyle = $args['stylesheet'];		
 	$directory = $args['directory'];			
 	$childFile = $args['fileToDelete'];
