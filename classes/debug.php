@@ -10,6 +10,7 @@ if (! class_exists('pasDebug') ) {
 		private $ajax;
 		private $onDumpExit;
 		private $onDumpClear;
+		private $data;
 		private $args;
 // Write multiple times to accumulate debug writes,
 // Dump to write all stored writes out.
@@ -23,8 +24,15 @@ if (! class_exists('pasDebug') ) {
 		function __construct($args) {
 			$this->args = $args;
 			$this->ajax = (array_key_exists('ajax', $args) ? $args['ajax'] : false);
-			$this->onDumpExit = (array_key_exists('onDumpExit', $args) ? $args['onDumpExit'] : false);
+			$this->onDumpExit = (array_key_exists('onDumpExit', $args) ? $args['onDumpExit'] : true);
 			$this->onDumpClear = (array_key_exists('onDumpClear', $args) ? $args['onDumpClear'] : true);
+			$this->data = (array_key_exists('dump', $args) ? $args['dump'] : null);
+
+			if ($this->data != null) {
+				$this->write($this->data);
+				$this->dump();
+				unset($this->data);
+			}
 		}
 
 //  Inputs:
@@ -39,6 +47,11 @@ if (! class_exists('pasDebug') ) {
 //  This allows the __construct() function to dump data as well as instantiate the class.
 		function dump($args = null) {
 			// if WordPress WP_DEBUG constant is not set to true, write out nothing and exit.
+			if (null != $args) {
+				$this->ajax = (array_key_exists('ajax', $args) ? $args['ajax'] : false);
+				$this->onDumpExit = (array_key_exists('onDumpExit', $args) ? $args['onDumpExit'] : true);
+				$this->onDumpClear = (array_key_exists('onDumpClear', $args) ? $args['onDumpClear'] : true);
+			}
 			if (!WP_DEBUG) { return false; }
 			if ($this->ajax) { echo "DEBUG:{"; }
 			for ($ndx = 0; $ndx < count($this->debugOutput); $ndx++) {
@@ -46,9 +59,12 @@ if (! class_exists('pasDebug') ) {
 				echo "<div class='debugOutput'><pre>" . print_r($this->debugOutput[$ndx]['data'], true) . "</pre></div>";
 			}
 			if ($this->ajax) { echo "}"; }
-			if ($this->onDumpExit) { exit; }
+			if ($this->onDumpExit) {
+				echo "<HR>Execution Terminated<HR>";
+				exit;
+			}
 			if ($this->onDumpClear) {
-				unset($this->debugOutput); 
+				unset($this->debugOutput);
 				$this->debugOutput = Array();
 			}
 		}

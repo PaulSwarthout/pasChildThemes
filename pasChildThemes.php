@@ -39,7 +39,7 @@ add_action('wp_footer',								 'pasChildThemes_flush_ob_end'); // Buffering
  */
 add_action('wp_ajax_selectFile',			 'pasChildThemes_selectFile');
 
-// If the child theme file was clicked, and this plugin discovers that the 
+// If the child theme file was clicked, and this plugin discovers that the
 add_action('wp_ajax_verifyRemoveFile', 'pasChildThemes_verifyRemoveFile');
 add_action('wp_ajax_deleteFile',			 'pasChildThemes_deleteFile');
 
@@ -68,6 +68,7 @@ function pasChildThemes_scripts() {
 	$pluginDirectory = plugin_dir_url(__FILE__);
 	$debugging = constant('WP_DEBUG');
 	wp_enqueue_script('pasChildThemes_Script', $pluginDirectory . "js/pasChildThemes.js" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
+	wp_enqueue_script('pasChildThemes_Script2', $pluginDirectory . "js/js_common_fn.js" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
 }
 // pasChildThemes Dashboard Menu
 function pasChildThemes_admin() {
@@ -90,7 +91,7 @@ function generateScreenShot() {
 		page as the particular theme's graphic.
 		For most of the themes that you download, the screenshot.png file is a copy of the theme's header image.
 		But your child theme doesn't have a screenshot.png file by default.
-		You can copy the screenshot.png file from the template theme, but then you've got two themes on the 
+		You can copy the screenshot.png file from the template theme, but then you've got two themes on the
 		Dashboard Themes page that at a glance, look alike.
 
 
@@ -219,7 +220,7 @@ function manage_child_themes() {
 
 	echo "<div class='pas-grid-container'>";
 	echo "<div class='pas-grid-item'>"; // Start grid item 1
-	
+
 	showActiveChildTheme();
 
 	echo "</div>"; // end grid item 1
@@ -233,8 +234,15 @@ function manage_child_themes() {
 }
 // This isn't called anywhere, yet. ListFolderFiles() currently has the entire path associated with each file.
 // Changing that to only be the stylesheet and beyond.
-function stripRoot($path) {
-	
+function stripRoot($path, $themeType) {
+	global $currentThemeObject;
+	$sliceStart = $currentThemeObject->getFolderCount($themeType);
+
+	$folderSegments = explode(SEPARATOR, $path);
+	$folderSegments = array_slice($folderSegments, $sliceStart);
+	$path = implode(SEPARATOR, $folderSegments);
+
+	return $path;
 }
 /* The listFolderFiles() function is the heart of the child theme and template theme file listings.
  * It is called recursively until all of the themes' files are found.
@@ -263,13 +271,19 @@ function listFolderFiles($dir, $themeType){
 				echo "<li><p class='pasChildThemes_directory'>" . $ff . "</p>";
 				if(is_dir($dir.SEPARATOR.$ff)) listFolderFiles($dir.SEPARATOR.$ff, $themeType);
 			} else {
+				$shortDir = stripRoot($dir, $themeType); // Strips the full path, leaving only the stylesheet and sub folders
 				$jsdata = json_encode(
-						['directory'=>$dir, // This is where we'll call stripRoot()
+						['directory'=>$shortDir,
 						 'fileName'=>$ff,
 						 'themeType'=>$themeType
 						]
 					);
-				echo "<li>" . "<p class='file' data-jsdata='$jsdata' onclick='javascript:selectFile(this);'><nobr>$ff</nobr></p>";
+				echo "<li>"
+					 . "<p class='file' "
+					 . "   data-jsdata='$jsdata' "
+					 . "   onclick='javascript:selectFile(this);'>";
+				echo "<nobr>$ff</nobr>";
+				echo "</p>";
 			}
 			echo "</li>";
     }
@@ -277,7 +291,7 @@ function listFolderFiles($dir, $themeType){
 
 		echo "</div>";
 }
-/* 
+/*
  * The next 3 functions set up buffering on the page.
  * This is so we can wp_redirect(admin_url("themes.php")) after creating a new child theme.
  */

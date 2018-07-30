@@ -1,4 +1,8 @@
 <?PHP
+/*
+ * pasChildThemes_selectFile() is activated with an AJAX call
+ * from the javascript function selectFile() in file 'js\pasChildThemes.js'
+ */
 function pasChildThemes_selectFile() {
 	global $currentThemeObject;
 
@@ -11,9 +15,12 @@ function pasChildThemes_selectFile() {
 	$file				= $_POST['fileName'];
 	$themeType	= $_POST['themeType'];
 
-	// Strip folder path beyond the theme root. Remember, theme root ends with the stylesheet folder.
+// No longer used. When everything is working again, I will delete this.
+//	$directory = getRelativePathBeyondRoot(Array('directory'=>$directory, 'themeType'=>$themeType ) );
 
-	$directory = getRelativePathBeyondRoot(Array('directory'=>$directory, 'themeType'=>$themeType ) );
+	$folderSegments = explode(SEPARATOR, $directory);
+	unset($folderSegments[0]); // Strip theme stylesheet folder from the beginning.
+	$directory = implode(SEPARATOR, $folderSegments);
 
 	$lowerCaseFile = strtolower($file);
 	if (("style.css" === $lowerCaseFile && 0 === strlen($directory)) ||
@@ -24,7 +31,7 @@ function pasChildThemes_selectFile() {
 				 . "<br><br>"
 				 . "If you must delete or overwrite the '$file' file:"
 				 . "<ol class='errorList'>"
-				 . "<li>Change your active theme to something else.</li>" 
+				 . "<li>Change your active theme to something else.</li>"
 				 . "<li>Use your favorite FTP client to delete or overwrite the '$file' file.</li>"
 				 . "<li>Attempt to change your theme back to the original theme.</li>"
 				 . "</ol>"
@@ -39,12 +46,10 @@ function pasChildThemes_selectFile() {
 							'directory'						=> $directory,
 							'file'								=> $file,
 							'themeType'						=> $themeType,
-							'childThemeRoot'			=> $currentThemeObject->childThemeRoot,
 							'childStylesheet'			=> $currentThemeObject->childStylesheet,
-							'templateThemeRoot'		=> $currentThemeObject->templateThemeRoot,
 							'templateStylesheet'	=> $currentThemeObject->templateStylesheet,
-							'delete_action'				=> 'verifyRemoveFile',
-							'copy_action'					=> 'verifyCopyFile'
+							'delete_action'				=> 'verifyRemoveFile', // attempt to remove child theme file
+							'copy_action'					=> 'verifyCopyFile'    // attempt to copy template theme file
 						));
 	$jsdata = json_encode($jsdata);
 	echo "MENU:{";
@@ -67,10 +72,8 @@ function pasChildThemes_selectFile() {
 function pasChildThemes_verifyRemoveFile() {
 	global $currentThemeObject;
 	// Posted from Javascript AJAX call
-	
-//	$childThemeRoot			= $_POST['childThemeRoot'];
+
 	$childStylesheet		= $_POST['childStylesheet'];
-//	$templateThemeRoot	= $_POST['templateThemeRoot'];
 	$templateStylesheet = $_POST['templateStylesheet'];
 	$directory					= $_POST['directory'];
 	$childFileToRemove	= $_POST['childFileToRemove'];
@@ -117,25 +120,40 @@ function pasChildThemes_verifyRemoveFile() {
 }
 function pasChildThemes_verifyCopyFile() {
 	global $currentThemeObject;
-	// Posted from Javascript AJAX call
-	
-	$childThemeFile			= $_POST['childThemeRoot'] . SEPARATOR . $_POST['childStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['templateFileToCopy'];
-	$templateThemeFile	= $_POST['templateThemeRoot'] . SEPARATOR . $_POST['templateStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['templateFileToCopy'];
+
+	$childThemeFile			= $currentThemeObject->childThemeRoot .
+												SEPARATOR .
+												$_POST['childStylesheet'] .
+												SEPARATOR .
+												$_POST['directory'] .
+												SEPARATOR .
+												$_POST['templateFileToCopy'];
+
+	$templateThemeFile	= $currentThemeObject->templateThemeRoot .
+												SEPARATOR .
+												$_POST['templateStylesheet'] .
+												SEPARATOR .
+												$_POST['directory'] .
+												SEPARATOR .
+												$_POST['templateFileToCopy'];
+	$args = [
+		'childThemeRoot'		=> $currentThemeObject->childThemeRoot,
+		'templateThemeRoot' => $currentThemeObject->templateThemeRoot,
+		'action'						=>'copyFile',
+					];
+	unset($_POST['action']);
+
+	foreach ($_POST as $key => $value) {
+		$args[$key] = $value;
+	}
 
 	if (! file_exists($childThemeFile) ) {
-		pasChildThemes_copyFile($_POST);
+		pasChildThemes_copyFile($args);
 	} else if (files_are_identical($childThemeFile, $templateThemeFile)) {
-		pasChildThemes_copyFile($_POST);
+		pasChildThemes_copyFile($args);
 	} else {
-		// File exists and the files are not identical
-		$JSData = Array('childThemeRoot'			=>$_POST['childThemeRoot'],
-										'childStylesheet'			=>$_POST['childStylesheet'],
-										'templateThemeRoot'		=>$_POST['templateThemeRoot'],
-										'templateStylesheet'  =>$_POST['templateStylesheet'],
-										'directory'						=>$_POST['directory'],
-										'templateFileToCopy'	=>$_POST['templateFileToCopy'],
-										'action'							=>'copyFile' );
-		$JSData = json_encode($JSData);
+		// File exists and the files are not identical, prompt before overwriting.
+		$JSData = json_encode($args);
 
 		echo "<p class='warningHeading'>Files are Different</p><br><br>";
 		echo "Child Theme File: <u>" . $_POST['childStylesheet'] . SEPARATOR . $_POST['directory'] . SEPARATOR . $_POST['templateFileToCopy'] . "</u><br>";
@@ -155,17 +173,31 @@ function pasChildThemes_verifyCopyFile() {
 		echo "</div>";
 	}
 }
-function pasChildThemes_copyFile($post) {
-	$directory = $post['directory'];
-	$childThemeRoot = $post['childThemeRoot'];
-	$childStylesheet = $post['childStylesheet'];
-	$templateThemeRoot = $post['templateThemeRoot'];
-	$templateStylesheet = $post['templateStylesheet'];
-	$fileToCopy = $post['templateFileToCopy'];
+/* copyFile() copies a template theme file to the child theme.
+ * If the folders do not already exist, copyFile() creates them.
+ */
+function pasChildThemes_copyFile($args = null) {
+	global $currentThemeObject;
 
-	$destinationRoot = $childThemeRoot . SEPARATOR . $childStylesheet . SEPARATOR;
-	$folderSegments = explode(SEPARATOR, $directory);
-	$dir = $destinationRoot;
+	if ($args != null) {
+		$childThemeRoot			= $args['childThemeRoot'];
+		$childStylesheet		= $args['childStylesheet'];
+		$templateThemeRoot	= $args['templateThemeRoot'];
+		$directory					= $args['directory'];
+		$templateStylesheet = $args['templateStylesheet'];
+		$fileToCopy					= $args['templateFileToCopy'];
+	} else {
+		$childThemeRoot			= $_POST['childThemeRoot'];
+		$childStylesheet		= $_POST['childStylesheet'];
+		$templateThemeRoot	= $_POST['templateThemeRoot'];
+		$directory					= $_POST['directory'];
+		$templateStylesheet = $_POST['templateStylesheet'];
+		$fileToCopy					= $_POST['templateFileToCopy'];
+	}
+//	$dbg = new pasDebug(['ajax'=>true, 'dump'=>['heading'=>'$_POST', 'data'=>$_POST] ]);
+
+	$dir = $childThemeRoot . SEPARATOR . $childStylesheet . SEPARATOR;
+	$folderSegments  = explode(SEPARATOR, $directory);
 
 	for ($ndx = 0; $ndx < count($folderSegments); $ndx++) {
 		$dir .= SEPARATOR . $folderSegments[$ndx];
@@ -174,13 +206,20 @@ function pasChildThemes_copyFile($post) {
 		}
 	}
 
-	$sourceFile = $post['templateThemeRoot'] . SEPARATOR . $post['templateStylesheet'] . SEPARATOR . $post['directory'] . SEPARATOR . $post['templateFileToCopy'];
-	$destinationFile = $post['childThemeRoot'] . SEPARATOR . $post['childStylesheet'] . SEPARATOR . $post['directory'] . SEPARATOR . $post['templateFileToCopy'];
-	$result = copy($sourceFile, $destinationFile);
+	$sourceFile = $templateThemeRoot	. SEPARATOR . 
+								$templateStylesheet . SEPARATOR . 
+								$directory					. SEPARATOR . 
+								$fileToCopy;
+
+	$targetFile = $childThemeRoot			. SEPARATOR . 
+								$childStylesheet		. SEPARATOR .
+								$directory					. SEPARATOR .
+								$fileToCopy;
+
+	$result = copy($sourceFile, $targetFile);
 	if (! $result) {
-		echo "Failed to copy<br>$sourceFile<br>to<br>$destinationFile<br>";
+		echo "Failed to copy<br>$sourceFile<br>to<br>$targetFile<br>";
 	}
-	exit;
 }
 
 function pasChildThemes_deleteFile() {
@@ -215,7 +254,9 @@ function pasChildThemes_createChildTheme() {
 
 	$themeRoot = fixFolderSeparators(get_theme_root());
 	$childThemeName = $_POST['childThemeName'];
+	// New child theme folder will be the specified name with no whitespace, in lower case.
 	$childThemeStylesheet = strtolower(preg_replace("/\s/", "", $_POST['childThemeName']));
+	$childThemeStylesheet = preg_replace("/[^a-z0-9]/g", "", $childThemeStylesheet);
 	$childThemePath = $themeRoot . SEPARATOR . $childThemeStylesheet;
 
 	if (file_exists($childThemePath)) {
@@ -227,13 +268,13 @@ function pasChildThemes_createChildTheme() {
 
 	$styleFile = fopen($childThemePath . SEPARATOR . "style.css", "w");
 	fwrite($styleFile, "/*" . NEWLINE);
-	fwrite($styleFile, " Theme Name:    " . $childThemeName . NEWLINE);
-	fwrite($styleFile, " Theme URI:     " . $_POST['themeURI'] . NEWLINE);
-	fwrite($styleFile, " Description:   " . $_POST['description'] . NEWLINE);
-	fwrite($styleFile, " Author:        " . $_POST['authorName'] . NEWLINE);
-	fwrite($styleFile, " Author URI:    " . $_POST['authorURI'] . NEWLINE);
+	fwrite($styleFile, " Theme Name:    " . $childThemeName					. NEWLINE);
+	fwrite($styleFile, " Theme URI:     " . $_POST['themeURI']			. NEWLINE);
+	fwrite($styleFile, " Description:   " . $_POST['description']		. NEWLINE);
+	fwrite($styleFile, " Author:        " . $_POST['authorName']		. NEWLINE);
+	fwrite($styleFile, " Author URI:    " . $_POST['authorURI']			. NEWLINE);
 	fwrite($styleFile, " Template:      " . $_POST['templateTheme'] . NEWLINE);
-	fwrite($styleFile, " Version:       " . $_POST['version'] . NEWLINE);
+	fwrite($styleFile, " Version:       " . $_POST['version']				. NEWLINE);
 	fwrite($styleFile, "*/" . NEWLINE);
 	fclose($styleFile);
 
@@ -256,23 +297,43 @@ function pasChildThemes_createChildTheme() {
 	$status = new pasChildTheme_ScreenShot($args);
 	unset($status);
 
-	echo "SUCCESS:" . $_POST['href'];
+	echo "SUCCESS:" . $_POST['href']; // Returns a message back to Javascript. We have success. Redirect to HREF
 }
 
-// $inputs is an associative array with the following values:
-// --- directory - folder path to the file clicked on.
-// --- currentThemeObject - an class object containing information on the current active theme
-// --- folder path delimiter - is different depending upon Windows vs Linux.
-// --- theme type = CHILDTHEME or TEMPLATETHEME. Shows whether click was in the left pane or right pane.
-// Function strips all subfolders from the system root to the stylesheet, leaving only the relative path
-// beyond the stylesheet.
-// So if the theme is MyTheme, and the folder path is: 
-//      d:/inetpub/mysite/wp-content/themes/mytheme/template-parts/header 
-// and the file clicked on is: header-image.php
-// Then this function will return:
-//      template-parts/header
-//
-//This is called by pasChildThemes_selectFile() only.
+/*
+ * getRelativePathBeyondRoot()
+ *   This plugin "sees" the file path as having 4 parts. For this explanation, assume that we are
+ *   looking at the following file:
+ *   c:\inetpub\mydomain.com\wp-content\themes\my-theme\assets\css\IE8.css
+ *
+ *   1) The themes root. This is the physical, OS-dependent, server-dependent, path starting at the
+ *      system's root folder and ending with the WordPress themes folder.
+ *      On a typical Windows system and typical WordPress installation, the themes root path
+ *      might look like this:
+ *      c:\inetpub\mydomain.com\wp-content\themes
+ *
+ *   2) The stylesheet. This is the physical folder name for this theme. Typically this would be just:
+ *      my-theme
+ *
+ *   3) The theme's subfolders to the file. For example:
+ *      assets\css
+ *
+ *   4) The filename. This would be the file that we are operating on. For example:
+ *      IE8.css
+ *
+ * This function takes an array of named parameters as it's $inputs.
+ *   'directory' = The full physical path from the system root to the file that we want to manipulate.
+ *      This is the combination of parts #1, #2, #3, and #4 above.
+ *
+ *   'themeType' = The theme type may be either CHILDTHEME or TEMPLATETHEME.
+ *      CHILDTHEME and TEMPLATETHEME are constants defined in '/lib/plugin_constants.php' and
+ *      represent that file clicked on was in the left pane (child) or the right pane (template).
+ *
+ * This function strips parts #1, #2, and #4 from the input 'directory' and returns # 3.
+ *
+ * The getRelativePathBeyondRoot() function is called from the function pasChildThemes_selectFile()
+ * located in the '/lib/ajax_functions.php' file ONLY.
+ */
 function getRelativePathBeyondRoot($inputs) {
 	global $currentThemeObject;
 	$directory					= $inputs['directory'];
@@ -290,7 +351,7 @@ function getRelativePathBeyondRoot($inputs) {
 
 	$indexOffset = array_search($needle, $folderSegments);
 	if (! $indexOffset) {
-		wp_die("ERROR: Cannot find the needle in the haystack. This should never happen. This is a bug.", "Unrecoverable Error: $pluginFolder", 500);
+		wp_die("ERROR: Cannot find the needle in the haystack. This should never happen. This is a bug.", "Unrecoverable Error", 500);
 		return false;
 	}
 	// Remove everything in $path from the system root, up to and including the stylesheet.

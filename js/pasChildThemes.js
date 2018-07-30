@@ -1,194 +1,7 @@
 // pasChildThemes.js
-if(typeof String.prototype.ltrim == "undefined") String.prototype.ltrim = function(){return this.replace(/^\s+/,"");}
-if(typeof String.prototype.rtrim == "undefined") String.prototype.rtrim = function(){return this.replace(/\s+$/,"");}
-if(typeof String.prototype.trim == "undefined") String.prototype.trim = function(){var str = this.ltrim();return str.rtrim();}
-if(typeof String.prototype.right == "undefined") String.prototype.right = function(n){return this.substring(this.length - n, this.length)}
-if(typeof String.prototype.left == "undefined") String.prototype.left = function(n) { return this.substring(0, n); }
 
-// KillMe kills the error message boxes. After the last box has been destroyed, kill the actionBox div too.
-function killMe(element) {
-	var elements
-	element.parentNode.removeChild(element);
-	element.remove();
-
-	elements = document.getElementsByName("errorMessageBox")
-	if (0 == elements.length) {
-		var actionBox = document.getElementById("actionBox")
-		actionBox.parentNode.removeChild(actionBox)
-		actionBox.remove()
-	}
-
-}
-function editFile(element) {
-	alert("Coming soon. This feature is not yet implemented.")
-}
-function cancelOverwrite(element) {
-	var box = document.getElementById("actionBox")
-	if (null == box.parentNode) {
-		var theBody = document.getElementsByTagName("body")[0];
-		theBody.removeChild(box);
-	} else {
-		box.parentNode.removeChild(box);
-	}
-}
-function cancelDeleteChild(element) {
-	var box = document.getElementById("actionBox")
-	if (null == box.parentNode) {
-		var theBody = document.getElementsByTagName("body")[0];
-		theBody.removeChild(box);
-	} else {
-		box.parentNode.removeChild(box);
-	}
-}
-// removeChildFile will call deleteChildFile once it has been determined that the file being deleted hasn't been
-//    modified and if it has, the user has decided to delete it anyway.
-function removeChildFile(element) {
-	var xmlhttp = new XMLHttpRequest()
-	var data = new FormData()
-	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
-
-	xmlhttp.open("POST", ajaxurl, true)
-
-//	data.append("childThemeRoot",			jsInput['childThemeRoot'] );
-	data.append("childStylesheet",		jsInput['childStylesheet']);
-//	data.append("templateThemeRoot",	jsInput["templateThemeRoot"]);
-	data.append("templateStylesheet", jsInput['templateStylesheet']);
-	data.append("directory",					jsInput['directory'] );
-	data.append("childFileToRemove",	jsInput['file']);
-	data.append("action",							jsInput['delete_action']); // verifyRemoveFile
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload()
-					} else {
-						processResponse(response);
-					}
-					break;
-
-				case 400:
-					msg = "400 Error:<br>" + xmlhttp.statusText
-					showBox().innerHTML = msg
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data)
-}
-function copyTemplateFile(element) {
-	var xmlhttp = new XMLHttpRequest()
-	var data = new FormData()
-	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
-
-	xmlhttp.open("POST", ajaxurl, true)
-
-	data.append("childThemeRoot",			jsInput['childThemeRoot'] );
-	data.append("childStylesheet",		jsInput['childStylesheet']);
-	data.append("templateThemeRoot",	jsInput["templateThemeRoot"]);
-	data.append("templateStylesheet", jsInput['templateStylesheet']);
-	data.append("directory",					jsInput['directory'] );
-	data.append("templateFileToCopy",	jsInput['file']);
-	data.append("action",							jsInput['copy_action']); // verifyCopyFile
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload()
-					} else {
-						processResponse(response);
-					}
-					break;
-
-				case 400:
-					msg = "400 Error:<br>" + xmlhttp.statusText
-					showBox().innerHTML = msg
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data)
-}
-
-function deleteChildFile(element) {
-	var xmlhttp = new XMLHttpRequest()
-	var data = new FormData()
-	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
-
-	xmlhttp.open("POST", ajaxurl, true)
-
-	data.append("themeRoot",		jsInput['childThemeRoot'] );
-	data.append("stylesheet",		jsInput['childStylesheet'] );
-	data.append("directory",		jsInput['directory'] );
-	data.append("fileToDelete", jsInput['childFileToRemove']);
-	data.append("action",				jsInput['action']);
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload()
-					} else {
-						processResponse(response);
-					}
-					break;
-
-				case 400:
-					msg = "400 Error:<br>" + xmlhttp.statusText
-					showBox().innerHTML = msg
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data)
-}
-
-function overwriteFile(element) {
-	var xmlhttp = new XMLHttpRequest()
-	var data = new FormData()
-	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
-
-	xmlhttp.open("POST", ajaxurl, true) // AJAX call to "function pasChildThemes_copyFile()" in pasChildThemes.php
-	data.append("childThemeRoot",			jsInput["childThemeRoot"])
-	data.append("childStylesheet",		jsInput["childStylesheet"])
-	data.append("templateThemeRoot",	jsInput["templateThemeRoot"])
-	data.append("templateStylesheet",	jsInput["templateStylesheet"])
-	data.append("directory",					jsInput["directory"])
-	data.append("fileToCopy",					jsInput["templateFileToCopy"])
-	data.append("action",							jsInput["action"]) // defines the php function: 'wp_ajax_copyFile' --> pasChildThemes_copyFile()
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload();
-					} else {
-						processResponse(response);
-					}
-					break;
-
-				case 400: // There was an error
-					msg = "400 Error:<br>" + xmlhttp.statusText
-					showBox().innerHTML = msg
-					break;
-			}
-		}
-	}
-
-	xmlhttp.send(data);
-}
+/* selectFile() called from an onclick event in ListFolderFiles() in /pasChildThemes.php
+ */
 function selectFile(element) {
 	var xmlhttp = new XMLHttpRequest()
 	var data = new FormData()
@@ -198,10 +11,14 @@ function selectFile(element) {
 
 	xmlhttp.open("POST", ajaxurl,true) // AJAX call to "function pasChildThemes_selectFile()" in pasChildThemes.php
 
-	data.append("action",			"selectFile") // '/plugins/pasChildThemes/lib/ajax_functions.php' function pasChildThemes_selectFile()
 	data.append("directory",	jsInput["directory"])
 	data.append("fileName",		jsInput["fileName"])
 	data.append("themeType",	jsInput["themeType"])
+
+/* AJAX Call to pasChildThemes_selectFile()
+ * in '/lib/ajax_functions.php'
+ */
+	data.append("action",			"selectFile")
 
 	xmlhttp.onreadystatechange = function () {
 		if (4 == xmlhttp.readyState) {
@@ -230,58 +47,165 @@ function selectFile(element) {
 	}
 	xmlhttp.send(data);
 }
-function processResponse(response) {
-	if ("MENU:{" == response.left("MENU:{".length).toUpperCase()) {
-		menuResponse = response.right(response.length - "menu:{".length)
-		menuResponse = menuResponse.left(menuResponse.length - 1);
-		box = showBox()
-		box.setAttribute("id", "themeMenu")
-		box.innerHTML = menuResponse;
+/* removeChildFile() is called from an onclick event of a button press set up in pasChildThemes_selectFile()
+ * in file '/pasChildThemes.php'
+ */
+function removeChildFile(element) {
+	var xmlhttp = new XMLHttpRequest()
+	var data = new FormData()
+	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
 
-	} else if ("DEBUG:{" == response.left("DEBUG:{".length).toUpperCase()) {
-		actionBox = document.getElementById("actionBox")
-		if (actionBox != null && actionBox != undefined) {
-			actionBox.parentNode.removeChild(actionBox);
-			actionBox.remove();
+	xmlhttp.open("POST", ajaxurl, true)
+
+	data.append("childStylesheet",		jsInput['childStylesheet']);
+	data.append("templateStylesheet", jsInput['templateStylesheet']);
+	data.append("directory",					jsInput['directory'] );
+	data.append("childFileToRemove",	jsInput['file']);
+
+/* AJAX call to pasChildThemes_verifyRemoveFile()
+ * in '/lib/ajax_functions.php'
+ */
+	data.append("action",							jsInput['delete_action']); // verifyRemoveFile
+
+	xmlhttp.onreadystatechange = function () {
+		if (4 == xmlhttp.readyState) {
+			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
+
+			switch (xmlhttp.status) {
+				case 200: // Everything is okay
+					if (response.length <= 0) {
+						location.reload()
+					} else {
+						processResponse(response);
+					}
+					break;
+
+				case 400:
+					msg = "400 Error:<br>" + xmlhttp.statusText
+					showBox().innerHTML = msg
+					break;
+			}
 		}
-		debugResponse = response.right(response.length - "debug:{".length)
-		debugResponse = debugResponse.left(debugResponse.length - 1);
-		box = createBox('debugBox', 'debug')
-		box.innerHTML = debugResponse;
-	} else {
-		showBox().innerHTML = response
 	}
+	xmlhttp.send(data)
 }
-function showBox() {
-	var box = document.getElementById("actionBox")
-	var e;
-	if (null == box || undefined == box) {
-		var box = document.createElement("div")
-		var theBody = document.getElementsByTagName("body")[0];
-		box.setAttribute("id", "actionBox");
-		theBody.appendChild(box);
-		box.onclick=function () {this.parentNode.removeChild(this);this.remove();}
-	}
-	return box;
+/* deleteChildFile() is called from an onclick event in a popup error box set up in
+ */
+function deleteChildFile(element) {
+	var xmlhttp = new XMLHttpRequest()
+	var data = new FormData()
+	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
 
-}
-function createBox(id,className) {
-	var box = document.getElementById(id)
-	if (box != null && box != undefined) {
-		box.parentNode.removeChild(box);
-		box.remove();
-	}
-	box = document.createElement("div")
-	box.setAttribute("id", id)
-	box.className = className
-	theBody = document.getElementsByTagName("body")[0];
-	theBody.appendChild(box)
-	box.onclick= function () { this.parentNode.removeChild(this); this.remove();}
-	return box;
-}
+	xmlhttp.open("POST", ajaxurl, true)
 
-function resetForm(frm) {
-	frm.reset();
+	data.append("themeRoot",		jsInput['childThemeRoot'] );
+	data.append("stylesheet",		jsInput['childStylesheet'] );
+	data.append("directory",		jsInput['directory'] );
+	data.append("fileToDelete", jsInput['childFileToRemove']);
+
+/* AJAX call to pasChildThemes_deleteFile
+ * in '/lib/ajax_functions.php'
+ */
+	data.append("action",				jsInput['action']);
+
+	xmlhttp.onreadystatechange = function () {
+		if (4 == xmlhttp.readyState) {
+			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
+
+			switch (xmlhttp.status) {
+				case 200: // Everything is okay
+					if (response.length <= 0) {
+						location.reload()
+					} else {
+						processResponse(response);
+					}
+					break;
+
+				case 400:
+					msg = "400 Error:<br>" + xmlhttp.statusText
+					showBox().innerHTML = msg
+					break;
+			}
+		}
+	}
+	xmlhttp.send(data)
+}
+/* copyTemplateFile() responds to an onclick event set up by pasChildThemes_selectFile
+ * when a template theme file is clicked.
+ */
+function copyTemplateFile(element) {
+	var xmlhttp = new XMLHttpRequest();
+	var data = new FormData();
+	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
+
+	xmlhttp.open("POST", ajaxurl, true);
+
+	data.append("childStylesheet",		jsInput['childStylesheet']);
+	data.append("templateStylesheet", jsInput['templateStylesheet']);
+	data.append("directory",					jsInput['directory'] );
+	data.append("templateFileToCopy",	jsInput['file']);
+
+/* AJAX call to pasChildThemes_verifyCopyFile in '/lib/ajax_functions.php
+ */
+	data.append("action",							jsInput['copy_action']);
+
+	xmlhttp.onreadystatechange = function () {
+		if (4 == xmlhttp.readyState) {
+			var response = (1 <= xmlhttp.responseText.length ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
+			switch (xmlhttp.status) {
+				case 200: // Everything is okay
+					if (response.length <= 0) {
+						location.reload();
+					} else {
+						processResponse(response);
+					}
+					break;
+
+				case 400:
+					msg = "400 Error:<br>" + xmlhttp.statusText + "<HR>" + response;
+					showBox().innerHTML = msg;
+					break;
+			}
+		}
+	}
+	xmlhttp.send(data);
+}
+function overwriteFile(element) {
+	var xmlhttp = new XMLHttpRequest()
+	var data = new FormData()
+	var jsInput = JSON.parse(element.getAttribute("data-jsdata"))
+
+	xmlhttp.open("POST", ajaxurl, true) // AJAX call to "function pasChildThemes_copyFile()" in pasChildThemes.php
+	data.append("childThemeRoot",			jsInput["childThemeRoot"])
+	data.append("childStylesheet",		jsInput["childStylesheet"])
+	data.append("templateThemeRoot",	jsInput["templateThemeRoot"])
+	data.append("templateStylesheet",	jsInput["templateStylesheet"])
+	data.append("directory",					jsInput["directory"])
+	data.append("templateFileToCopy",	jsInput["templateFileToCopy"])
+	data.append("action",							jsInput["action"]) // defines the php function: 'wp_ajax_copyFile' --> pasChildThemes_copyFile()
+
+	xmlhttp.onreadystatechange = function () {
+		if (4 == xmlhttp.readyState) {
+			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : xmlhttp.responseText);
+
+			switch (xmlhttp.status) {
+				case 200: // Everything is okay
+					if (response.length <= 0) {
+						location.reload();
+					} else {
+						processResponse(response);
+					}
+					break;
+
+				case 400: // There was an error
+					msg = "400 Error:<br>" + xmlhttp.statusText
+					showBox().innerHTML = msg
+					break;
+			}
+		}
+	}
+
+	xmlhttp.send(data);
 }
 
 function createChildTheme(element) {
@@ -335,42 +259,24 @@ function createChildTheme(element) {
 	}
 	xmlhttp.send(data);
 }
-
-function showData(element) {
-	var normalClass = "debugger"
-	var pauseClass = "debuggerHide"
-
-	var jsdata = element.getAttribute("data-jsdata")
-	var d = document.getElementById("debugger")
-	if (null == d || undefined == d) {
-		d = document.getElementById("debuggerHide")
-		if (null == d || undefined == d) {
-			d = document.createElement("div")
-			var theBody = document.getElementsByTagName("body")[0];
-			d.setAttribute("id", "debugger")
-			theBody.appendChild(d);
-		}
+function cancelOverwrite(element) {
+	var box = document.getElementById("actionBox")
+	if (null == box.parentNode) {
+		var theBody = document.getElementsByTagName("body")[0];
+		theBody.removeChild(box);
+	} else {
+		box.parentNode.removeChild(box);
 	}
-	// Set the "id" to normalClass for normal display, or pauseClass for mostly hidden, but left as
-	//   reminder that this code needs to be removed.
-	d.setAttribute("id", pauseClass)
-	d.onmouseover = function () {
-		if ("debugger" == d.id) {
-			d.style.fontSize = "14pt"
-		} else {
-			d.setAttribute("id", "debugger");
-		}
+}
+function cancelDeleteChild(element) {
+	var box = document.getElementById("actionBox")
+	if (null == box.parentNode) {
+		var theBody = document.getElementsByTagName("body")[0];
+		theBody.removeChild(box);
+	} else {
+		box.parentNode.removeChild(box);
 	}
-	d.onmouseout = function () {
-		d.style.fontSize = "8pt"
-	}
-	d.onclick = function () {
-		if ("debugger" == d.id) {
-			d.setAttribute("id", "debuggerHide")
-		} else {
-			d.parentNode.removeChild(d)
-			d.remove();
-		}
-	}
-	d.innerHTML = jsdata
+}
+function editFile(element) {
+	alert("Coming soon. This feature is not yet implemented.")
 }
