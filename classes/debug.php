@@ -40,14 +40,17 @@ if (! class_exists('pasDebug') ) {
 		function dump($args = null) {
 			// if WordPress WP_DEBUG constant is not set to true, write out nothing and exit.
 			if (!WP_DEBUG) { return false; }
-			if ($this->ajax == true) { echo "DEBUG:{"; }
+			if ($this->ajax) { echo "DEBUG:{"; }
 			for ($ndx = 0; $ndx < count($this->debugOutput); $ndx++) {
 				echo "<div class='debugHeading'>" . $this->debugOutput[$ndx]['heading'] . "</div>";
 				echo "<div class='debugOutput'><pre>" . print_r($this->debugOutput[$ndx]['data'], true) . "</pre></div>";
 			}
-			if ($this->ajax == true) { echo "}"; }
-			if ($this->onDumpExit == true) { exit; }
-			if ($this->onDumpClear == true) { unset($this->debugOutput); $this->debugOutput = Array(); }
+			if ($this->ajax) { echo "}"; }
+			if ($this->onDumpExit) { exit; }
+			if ($this->onDumpClear) {
+				unset($this->debugOutput); 
+				$this->debugOutput = Array();
+			}
 		}
 	}
 }

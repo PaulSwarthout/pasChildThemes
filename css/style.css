@@ -51,12 +51,12 @@
 #clickBox {
 	border:solid 1px black;
 	border-radius:10px;
+	box-shadow:3px 3px 6px darkgray;
 	font-family:courier-new;
 	font-size:12pt;
 	font-variant:small-caps;
 	color:black;
 	background-color:white;
-	box-shadow:3px 3px 6px darkgray;
 	width:75px;
 	padding:5px;
 	text-align:center;
@@ -157,6 +157,29 @@
 	font-weight:bold;
 	font-style:italic;
 	color:black;
+}
+.generateScreenShot_general {
+	font-size:12pt;
+	font-weight:normal;
+	font-variant:normal;
+	color:black;
+	background-color:white;
+	text-align:justify;
+	width:100%;
+	margin:0px;
+	display:inline-block;
+	line-height:20px;
+}
+.generateScreenShot_header {
+	font-size:18pt;
+	font-weight:bold;
+	font-variant:small-caps;
+	color:black;
+	text-align:center;
+	width:100%;
+	margin:0px;
+	display:inline-block;
+	line-height:25px;
 }
 .warningHeading, #errorMessageHeader {
 	font-size:18pt;

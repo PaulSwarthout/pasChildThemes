@@ -11,7 +11,7 @@ if (! class_exists('pasChildThemes_activeTheme') ) {
 		public $templateStylesheet;
 		public $templateThemeRoot;
 		// Status is true if the currently active theme is a child theme, false otherwise.
-		public $status;
+		public $isChildTheme;
 
 		function __construct() {
 			$this->currentActiveTheme = wp_get_theme();
@@ -28,10 +28,10 @@ if (! class_exists('pasChildThemes_activeTheme') ) {
 				$this->templateThemeRoot	= $this->fixDelimiters($this->templateTheme->get_theme_root());
 
 				// Current theme is a child theme
-				$this->status = true;
+				$this->isChildTheme = true;
 			} else {
 				// Current theme is NOT a child theme
-				$this->status = false;
+				$this->isChildTheme = false;
 			}
 		}
 		private function fixDelimiters($path) {
@@ -46,7 +46,7 @@ if (! class_exists('pasChildThemes_activeTheme') ) {
 		}
 
 		public function getTemplateFolder() {
-			return ($this->status ? $this->templateThemeRoot . SEPARATOR . $this->templateStylesheet : false);
+			return ($this->isChildTheme ? $this->templateThemeRoot . SEPARATOR . $this->templateStylesheet : false);
 		}
 	}
 }
