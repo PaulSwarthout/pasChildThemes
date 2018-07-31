@@ -74,7 +74,9 @@ function pasChildThemes_scripts() {
 function pasChildThemes_admin() {
 	global $currentThemeObject;
 	add_menu_page( 'ChildThemesHelper', 'Child Theme Helper', 'manage_options', 'manage_child_themes', 'manage_child_themes', "", 61);
-	if ($currentThemeObject->isChildTheme) {
+	if ($currentThemeObject->isChildTheme && isWin()) {
+		// Screenshot generation doesn't work in Linux because of missing fonts.
+		// Will attempt to find a fix.
 		add_submenu_page('manage_child_themes', 'Generate ScreenShot', 'Generate ScreenShot', 'manage_options', 'genScreenShot', 'generateScreenShot');
 	}
 }
@@ -85,6 +87,7 @@ function generateScreenShot() {
 
 	echo "<div class='generateScreenShot_general'>";
 	echo "<span class='generateScreenShot_Header'>ScreenShot Generator</span>";
+/*
 	echo <<<"generateScreenShot"
 		Welcome to the ScreenShot Generator, brought to you by the Child Theme Helper plugin.<br><br>
 		The 'screenshot.png' file, located in a theme's root folder, is displayed on the Dashboard Themes
@@ -98,6 +101,7 @@ function generateScreenShot() {
 		'
 
 generateScreenShot;
+*/
 	echo "</div>";
 
 
@@ -105,7 +109,7 @@ generateScreenShot;
 
 	if (! file_exists($screenShotFile)) {
 		$args = [
-			'targetFile' => $currentThemeObject->childThemeRoot . SEPARATOR . $currentThemeObject->childStylesheet . SEPARATOR . "screenshot.png",
+			'targetFile' => $screenShotFile,
 			'childThemeName' => $currentThemeObject->childThemeName,
 			'templateThemeName' => $currentThemeObject->templateStylesheet
 			];
