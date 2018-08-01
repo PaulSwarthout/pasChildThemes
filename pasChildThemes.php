@@ -11,7 +11,7 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$pluginDirectory	= plugin_dir_url( __FILE__ );
+$pluginDirectory	= plugin_dir_path( __FILE__ );
 $pluginName				= "Child Themes Helper";
 $pluginFolder			= "pasChildThemes";
 
@@ -23,11 +23,11 @@ require_once(dirname(__FILE__) . '/classes/currentTheme.php'); // Class which ho
 require_once(dirname(__FILE__) . '/classes/debug.php');        // A general debug class.
 require_once(dirname(__FILE__) . '/classes/createScreenShot.php'); // Generates the screenshot.png file.
 
-add_action('admin_menu',							 'pasChildThemes_admin' );
+add_action('admin_menu',				 'pasChildThemes_admin' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_styles' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_scripts');
-add_action('init',										 'pasChildThemes_add_ob_start'); // Buffering
-add_action('wp_footer',								 'pasChildThemes_flush_ob_end'); // Buffering
+add_action('init',						 'pasChildThemes_add_ob_start'); // Buffering
+add_action('wp_footer',					 'pasChildThemes_flush_ob_end'); // Buffering
 
 /* AJAX functions may be found in the 'lib/ajax_functions.php' file
  *
@@ -74,16 +74,18 @@ function pasChildThemes_scripts() {
 function pasChildThemes_admin() {
 	global $currentThemeObject;
 	add_menu_page( 'ChildThemesHelper', 'Child Theme Helper', 'manage_options', 'manage_child_themes', 'manage_child_themes', "", 61);
-	if ($currentThemeObject->isChildTheme && isWin()) {
+	if ($currentThemeObject->isChildTheme) {
 		// Screenshot generation doesn't work in Linux because of missing fonts.
 		// Will attempt to find a fix.
 		add_submenu_page('manage_child_themes', 'Generate ScreenShot', 'Generate ScreenShot', 'manage_options', 'genScreenShot', 'generateScreenShot');
+//		add_submenu_page('manage_child_themes', 'Test Code', 'Test Code', 'manage_options', 'testCode', 'testCode');
 	}
 }
-
 // Generates the screenshot.png file in the child theme, if one does not yet exist.
 function generateScreenShot() {
 	global $currentThemeObject;
+	global $pluginDirectory;
+
 
 	echo "<div class='generateScreenShot_general'>";
 	echo "<span class='generateScreenShot_Header'>ScreenShot Generator</span>";
@@ -107,20 +109,21 @@ generateScreenShot;
 
 	$screenShotFile = $currentThemeObject->childThemeRoot . SEPARATOR . $currentThemeObject->childStylesheet . SEPARATOR . "screenshot.png";
 
-	if (! file_exists($screenShotFile)) {
+//	if (! file_exists($screenShotFile)) {
 		$args = [
-			'targetFile' => $screenShotFile,
-			'childThemeName' => $currentThemeObject->childThemeName,
-			'templateThemeName' => $currentThemeObject->templateStylesheet
+			'targetFile'				=> $screenShotFile,
+			'childThemeName'		=> $currentThemeObject->childThemeName,
+			'templateThemeName' => $currentThemeObject->templateStylesheet,
+			'pluginDirectory'		=> $pluginDirectory
 			];
 
 		// pasChildTheme_ScreenShot() generates screenshot.png and writes it out. $status not needed afterwards
 		$status = new pasChildTheme_ScreenShot($args);
-		unset($status);
+		unset($status); // ScreenShot.png is created in the class __construct() function.
 
 		// All done. Reload the Dashboard Themes page.
 		wp_redirect(admin_url("themes.php"));
-
+/*
 	} else {
 		// Error. Write it. Return from this AJAX call. Javascript will write the message.
 		$msg = "The <i>ScreenShot Generator</i> will create a recognizable, and informative "
@@ -132,6 +135,7 @@ generateScreenShot;
 		displayError("ERROR", $msg);
 		unset($msg);
 	}
+*/
 }
 
 function getThemeSelect($type = TEMPLATETHEME) {
