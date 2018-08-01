@@ -363,3 +363,6 @@ function getRelativePathBeyondRoot($inputs) {
 
 	return (implode(SEPARATOR, $folderSegments));
 }
+function pasChildThemes_saveOptions() {
+	update_option("pasChildThemes_" . $_POST['optionName'], $_POST['optionValue']);
+}

@@ -33,31 +33,36 @@ if (! class_exists('pasChildThemes_ScreenShot') ) {
 			}
 
 			$img = imagecreate( $imageSize['width'], $imageSize['height'] );
-			$background = imagecolorallocate( $img, 11, 102, 35 );
-			$text_color = imagecolorallocate( $img, 255, 255, 0 );
+			$bcColor = get_option("pasChildThemes_bcColor", "#00FF00");
+			$fcColor = get_option("pasChildThemes_fcColor", "#FFFF00");
 
-			$font = $fontPath . "BLKCHCRY.TTF";
+			$rgb = $this->getColors($bcColor);
+			$background = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
+			$rgb = $this->getColors($fcColor);
+			$text_color = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
+
+			$font = $fontPath . get_option('pasChildThemes_font', 'arial.ttf');
 
 			// Define the strings to write out.
 			// Padding is padding before the string.
 			// yPos = startOffset + for each index(initial padding + string height)
 			$texts = Array(
-					['string' => $childThemeName,
-				   'fontSize' => 60,
+					['string' => get_option("pasChildThemes_string1", $childThemeName),
+				   'fontSize' => 50,
 				   'fontName' => $font,
 					 'pad'=>0],
 
-					['string' => "...is a child of $templateThemeName",
+					['string' => get_option("pasChildThemes_string2", "...is a child of $templateThemeName"),
 					 'fontSize' => 48,
 					 'fontName' => $font,
 					 'pad'=>50],
 
-					['string' => 'created by the Child Theme Helper plugin',
+					['string' => get_option("pasChildThemes_string3", PASCHILDTHEMES_NAME),
 					 'fontSize' => 48,
 					 'fontName' => $font,
 					 'pad'=>150],
 
-					['string' => 'http://www.PaulSwarthout.com/WordPress',
+					['string' => get_option("pasChildThemes_string4", PAULSWARTHOUT_URL),
 					 'fontSize' => 44,
 					 'fontName' => $font,
 					 'pad'=>100]
@@ -94,6 +99,13 @@ if (! class_exists('pasChildThemes_ScreenShot') ) {
 			imagedestroy( $img );
 
 			return true;
+		}
+
+		function getColors($hexCode) {
+			return ['red'=>hexdec(substr($hexCode, 1, 2)),
+				      'green'=>hexdec(substr($hexCode, 3, 2)),
+							'blue'=>hexdec(substr($hexCode, 5, 2))
+						 ];
 		}
 
 		function getSize($item) {

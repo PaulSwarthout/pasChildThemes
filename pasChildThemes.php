@@ -14,7 +14,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 $pluginDirectory	= plugin_dir_path( __FILE__ );
 $pluginName				= "Child Themes Helper";
 $pluginFolder			= "pasChildThemes";
-
 require_once(dirname(__FILE__) . '/lib/plugin_constants.php'); // pasChildThemes constants
 require_once(dirname(__FILE__) . '/lib/common_functions.php'); // General functions used throughout
 require_once(dirname(__FILE__) . '/lib/ajax_functions.php');   // Functions called from Javascript using AJAX
@@ -22,6 +21,11 @@ require_once(dirname(__FILE__) . '/lib/helper_functions.php'); // Specific purpo
 require_once(dirname(__FILE__) . '/classes/currentTheme.php'); // Class which holds information on the currently active theme and its parent.
 require_once(dirname(__FILE__) . '/classes/debug.php');        // A general debug class.
 require_once(dirname(__FILE__) . '/classes/createScreenShot.php'); // Generates the screenshot.png file.
+
+$dbg = null;
+if (WP_DEBUG) {
+	$dbg = new pasDebug(['ajax'=>false, 'onDumpExit'=>true, 'onDumpClear'=>true]);
+}
 
 add_action('admin_menu',				 'pasChildThemes_admin' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_styles' );
@@ -49,6 +53,7 @@ add_action('wp_ajax_copyFile',				 'pasChildThemes_copyFile');
 /* The createChildTheme function is triggered with an AJAX call from Javascript when the
  * Create Child Theme button is clicked. */
 add_action('wp_ajax_createChildTheme', 'pasChildThemes_createChildTheme');
+add_action('wp_ajax_saveOptions', 'pasChildThemes_saveOptions');
 
 /* Go get the current theme information.
  * This is a wrapper for the wp_get_theme() function.
@@ -73,13 +78,145 @@ function pasChildThemes_scripts() {
 // pasChildThemes Dashboard Menu
 function pasChildThemes_admin() {
 	global $currentThemeObject;
-	add_menu_page( 'ChildThemesHelper', 'Child Theme Helper', 'manage_options', 'manage_child_themes', 'manage_child_themes', "", 61);
+	add_menu_page( 'ChildThemesHelper', 'Child Themes Helper', 'manage_options', 'manage_child_themes', 'manage_child_themes', "", 61);
 	if ($currentThemeObject->isChildTheme) {
-		// Screenshot generation doesn't work in Linux because of missing fonts.
-		// Will attempt to find a fix.
 		add_submenu_page('manage_child_themes', 'Generate ScreenShot', 'Generate ScreenShot', 'manage_options', 'genScreenShot', 'generateScreenShot');
-//		add_submenu_page('manage_child_themes', 'Test Code', 'Test Code', 'manage_options', 'testCode', 'testCode');
 	}
+	add_submenu_page( 'manage_child_themes', 'Options', 'Options', 'manage_options', 'Options', 'pasChildThemes_Options');
+}
+function pctOption($args) {
+	$label = $args['label'];
+	$optionName = $args['optionName'];
+	$defaultValue = $args['default'];
+	$onblur = $args['onblur'];
+	$ifColorPicker = (array_key_exists('colorPicker', $args) ? $args['colorPicker'] : false);
+	$dots = DOTS;
+	$optionValue = get_option("pasChildThemes_$optionName", $defaultValue);
+	if ($ifColorPicker) {
+		$colorPicker = "show color picker";
+	} else {
+		$colorPicker = "";
+	}
+	$readonly = (array_key_exists('readonly', $args) ? " READONLY " : "");
+
+	if (array_key_exists('type', $args)) {
+		switch (strtolower($args['type'])) {
+			case "input":
+				$formElement = "<input $readonly type='text' name='$optionName' value='$optionValue' onblur='javascript:$onblur;'>";
+				break;
+			case "select":
+				$formElement = "<select $readonly name='$optionName' onblur='javascript:$onblur'>"
+								     . "<option value=''>Choose the Font</option>";
+				if (array_key_exists('options', $args)) {
+					$options = $args['options'];
+					foreach ($options as $value) {
+						$selected = ($value[1] == $optionValue ? " SELECTED " : "");
+						$formElement .= "<option $selected value='" . $value[1] . "'>" . $value[0] . "</option>";
+					}
+					$formElement .= "</select>";
+				} else {
+					$formElement = "<input $readonly type='text' name='$optionName' value='$optionValue' onblur='javascript:$onblur;'>";
+				}
+		}
+	} else {
+		$formElement = "<input $readonly type='text' name='$optionName' value='$optionValue' onblur='javascript:$onblur;'>";
+	}
+
+	$outputString = <<<"OPTION"
+	<div class='pct'>
+	<span class='pctOptionHeading'>
+		<nobr>$label<span class='dots'>$dots</span></nobr>
+	</span>
+	<span class='pctOptionValue'>
+		$formElement
+		$colorPicker
+	</span>
+	</div>
+OPTION;
+
+	return ($outputString);
+}
+function pasChildThemes_Options() {
+	global $currentThemeObject;
+	echo "<h1>Screen Shot Options</h1>";
+
+	echo pctOption(['label'=>'Image Width: ',
+									'optionName'=>'imageWidth',
+									'default'=>1200,
+									'onblur'=>'pctSetOption(this)',
+									'type'=>'input'
+								 ]);
+
+	echo pctOption(['label'=>'Image Height: ',
+									'optionName'=>'imageHeight',
+									'default'=>900,
+									'onblur'=>'pctSetOption(this)',
+									'type'=>'input'
+								 ]);
+
+	echo pctOption(['label'=>'Background Color: ', 
+									'optionName'=>'bcColor', 
+									'default'=>'#002500', 
+									'onblur'=>'pctSetOption(this)',
+									'colorPicker'=>true,
+									'type'=>'input'
+								 ]);
+
+	echo pctOption(['label'=>'Text Color: ',
+		              'optionName'=>'fcColor',
+									'default'=>'#FFFF00',
+									'onblur'=>'pctSetOption(this)',
+									'colorPicker'=>true,
+									'type'=>'input'
+								 ]);
+
+	echo pctOption(['label'=>'Font: ',
+								  'optionName'=>'font',
+									'default'=>'arial',
+									'onblur'=>'pctSetOption(this)',
+									'type'=>'select', 
+									'options'=>[['Arial', 'arial.ttf'], ['Courier-New', 'cour.ttf'], ['Black Chancery', 'BLKCHCRY.TTF']]
+								 ]);
+
+	echo pctOption(['label'=>'String1: ',
+								  'optionName'=>'string1',
+									'default'=>$currentThemeObject->childThemeName,
+									'onblur'=>'pctSetOption(this);',
+									'type'=>'input',
+									'fontSize'=>50,
+									'topPad'=>0
+								 ]);
+
+	echo pctOption(['label'=>'String2: ',
+								  'optionName'=>'string2',
+									'default'=>"...is a child of " . $currentThemeObject->templateThemeName,
+									'onblur'=>'pctSetOption(this);',
+									'type'=>'input',
+									'fontSize'=>50,
+									'topPad'=>0
+								 ]);
+
+	echo pctOption(['label'=>'String3: ',
+								  'optionName'=>'string3',
+									'default'=>PASCHILDTHEMES_NAME,
+									'onblur'=>'pctSetOption(this);',
+									'type'=>'input',
+									'readonly'=>true,
+									'fontSize'=>50,
+									'topPad'=>0
+								 ]);
+
+	echo pctOption(['label'=>'String4: ',
+								  'optionName'=>'string4',
+									'default'=>PAULSWARTHOUT_URL,
+									'onblur'=>'pctSetOption(this);',
+									'type'=>'input',
+									'readonly'=>true,
+									'fontSize'=>50,
+									'topPad'=>0
+								 ]);
+}
+function showColorPicker() {
 }
 // Generates the screenshot.png file in the child theme, if one does not yet exist.
 function generateScreenShot() {
@@ -123,19 +260,6 @@ generateScreenShot;
 
 		// All done. Reload the Dashboard Themes page.
 		wp_redirect(admin_url("themes.php"));
-/*
-	} else {
-		// Error. Write it. Return from this AJAX call. Javascript will write the message.
-		$msg = "The <i>ScreenShot Generator</i> will create a recognizable, and informative "
-				 . "<i>temporary</i> image for display on the Dashboard Themes page associated "
-				 . "with your currently active theme. The <i>ScreenShot Generator</i> will <b><u>NOT</u></b> "
-				 . "overwrite an existing ScreenShot.<br><br>"
-				 . "Your currently active theme, <i>" . $currentThemeObject->childThemeName . "</i>, already has a 'screenshot.png' file. "
-				 . "<br><br>No changes have been made.";
-		displayError("ERROR", $msg);
-		unset($msg);
-	}
-*/
 }
 
 function getThemeSelect($type = TEMPLATETHEME) {

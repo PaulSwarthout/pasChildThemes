@@ -349,3 +349,34 @@
 	overflow:hidden;
 
 }
+.pctOptionHeading {
+	margin:0px 0px 2px 0px;
+	line-height:;
+	font-weight:bold;
+	font-size:14pt;
+	font-family:courier-new;
+	width:200px;
+	display:inline-block;
+	vertical-align:top;
+	overflow:hidden;
+}
+.pctOptionValue {
+	padding:0 0 0 10px;
+}
+.pctOptionValue input[type=text], .pctOptionValue select {
+	background-color:white;
+	color:black;
+	font-weight:normal;
+	font-family:courier-new;
+	font-size:14pt;
+	width:300px;
+	display:inline-block;
+	padding:0px;
+	margin:0px;
+	line-height:1.5;
+}
+.pct {
+	margin-top:10px;
+	margin-bottom:10px;
+	padding:0px;
+}
