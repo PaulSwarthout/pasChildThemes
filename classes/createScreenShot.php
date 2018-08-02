@@ -17,31 +17,22 @@ if (! class_exists('pasChildThemes_ScreenShot') ) {
 			$screenShotFile = $args['targetFile'];
 			$pluginDirectory = $args['pluginDirectory'];
 			$fontPath = $currentThemeObject->fixDelimiters($pluginDirectory . "assets/fonts/");
+			putenv("GDFONTPATH=$fontPath");
 
 			// Set the enviroment variable for GD
-
-			if (array_key_exists('width', $args) ) {
-				$imageSize['width'] = $args['width'];
-			} else {
-				$imageSize['width'] = PASCHILDTHEMES_DEFAULT_IMAGE_WIDTH;
-			}
-
-			if (array_key_exists('height', $args) ) {
-				$imageSize['height'] = $args['height'];
-			} else {
-				$imageSize['height'] = PASCHILDTHEMES_DEFAULT_IMAGE_HEIGHT;
-			}
+			$imageSize['width'] = get_option("pasChildThemes_imageWidth", PASCHILDTHEMES_DEFAULT_IMAGE_WIDTH);
+			$imageSize['height']= get_option("pasChildThemes_imageHeight",PASCHILDTHEMES_DEFAULT_IMAGE_HEIGHT);
 
 			$img = imagecreate( $imageSize['width'], $imageSize['height'] );
-			$bcColor = get_option("pasChildThemes_bcColor", "#00FF00");
-			$fcColor = get_option("pasChildThemes_fcColor", "#FFFF00");
+			$bcColor = get_option("pasChildThemes_bcColor", PASCHILDTHEMES_DEFAULT_SCREENSHOT_BCCOLOR);
+			$fcColor = get_option("pasChildThemes_fcColor", PASCHILDTHEMES_DEFAULT_SCREENSHOT_FCCOLOR);
 
 			$rgb = $this->getColors($bcColor);
 			$background = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
 			$rgb = $this->getColors($fcColor);
 			$text_color = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
 
-			$font = $fontPath . get_option('pasChildThemes_font', 'arial.ttf');
+			$font = $fontPath . get_option('pasChildThemes_font', PASCHILDTHEMES_DEFAULT_SCREENSHOT_FONT);
 
 			// Define the strings to write out.
 			// Padding is padding before the string.
@@ -92,6 +83,7 @@ if (! class_exists('pasChildThemes_ScreenShot') ) {
 				imagefttext( $img, $fontSize, $angle, $xPos, $yPos, $text_color, $fontName, $textLine);
 				$offset += $texts[$ndx]['height']; // must be set after $yPos is set. Bottom of loop is best.
 			}
+
 			imagepng( $img, $screenShotFile );
 
 			imagecolordeallocate( $img, $text_color );
@@ -102,9 +94,9 @@ if (! class_exists('pasChildThemes_ScreenShot') ) {
 		}
 
 		function getColors($hexCode) {
-			return ['red'=>hexdec(substr($hexCode, 1, 2)),
-				      'green'=>hexdec(substr($hexCode, 3, 2)),
-							'blue'=>hexdec(substr($hexCode, 5, 2))
+			return ['red'		=>hexdec(substr($hexCode, 1, 2)),
+				      'green'	=>hexdec(substr($hexCode, 3, 2)),
+							'blue'	=>hexdec(substr($hexCode, 5, 2))
 						 ];
 		}
 

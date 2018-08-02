@@ -11,9 +11,9 @@
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-$pluginDirectory	= plugin_dir_path( __FILE__ );
-$pluginName				= "Child Themes Helper";
-$pluginFolder			= "pasChildThemes";
+$pasChildThemes_pluginDirectory	= plugin_dir_path( __FILE__ );
+$pasChildThemes_pluginName				= "Child Themes Helper";
+$pasChildThemes_pluginFolder			= "pasChildThemes";
 require_once(dirname(__FILE__) . '/lib/plugin_constants.php'); // pasChildThemes constants
 require_once(dirname(__FILE__) . '/lib/common_functions.php'); // General functions used throughout
 require_once(dirname(__FILE__) . '/lib/ajax_functions.php');   // Functions called from Javascript using AJAX
@@ -26,6 +26,10 @@ $dbg = null;
 if (WP_DEBUG) {
 	$dbg = new pasDebug(['ajax'=>false, 'onDumpExit'=>true, 'onDumpClear'=>true]);
 }
+
+register_activation_hook  (__FILE__, 'pasChildThemes_activate' );
+register_deactivation_hook(__FILE__, 'pasChildThemes_deactivate' );
+
 
 add_action('admin_menu',				 'pasChildThemes_admin' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_styles' );
@@ -221,28 +225,7 @@ function showColorPicker() {
 // Generates the screenshot.png file in the child theme, if one does not yet exist.
 function generateScreenShot() {
 	global $currentThemeObject;
-	global $pluginDirectory;
-
-
-	echo "<div class='generateScreenShot_general'>";
-	echo "<span class='generateScreenShot_Header'>ScreenShot Generator</span>";
-/*
-	echo <<<"generateScreenShot"
-		Welcome to the ScreenShot Generator, brought to you by the Child Theme Helper plugin.<br><br>
-		The 'screenshot.png' file, located in a theme's root folder, is displayed on the Dashboard Themes
-		page as the particular theme's graphic.
-		For most of the themes that you download, the screenshot.png file is a copy of the theme's header image.
-		But your child theme doesn't have a screenshot.png file by default.
-		You can copy the screenshot.png file from the template theme, but then you've got two themes on the
-		Dashboard Themes page that at a glance, look alike.
-
-
-		'
-
-generateScreenShot;
-*/
-	echo "</div>";
-
+	global $pasChildThemes_pluginDirectory;
 
 	$screenShotFile = $currentThemeObject->childThemeRoot . SEPARATOR . $currentThemeObject->childStylesheet . SEPARATOR . "screenshot.png";
 
@@ -251,7 +234,7 @@ generateScreenShot;
 			'targetFile'				=> $screenShotFile,
 			'childThemeName'		=> $currentThemeObject->childThemeName,
 			'templateThemeName' => $currentThemeObject->templateStylesheet,
-			'pluginDirectory'		=> $pluginDirectory
+			'pluginDirectory'		=> $pasChildThemes_pluginDirectory
 			];
 
 		// pasChildTheme_ScreenShot() generates screenshot.png and writes it out. $status not needed afterwards
@@ -439,3 +422,24 @@ function pasChildThemes_flush_ob_end(){
 	ob_end_flush();
 }
 
+function pasChildThemes_activate() {
+	add_option('pasChildThemes_fcColor', PASCHILDTHEMES_DEFAULT_SCREENSHOT_FCCOLOR);
+	add_option('pasChildThemes_bcColor', PASCHILDTHEMES_DEFAULT_SCREENSHOT_BCCOLOR);
+	add_option('pasChildThemes_font', PASCHILDTHEMES_DEFAULT_SCREENSHOT_FONT);
+	add_option('pasChildThemes_imageWidth', PASCHILDTHEMES_DEFAULT_IMAGE_WIDTH);
+	add_option('pasChildThemes_imageHeight', PASCHILDTHEMES_DEFAULT_IMAGE_HEIGHT);
+
+	add_option('pasChildThemes_string3', PASCHILDTHEMES_NAME);
+	add_option('pasChildThemes_string4', PAULSWARTHOUT_URL);
+}
+function pasChildThemes_deactivate() {
+	delete_option('pasChildThemes_fcColor');
+	delete_option('pasChildThemes_bcColor');
+	delete_option('pasChildThemes_font');
+	delete_option('pasChildThemes_imageWidth');
+	delete_option('pasChildThemes_imageHeight');
+	delete_option('pasChildThemes_string1');
+	delete_option('pasChildThemes_string2');
+	delete_option('pasChildThemes_string3');
+	delete_option('pasChildThemes_string4');
+}

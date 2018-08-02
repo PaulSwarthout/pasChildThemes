@@ -38,6 +38,14 @@ if (! class_exists('pasDebug') ) {
 //  Inputs:
 //		Array( 'heading'=> a heading to help identify this block of data in the output,
 //           'data' => The data to dump.
+		function setOptions($options) {
+			if (0 < count($options)) {
+				$this->args = $options;
+				$this->ajax = (array_key_exists('ajax', $options) ? $options['ajax'] : false);
+				$this->onDumpExit = (array_key_exists('onDumpExit', $options) ? $options['onDumpExit'] : true);
+				$this->onDumpClear = (array_key_exists('onDumpClear', $options) ? $options['onDumpClear'] : true);
+			}
+		}
 		function write($block) {
 			$this->debugOutput[count($this->debugOutput)] = $block;
 		}
