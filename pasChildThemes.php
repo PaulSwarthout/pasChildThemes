@@ -20,10 +20,10 @@ require_once(dirname(__FILE__) . '/lib/ajax_functions.php');   // Functions call
 require_once(dirname(__FILE__) . '/lib/helper_functions.php'); // Specific purpose functions.
 require_once(dirname(__FILE__) . '/classes/currentTheme.php'); // Class which holds information on the currently active theme and its parent.
 require_once(dirname(__FILE__) . '/classes/createScreenShot.php'); // Generates the screenshot.png file.
-$dbg = null;
-if (WP_DEBUG) {
-	require_once(dirname(__FILE__) . '/classes/debug.php');        // A general debug class.
-	$dbg = new pasDebug(['ajax'=>false, 'onDumpExit'=>true, 'onDumpClear'=>true]);
+/* For debugging purposes. Won't write anything unless WP_DEBUG is set to TRUE.
+ * require_once(dirname(__FILE__) . '/classes/debug.php');        // A general debug class.
+ * $dbg = new pasDebug(['ajax'=>false, 'onDumpExit'=>true, 'onDumpClear'=>true]);
+ */
 }
 
 register_activation_hook  (__FILE__, 'pasChildThemes_activate' ); // Create default options
