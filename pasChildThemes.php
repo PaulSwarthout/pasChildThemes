@@ -23,8 +23,8 @@ require_once(dirname(__FILE__) . '/classes/createScreenShot.php'); // Generates 
 /* For debugging purposes. Won't write anything unless WP_DEBUG is set to TRUE.
  * require_once(dirname(__FILE__) . '/classes/debug.php');        // A general debug class.
  * $dbg = new pasDebug(['ajax'=>false, 'onDumpExit'=>true, 'onDumpClear'=>true]);
- */
 }
+*/
 
 register_activation_hook  (__FILE__, 'pasChildThemes_activate' ); // Create default options
 register_deactivation_hook(__FILE__, 'pasChildThemes_deactivate' ); // Delete options.
@@ -224,7 +224,6 @@ function pasChildThemes_Options() {
 									'onblur'=>'pctSetOption(this)',
 									'type'=>'select', 
 									'options'=>[['Arial', 'arial.ttf'], 
-															['Courier-New', 'cour.ttf'], 
 															['Black Chancery', 'BLKCHCRY.TTF']]
 								 ]);
 

@@ -27,6 +27,7 @@ if (! class_exists('pasChildThemes_ScreenShot') ) {
 			$bcColor = get_option("pasChildThemes_bcColor", PASCHILDTHEMES_DEFAULT_SCREENSHOT_BCCOLOR);
 			$fcColor = get_option("pasChildThemes_fcColor", PASCHILDTHEMES_DEFAULT_SCREENSHOT_FCCOLOR);
 
+			// getColors() converts #2AC4D2 to ['red'=>42, 'green'=>196, 'blue'=> 210] for example.
 			$rgb = $this->getColors($bcColor);
 			$background = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
 			$rgb = $this->getColors($fcColor);
@@ -92,7 +93,10 @@ if (! class_exists('pasChildThemes_ScreenShot') ) {
 
 			return true;
 		}
-
+		/* Converts a hex string of colors such as: #AABBCC to an array of decimal values.
+		 *  For example: an input of: #2AC4D2 would return:
+		 *  ['red'=>42, 'green'=>196, 'blue'=> 210]
+		 */
 		function getColors($hexCode) {
 			return ['red'		=>hexdec(substr($hexCode, 1, 2)),
 				      'green'	=>hexdec(substr($hexCode, 3, 2)),
@@ -100,6 +104,7 @@ if (! class_exists('pasChildThemes_ScreenShot') ) {
 						 ];
 		}
 
+		// Gets the size of a string based upon the chosen font, font size, and the string.
 		function getSize($item) {
 			$boundingBox = imagettfbbox($item['fontSize'], 0, $item['fontName'], $item['string']);
 			$width = abs($boundingBox[2] - $boundingBox[0]);

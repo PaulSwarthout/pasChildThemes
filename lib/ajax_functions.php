@@ -326,6 +326,8 @@ function pasChildThemes_createChildTheme() {
 	fwrite($functionsFile, "?>");
 	fclose($functionsFile);
 
+/* 
+	Will implement later. Not working from here. Works great from the menu.
 	// Create a default screenshot.png file.
 	$status = new pasChildTheme_ScreenShot(
 			['targetFile'					=> $childThemePath . SEPARATOR . "screenshot.png",
@@ -334,6 +336,7 @@ function pasChildThemes_createChildTheme() {
 			]
 		);
 	unset($status);
+*/
 
 	// Handshake with the Javascript AJAX call that got us here.
 	// When "SUCCESS:url" is returned, Javascript will redirect to the url.
