@@ -291,7 +291,7 @@ function pasChildThemes_createChildTheme() {
 	$childThemeStylesheet = strtolower(preg_replace("/\s/", "", $_POST['childThemeName']));
 
 	// Remove any characters that are not letters or numbers.
-	$childThemeStylesheet = preg_replace("/[^a-z0-9]/g", "", $childThemeStylesheet);
+	$childThemeStylesheet = preg_replace("/[^a-z0-9]/", "", $childThemeStylesheet);
 	$childThemePath = $themeRoot . SEPARATOR . $childThemeStylesheet;
 
 	if (file_exists($childThemePath)) {

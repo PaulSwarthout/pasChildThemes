@@ -40,10 +40,23 @@ if (! class_exists('pasDebug') ) {
 //           'data' => The data to dump.
 		function setOptions($options) {
 			if (0 < count($options)) {
-				$this->args = $options;
-				$this->ajax = (array_key_exists('ajax', $options) ? $options['ajax'] : false);
-				$this->onDumpExit = (array_key_exists('onDumpExit', $options) ? $options['onDumpExit'] : true);
-				$this->onDumpClear = (array_key_exists('onDumpClear', $options) ? $options['onDumpClear'] : true);
+				foreach ($options as $key => $value) {
+					switch (strtolower($key)) {
+						case "ajax":
+							$this->ajax = $value;
+							break;
+						case "ondumpexit":
+							$this->onDumpExit = $value;
+							break;
+						case "ondumpclear":
+							$this->onDumpClear = $value;
+							break;
+					}
+				}
+				$this->args = ['ajax'=>$this->ajax, 
+											 'onDumpExit'=>$this->onDumpExit, 
+											 'onDumpError'=>$this->onDumpClear
+											];
 			}
 		}
 		function write($block) {

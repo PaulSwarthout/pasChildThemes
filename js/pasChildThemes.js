@@ -246,7 +246,7 @@ function createChildTheme(element) {
 					if ("SUCCESS:" == response.left("SUCCESS:".length)) {
 						location.href="/wp-admin/themes.php"
 					} else if (response.length >= 1) {
-						showBox().innerHTML = response
+						processResponse(response);
 					}
 					break;
 
