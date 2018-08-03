@@ -1,7 +1,24 @@
-<?PHP
+<?PHP
+/*
+ * isWin() Are we running on a Windows server (true) or not (false).
+ * While this function isn't really needed since PHP_OS is available everywhere, 
+ * from a self-documenting code perspective:
+ *     if (isWin()) {}
+ * is far more readable than:
+ *     if (strtoupper(substr(PHP_OS, 0, 3))) {}
+ * is.
+ * Also, if PHP ever changes the contents of PHP_OS, then we only need to change the plugin
+ * in one place.
+ */
 function isWin() {
 	return ("WIN" === strtoupper(substr(PHP_OS, 0, 3)) ? true : false);
-}
+}
+/* files_are_identical() compares two files: $a and $b. It returns true if they are identical.
+ * false otherwise.
+ * It is more efficient to load small chunks of files and look for inequality in each, than it
+ * is to load a full file and compare. It is also much more efficient to label the files as 
+ * not identical if they're file sizes differ.
+ */
 function files_are_identical($a, $b, $blocksize = 512)
 {
 	if (is_dir($a) || is_dir($b)) {
@@ -18,7 +35,7 @@ function files_are_identical($a, $b, $blocksize = 512)
 		echo "FILE: $b DOES NOT EXIST";
 		return false;
 	}
-  // Check if filesize is different
+  // Check if filesize is different If the filesize is different, no more checking necessary.
   if(filesize($a) !== filesize($b))
       return false;
 
@@ -28,7 +45,7 @@ function files_are_identical($a, $b, $blocksize = 512)
 
 	if ($ah === false || $bh === false) {
 		$msg = "File1: " . $a . "<br>File2: " . $b . "<br>Unable to open one or both of the files listed above. <br><br>Aborting....";
-		displayError("FILE ERROR", $msg);
+		displayError("FILE ERROR", $msg);// Should never be here. Checks for file_exists() above should prevent this.
 		unset($msg);
 		exit;
 	}
@@ -47,7 +64,11 @@ function files_are_identical($a, $b, $blocksize = 512)
   fclose($bh);
 
   return $result;
-}
+}
+/* file_count() returns the number of items in the specified folder.
+ * In Windows, there will always be a '.' and '..' folder listed. This function ignores them,
+ * if they exist. Subfolders are counted as items.
+ */
 function file_count($dir) {
 	$files = scandir($dir);
 
@@ -61,10 +82,19 @@ function file_count($dir) {
 
 	return count($files);
 }
-
+/*
+ * As its name implies, is_folder_empty() looks at the specified $dir and
+ * returns true if the folder is empty or false otherwise.
+ */
 function is_folder_empty($dir) {
 	return (0 === file_count($dir) ? true : false);
 }
+/*
+ * killChildFile() removes the specified child theme file from the child theme.
+ * Additionally, it reviews each subfolder in the path from the folder the file was in
+ * backwards (leaf to root on the folder tree). Any folders left as empty folders by 
+ * the deletion of the file, or subsequent empty folders, will be removed.
+*/
 function killChildFile($args) {
 	global $currentThemeObject;
 	$themeRoot = $currentThemeObject->childThemeRoot; // physical path from system root.
@@ -114,7 +144,12 @@ function killChildFile($args) {
 		unset($folderSegments[count($folderSegments)-1]);
 	}
 
-}
+}
+/*
+ * displayError() This function guarantees that all error output has the same look and feel.
+ * When called from within a function called via a Javascript AJAX call, the Javascript function
+ * that called it, will display the output within the xmlhttp.onreadystatechange script.
+ */
 function displayError($heading, $message) {
 	// Dismiss box lures the user to believe that's how you close the error box. But really, the user
 	// can click anywhere in the message box and it will close.
@@ -136,12 +171,24 @@ function displayError($heading, $message) {
  *
  * Unfortunately, unlike its Linux counterpart, Windows barfs (technical term) on folder paths
  * that mix and match the folder delimiters. For example, a folder path with mixed delimiters
- * as the following: "d:\inetpub\wp-content\themes/mytheme/template-parts/"
+ * as the following:
+ *      'd:\inetpub\wp-content\themes/mytheme/template-parts/'
  * works flawlessly in Linux, but dies miserably in Windows.
  *
  * This function changes all folder delimiters, regardless of the operating system, to forward slashes.
+ *
  * An alternate function would use a single regular expression search and replace to handle both
- * forward and backward slashes in the same *_replace statement.
+ * forward and backward slashes in a single preg_replace() statement. 
+ * Unfortunately, the search pattern along with the search delimiter got preg_replace
+ * all confused.
+ * 
+ * For preg_replace() the search parameter would have to be something like this:
+ *      "/[\\/]+/"
+ * But PHP would interpret the '/' character inside the square brackets as the end
+ * of the search string, and PHP would barf on the rest of the search string
+ * and throw a fatal error. Adding a '\' ahead of the '/' character (as in '\/') 
+ * didn't help. PHP wouldn't throw an error, but it wouldn't find and replace the folder 
+ * delimiters either.
  */
 function fixFolderSeparators($path) {
 	$path = str_replace("\\", "|+|", $path);

@@ -19,50 +19,72 @@ require_once(dirname(__FILE__) . '/lib/common_functions.php'); // General functi
 require_once(dirname(__FILE__) . '/lib/ajax_functions.php');   // Functions called from Javascript using AJAX
 require_once(dirname(__FILE__) . '/lib/helper_functions.php'); // Specific purpose functions.
 require_once(dirname(__FILE__) . '/classes/currentTheme.php'); // Class which holds information on the currently active theme and its parent.
-require_once(dirname(__FILE__) . '/classes/debug.php');        // A general debug class.
 require_once(dirname(__FILE__) . '/classes/createScreenShot.php'); // Generates the screenshot.png file.
-
 $dbg = null;
 if (WP_DEBUG) {
+	require_once(dirname(__FILE__) . '/classes/debug.php');        // A general debug class.
 	$dbg = new pasDebug(['ajax'=>false, 'onDumpExit'=>true, 'onDumpClear'=>true]);
 }
 
-register_activation_hook  (__FILE__, 'pasChildThemes_activate' );
-register_deactivation_hook(__FILE__, 'pasChildThemes_deactivate' );
+register_activation_hook  (__FILE__, 'pasChildThemes_activate' ); // Create default options
+register_deactivation_hook(__FILE__, 'pasChildThemes_deactivate' ); // Delete options.
 
 
 add_action('admin_menu',				 'pasChildThemes_admin' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_styles' );
 add_action('admin_enqueue_scripts',		 'pasChildThemes_scripts');
-add_action('init',						 'pasChildThemes_add_ob_start'); // Buffering
-add_action('wp_footer',					 'pasChildThemes_flush_ob_end'); // Buffering
+add_action('init',						 'pasChildThemes_add_ob_start');	 // Response Buffering
+add_action('wp_footer',					 'pasChildThemes_flush_ob_end'); // Response Buffering
 
-/* AJAX functions may be found in the 'lib/ajax_functions.php' file
+/* AJAX PHP functions may be found in the 'lib/ajax_functions.php' file
+ * AJAX Javascript functions are in the 'js/pasChildThemes.js' file
  *
- * The first click of a file from either the child theme or the template theme will send execution to
- * the pasChildThemes_selectFile function. The selectFile function will display a menu to the user.
- * If a child theme file was clicked, the user will be prompted to remove the file from the child theme.
- * If a template theme file was clicked, the user will be prompted to copy the file to the child theme.
+ * The following 5 ajax functions handle the functionality for removing child theme files 
+ * and copying template theme files to the child theme. No changes are EVER made to the template
+ * theme files.
+ * 
+ * It all starts with a user clicking on a file in either the left pane (Child Theme) or the 
+ * right pane (Template Theme) and triggering the onclick event to call the Javascript selectFile()
+ * function. From there the path is different based upon the $themeType, either Child or Template.
  *
+ * For removing a child theme file, the next steps, in order, are:
+ *   PHP  pasChildThemes_selectFile()            #1
+ *	 JS   removeChildFile()                      #2
+ *   PHP  pasChildThemes_verifyRemoveFile()      #3
+ *   JS   deleteChildFile()                      #4
+ *   PHP  pasChildThemes_deleteFile()            #5
+ *   File has been deleted. We're done.
+ *
+ * For copying a template theme file to the child theme, the next steps, in order, are:
+ *   PHP  pasChildThemes_selectFile()            #6
+ *   JS   copyTemplateFile()                     #7
+ *   PHP  pasChildThemes_verifyCopyFile()        #8
+ *   JS   overwriteFile()                        #9
+ *   PHP  pasChildThemes_copyFile()              #10
+ *   File has been copied. We're done.
  */
-add_action('wp_ajax_selectFile',			 'pasChildThemes_selectFile');
+add_action('wp_ajax_selectFile',			 'pasChildThemes_selectFile');       // #1, #6
+add_action('wp_ajax_verifyRemoveFile', 'pasChildThemes_verifyRemoveFile'); // #3
+add_action('wp_ajax_deleteFile',			 'pasChildThemes_deleteFile');       // #5
+add_action('wp_ajax_verifyCopyFile',	 'pasChildThemes_verifyCopyFile');   // #8
+add_action('wp_ajax_copyFile',				 'pasChildThemes_copyFile');         // #10
 
-// If the child theme file was clicked, and this plugin discovers that the
-add_action('wp_ajax_verifyRemoveFile', 'pasChildThemes_verifyRemoveFile');
-add_action('wp_ajax_deleteFile',			 'pasChildThemes_deleteFile');
-
-add_action('wp_ajax_verifyCopyFile',	 'pasChildThemes_verifyCopyFile');
-add_action('wp_ajax_copyFile',				 'pasChildThemes_copyFile');
-
-/* The createChildTheme function is triggered with an AJAX call from Javascript when the
+/* From the Create Child Theme "form", "submit" button triggers the createChildTheme()
+ * javascript function.
+ * is triggered with an AJAX call from Javascript when the
  * Create Child Theme button is clicked. */
 add_action('wp_ajax_createChildTheme', 'pasChildThemes_createChildTheme');
+
+// Save Options for generating a simple, custom, screenshot.png file for a new child theme.
 add_action('wp_ajax_saveOptions', 'pasChildThemes_saveOptions');
 
 /* Go get the current theme information.
  * This is a wrapper for the wp_get_theme() function.
  * It loads the information that we'll need for our purposes and tosses everything else that's returned
  *   by the wp_get_theme() function.
+ *
+ * It will be accessed throughout the pasChildThemes plugin as:
+ *   global $currentThemeObject.
  */
 $currentThemeObject = new pasChildTheme_currentTheme();
 
@@ -72,6 +94,7 @@ function pasChildThemes_styles() {
 	$debugging = constant('WP_DEBUG');
 	wp_enqueue_style('pasChildThemes', $pluginDirectory . "css/style.css" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
 }
+
 // Load the pasChildThemes Javascript script file
 function pasChildThemes_scripts() {
 	$pluginDirectory = plugin_dir_url(__FILE__);
@@ -79,15 +102,35 @@ function pasChildThemes_scripts() {
 	wp_enqueue_script('pasChildThemes_Script', $pluginDirectory . "js/pasChildThemes.js" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
 	wp_enqueue_script('pasChildThemes_Script2', $pluginDirectory . "js/js_common_fn.js" . ($debugging ? "?v=" . rand(0,99999) . "&" : ""), false);
 }
+
 // pasChildThemes Dashboard Menu
 function pasChildThemes_admin() {
 	global $currentThemeObject;
-	add_menu_page( 'ChildThemesHelper', 'Child Themes Helper', 'manage_options', 'manage_child_themes', 'manage_child_themes', "", 61);
-	if ($currentThemeObject->isChildTheme) {
-		add_submenu_page('manage_child_themes', 'Generate ScreenShot', 'Generate ScreenShot', 'manage_options', 'genScreenShot', 'generateScreenShot');
+	add_menu_page( 'ChildThemesHelper',
+		             'Child Themes Helper', 
+								 'manage_options', 
+								 'manage_child_themes', 
+								 'manage_child_themes', 
+								 "", 
+								 61 // appears just below the Appearances menu.
+								);
+	if ($currentThemeObject->isChildTheme) { // Prevent overwriting the template theme's screenshot.png file.
+		add_submenu_page(	'manage_child_themes', 
+											'Generate ScreenShot',
+											'Generate ScreenShot', 
+											'manage_options', 
+											'genScreenShot', 
+											'generateScreenShot'
+										);
 	}
-	add_submenu_page( 'manage_child_themes', 'Options', 'Options', 'manage_options', 'Options', 'pasChildThemes_Options');
+	add_submenu_page( 'manage_child_themes', 
+										'Options', 
+										'Options', 
+										'manage_options', 
+										'Options', 
+										'pasChildThemes_Options');
 }
+// pctOption() displays an option on the pasChildThemes options page.
 function pctOption($args) {
 	$label = $args['label'];
 	$optionName = $args['optionName'];
@@ -140,37 +183,38 @@ OPTION;
 
 	return ($outputString);
 }
+// pasChildThemes' Options page.
 function pasChildThemes_Options() {
 	global $currentThemeObject;
 	echo "<h1>Screen Shot Options</h1>";
 
 	echo pctOption(['label'=>'Image Width: ',
 									'optionName'=>'imageWidth',
-									'default'=>1200,
+									'default'=>get_option('pasChildThemes_imageWidth', PASCHILDTHEMES_DEFAULT_IMAGE_WIDTH),
 									'onblur'=>'pctSetOption(this)',
 									'type'=>'input'
 								 ]);
 
 	echo pctOption(['label'=>'Image Height: ',
 									'optionName'=>'imageHeight',
-									'default'=>900,
+									'default'=>get_option('pasChildThemes_imageHeight', PASCHILDTHEMES_DEFAULT_IMAGE_HEIGHT),
 									'onblur'=>'pctSetOption(this)',
 									'type'=>'input'
 								 ]);
 
 	echo pctOption(['label'=>'Background Color: ', 
 									'optionName'=>'bcColor', 
-									'default'=>'#002500', 
+									'default'=>get_option('pasChildThemes_bcColor', PASCHILDTHEMES_DEFAULT_SCREENSHOT_BCCOLOR),
 									'onblur'=>'pctSetOption(this)',
-									'colorPicker'=>true,
+									'colorPicker'=>false,
 									'type'=>'input'
 								 ]);
 
 	echo pctOption(['label'=>'Text Color: ',
 		              'optionName'=>'fcColor',
-									'default'=>'#FFFF00',
+									'default'=>get_option('pasChildThemes_fcColor', PASCHILDTHEMES_DEFAULT_SCREENSHOT_FCCOLOR),
 									'onblur'=>'pctSetOption(this)',
-									'colorPicker'=>true,
+									'colorPicker'=>false,
 									'type'=>'input'
 								 ]);
 
@@ -179,7 +223,9 @@ function pasChildThemes_Options() {
 									'default'=>'arial',
 									'onblur'=>'pctSetOption(this)',
 									'type'=>'select', 
-									'options'=>[['Arial', 'arial.ttf'], ['Courier-New', 'cour.ttf'], ['Black Chancery', 'BLKCHCRY.TTF']]
+									'options'=>[['Arial', 'arial.ttf'], 
+															['Courier-New', 'cour.ttf'], 
+															['Black Chancery', 'BLKCHCRY.TTF']]
 								 ]);
 
 	echo pctOption(['label'=>'String1: ',
@@ -220,31 +266,36 @@ function pasChildThemes_Options() {
 									'topPad'=>0
 								 ]);
 }
+// Not yet implemented
 function showColorPicker() {
 }
 // Generates the screenshot.png file in the child theme, if one does not yet exist.
+// If changes to the options do not show up, clear your browser's stored images, files, fonts, etc.
+//   This applies mostly to Chrome. Tested with update #68.
 function generateScreenShot() {
 	global $currentThemeObject;
 	global $pasChildThemes_pluginDirectory;
 
 	$screenShotFile = $currentThemeObject->childThemeRoot . SEPARATOR . $currentThemeObject->childStylesheet . SEPARATOR . "screenshot.png";
 
-//	if (! file_exists($screenShotFile)) {
-		$args = [
-			'targetFile'				=> $screenShotFile,
-			'childThemeName'		=> $currentThemeObject->childThemeName,
-			'templateThemeName' => $currentThemeObject->templateStylesheet,
-			'pluginDirectory'		=> $pasChildThemes_pluginDirectory
-			];
+	$args = [
+		'targetFile'				=> $screenShotFile,
+		'childThemeName'		=> $currentThemeObject->childThemeName,
+		'templateThemeName' => $currentThemeObject->templateStylesheet,
+		'pluginDirectory'		=> $pasChildThemes_pluginDirectory
+		];
 
-		// pasChildTheme_ScreenShot() generates screenshot.png and writes it out. $status not needed afterwards
-		$status = new pasChildTheme_ScreenShot($args);
-		unset($status); // ScreenShot.png is created in the class __construct() function.
+	// pasChildTheme_ScreenShot() generates screenshot.png and writes it out. $status not needed afterwards
+	// Will overwrite an existing file without checking.
+	$status = new pasChildTheme_ScreenShot($args);
+	unset($status); // ScreenShot.png is created in the class __construct() function.
 
-		// All done. Reload the Dashboard Themes page.
-		wp_redirect(admin_url("themes.php"));
+	// All done. Reload the Dashboard Themes page.
+	// Response buffering turned on so we can do this.
+	wp_redirect(admin_url("themes.php"));
 }
 
+// Used to be a <select><option></option></select> statement. Could move it back to where it's called.
 function getThemeSelect($type = TEMPLATETHEME) {
 	global $currentThemeObject;
 
@@ -291,7 +342,13 @@ function showActiveParentTheme() {
 	listFolderFiles($parentFolder, TEMPLATETHEME);
 	echo "</div>";
 }
-
+/*
+ *	manage_child_themes is the main driver function. This function is called from the Dashboard
+ *	menu option 'Child Themes Helper'. This function either:
+ *	1) Displays the file list for the child theme and the file list for the template theme or
+ *	2) If the currently active theme is NOT a child theme, it displays the "form" to create a new
+ *	   child theme.
+ */
 function manage_child_themes() {
 	global $currentThemeObject;
 
@@ -308,11 +365,16 @@ function manage_child_themes() {
 	if (! current_user_can('manage_options')) { exit; }
 
 	if (! $currentThemeObject->isChildTheme) {
+		/* Currently active theme is not a child theme. Prompt to create a child theme.
+		 * This is set up to look like a typical HTML <form>, but it is not processed as one.
+		 * A form submit will refresh the page. We would like to avoid that so we can display 
+		 * any output from the wp_ajax_createChildTheme defined function.
+		 */
 		echo "<div class='createChildThemeBox'>";
 		echo "<p class='warningHeading'>Warning</p><br><br>";
 		echo "The current theme <u>" . $currentThemeObject->childThemeName . "</u> is <u>not</u> a child theme.<br><br>";
 		echo "Do you want to create a child theme?<br><br>";
-		echo "<form method='post' >";
+		echo "<form>";
 		echo "<input type='hidden' name='action' value='createChildTheme'>";
 		echo "<input type='hidden' name='href' value='" . admin_url("themes.php") . "'>";
 		echo "<label for='childThemeName'>Child Theme Name:<br><input type='text' name='childThemeName' id='childThemeName' value=''></label><br>";
@@ -330,6 +392,7 @@ function manage_child_themes() {
 		echo "</div>";
 
 		echo "</div>";
+		echo "</form>";
 		return false;
 	}
 
@@ -347,8 +410,21 @@ function manage_child_themes() {
 	echo "</div>"; // end grid item 2
 	echo "</div>"; // end grid container
 }
-// This isn't called anywhere, yet. ListFolderFiles() currently has the entire path associated with each file.
-// Changing that to only be the stylesheet and beyond.
+/*
+ * stripRoot()
+ * The listFolderFiles() function takes a full physical path as a parameter.
+ * But the full path to the file must be known when the user clicks on a file
+ * in the file list. But the full path up to and including the "themes" folder
+ * is constant.
+ *
+ * The stripRoot() function removes everything in the $path up to and not including
+ * the theme's stylesheet folder. In other words, stripRoot() strips the theme root
+ * from the file path so that listFolderFiles() when writing out a file, doesn't have
+ * to include the full path in every file.
+ *
+ * stripRoot() takes the full $path and the $themeType (CHILDTHEME or TEMPLATETHEME) as 
+ * parameters.
+ */
 function stripRoot($path, $themeType) {
 	global $currentThemeObject;
 	$sliceStart = $currentThemeObject->getFolderCount($themeType);
@@ -361,8 +437,9 @@ function stripRoot($path, $themeType) {
 }
 /* The listFolderFiles() function is the heart of the child theme and template theme file listings.
  * It is called recursively until all of the themes' files are found.
- * It excludes the ".", "..", and ".git" folders.
+ * It excludes the ".", "..", and ".git" folders, if they exist.
  * $dir is the full path to the theme's stylesheet.
+ * For example: c:\inetpub\mydomain.com\wp-content\themes\twentyseventeen
  * $themeType is either CHILDTHEME or TEMPLATETHEME.
  * CHILDTHEME and TEMPLATETHEME are constants defined in the /lib/plugin_constants.php file.
  * SEPARATOR is also used herein and is likewise defined in the /lib/plugin_constants.php file.
@@ -421,7 +498,7 @@ function pasChildThemes_add_ob_start(){
 function pasChildThemes_flush_ob_end(){
 	ob_end_flush();
 }
-
+// Plugin Activation.
 function pasChildThemes_activate() {
 	add_option('pasChildThemes_fcColor', PASCHILDTHEMES_DEFAULT_SCREENSHOT_FCCOLOR);
 	add_option('pasChildThemes_bcColor', PASCHILDTHEMES_DEFAULT_SCREENSHOT_BCCOLOR);
@@ -432,6 +509,7 @@ function pasChildThemes_activate() {
 	add_option('pasChildThemes_string3', PASCHILDTHEMES_NAME);
 	add_option('pasChildThemes_string4', PAULSWARTHOUT_URL);
 }
+// Plugin Deactivation
 function pasChildThemes_deactivate() {
 	delete_option('pasChildThemes_fcColor');
 	delete_option('pasChildThemes_bcColor');
