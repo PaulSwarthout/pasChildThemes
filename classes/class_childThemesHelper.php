@@ -294,10 +294,10 @@ OPTION;
 		// Not yet implemented
 		function showColorPicker() {
 		}
+
 		/* Generates the screenshot.png file in the child theme, if one does not yet exist.
 		 * If changes to the options do not show up, clear your browser's stored images,
 		 * files, fonts, etc.
-		 *   This applies mostly to Chrome. Tested with update #68.
 		 */
 		function generateScreenShot() {
 			$screenShotFile = $this->activeThemeInfo->childThemeRoot . PAS_CTH_SEPARATOR
@@ -454,17 +454,21 @@ OPTION;
 			echo "<div class='pas-grid-container'>";
 			echo "<div class='pas-grid-item'>"; // Start grid item 1
 
+			// Shows file list in the left pane
 			$this->showActiveChildTheme();
 
 			echo "</div>"; // end grid item 1
 
 			echo "<div class='pas-grid-item'>"; // start grid item 2
 
+			// Shows file list in the right pane
 			$this->showActiveParentTheme();
 
 			echo "</div>"; // end grid item 2
 			echo "</div>"; // end grid container
 		}
+
+
 		/*
 		 * stripRoot()
 		 * The listFolderFiles() function takes a full physical path as a parameter.
@@ -489,11 +493,12 @@ OPTION;
 
 			return $path;
 		}
+
 		/* The listFolderFiles() function is the heart of the child theme and template theme
 		 * file listings.
 		 * It is called recursively until all of the themes' files are found.
 		 * It excludes the ".", "..", and ".git" folders, if they exist.
-		 * $dir is the full path to the theme's stylesheet.
+		 * $dir is the full rooted path to the theme's stylesheet.
 		 * For example: c:\inetpub\mydomain.com\wp-content\themes\twentyseventeen
 		 * $themeType is either PAS_CTH_CHILDTHEME or PAS_CTH_TEMPLATETHEME.
 		 * All CONSTANTS are defined in 'lib/plugin_constants.php'.
@@ -522,8 +527,16 @@ OPTION;
 				} else {
 					// strips theme root, leaving stylesheet and sub folders and file.
 					$shortDir = $this->stripRoot( $dir, $themeType );
+
+					/* $jsdata or JavaScript data will be stuffed into the data-jsdata
+					 * HTML attribute and written out as part of the file list. This way,
+					 * on the onclick event, the file path and themeType will be passed to
+					 * the pas_cth_js_selectFile() javascript function, and then
+					 * on to the pas_cth_AJAXFunctions::selectFile() PHP function via an AJAX call.
+					 */
 					$jsdata = json_encode(
-											['directory'=>$shortDir,
+											[
+											 'directory'=>$shortDir,
 											 'fileName'=>$ff,
 											 'themeType'=>$themeType
 											]

@@ -384,8 +384,8 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			pas_cth_killChildFile( $args );
 		}
 
-		/* pas_cth_createChildTheme()
-		 *   is called from the Javascript function createChildTheme() in 'js/pasChildThemes.js'
+		/* createChildTheme() is called from the Javascript function
+		 * pas_cth_js_createChildTheme() in 'js/pasChildThemes.js'
 		 */
 		function createChildTheme() {
 			$inputs =	[

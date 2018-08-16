@@ -24,19 +24,6 @@ require_once( dirname( __FILE__ ) . '/classes/class_childThemesHelper.php' );
 // All functions targeted by wp_ajax_* calls.
 require_once( dirname( __FILE__ ) . '/classes/class_ajax_functions.php' );
 
-$pas_cth_debugObject = null;
-if ( constant( 'WP_DEBUG' ) ) {
-	// a class for echoing data to the page in a readable format.
-	require_once( dirname( __FILE__ ) . '/classes/pasDebug.php' );
-	$pas_cth_debugObject = new pasDebug( [
-											'ajax'=>false,
-											'onDumpExit'=>true,
-											'onDumpClear'=>false,
-											'dbWrite'=>true,
-											'dbClear'=>false
-										] );
-}
-
 register_activation_hook  ( __FILE__, 'pas_cth_activate'  ); // Plugin Activation
 register_deactivation_hook( __FILE__, 'pas_cth_deactivate'  );//Plugin Deactivation
 
@@ -72,8 +59,9 @@ add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
  * theme files.
  *
  * It all starts with a user clicking on a file in either the left pane ( Child Theme ) or the
- * right pane ( Template Theme ) and triggering the onclick event to call the Javascript selectFile()
- * function. From there the path is different based upon the $themeType, either Child or Template.
+ * right pane ( Template Theme ) and triggering the onclick event to call the Javascript
+ * pas_cth_js_selectFile() function.
+ * From there the path is different based upon the $themeType, either Child (left) or Template (right).
  *
  * For removing a child theme file, the next steps, in order, are:
  *   PHP  selectFile()					#1
@@ -97,9 +85,9 @@ add_action( 'wp_ajax_deleteFile',		array( $pas_cth_AJAXFunctions, 'deleteFile' )
 add_action( 'wp_ajax_verifyCopyFile',	array( $pas_cth_AJAXFunctions, 'verifyCopyFile' ) );   //#8
 add_action( 'wp_ajax_copyFile',			array( $pas_cth_AJAXFunctions, 'copyFile' ) );         //#10
 
-/* From the Create Child Theme "form", "submit" button triggers the createChildTheme()
+/* From the Create Child Theme "form", "submit" button triggers the pas_cth_js_createChildTheme()
  * javascript function.
- * is triggered with an AJAX call from Javascript when the
+ * It is triggered with an AJAX call from Javascript when the
  * Create Child Theme button is clicked. */
 add_action( 'wp_ajax_createChildTheme', Array( $pas_cth_AJAXFunctions, 'createChildTheme' ) );
 

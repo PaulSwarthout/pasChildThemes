@@ -13,14 +13,14 @@
 function pas_cth_isWin() {
 	return ( "WIN" === strtoupper( substr( PHP_OS, 0, 3 ) ) ? true : false );
 }
+
 /* pas_cth_areFilesIdentical() compares two files: $a and $b. It returns true if they are identical.
  * false otherwise.
  * It is more efficient to load small chunks of files and look for inequality in each, than it
  * is to load a full file and compare. It is also much more efficient to label the files as
- * not identical if they're file sizes differ.
+ * not identical if their file sizes differ.
  */
-function pas_cth_areFilesIdentical( $a, $b, $blocksize = 512 )
-{
+function pas_cth_areFilesIdentical( $a, $b, $blocksize = 512 ) {
 	if ( is_dir( $a ) || is_dir( $b ) ) {
 		$msg = "Expected 2 files.<br>" .
 			   "At least one was a directory.<br><br>" .
@@ -39,16 +39,17 @@ function pas_cth_areFilesIdentical( $a, $b, $blocksize = 512 )
 		echo "FILE: $b DOES NOT EXIST";
 		return false;
 	}
-  // Check if filesize is different If the filesize is different, no more checking necessary.
-  if( filesize( $a ) !== filesize( $b ) )
-      return false;
+	// Check if filesize is different If the filesize is different, no more checking necessary.
+	if( filesize( $a ) !== filesize( $b ) ) {
+		return false;
+	}
 
-  // Check if content is different
-  $ah = fopen( $a, 'rb' );
-  $bh = fopen( $b, 'rb' );
+	// Check if content is different
+	$ah = fopen( $a, 'rb' );
+	$bh = fopen( $b, 'rb' );
 
 	if ( $ah === false || $bh === false ) {
-		$msg = "File1: " . $a . "<br>File2: " . $b . "<br>" .
+		$msg = "File1: " . esc_html($a) . "<br>File2: " . esc_html($b) . "<br>" .
 			   "Unable to open one or both of the files listed above. <br><br>Aborting....";
 		pas_cth_displayError( "FILE ERROR", $msg );
 		// Should never be here. Checks for file_exists() above should prevent this.
@@ -56,20 +57,18 @@ function pas_cth_areFilesIdentical( $a, $b, $blocksize = 512 )
 		exit;
 	}
 
-  $result = true;
-  while( ! feof( $ah ) )
-  {
-    if( fread( $ah, $blocksize ) != fread( $bh, $blocksize ) )
-    {
-      $result = false;
-      break;
-    }
-  }
+	$result = true;
+	while( ! feof( $ah ) ) {
+		if( fread( $ah, $blocksize ) != fread( $bh, $blocksize ) ) {
+			$result = false;
+			break;
+		}
+	}
 
-  fclose( $ah );
-  fclose( $bh );
+	fclose( $ah );
+	fclose( $bh );
 
-  return $result;
+	return $result;
 }
 /* pas_cth_fileCount() returns the number of items in the specified folder.
  * In Windows, there will always be a '.' and '..' folder listed. This function ignores them,
@@ -103,16 +102,16 @@ function pas_cth_isFolderEmpty( $dir ) {
 */
 function pas_cth_killChildFile( $args ) {
 	$activeThemeInfo = $args['activeThemeInfo'];
-	$themeStyle			 = $args['stylesheet'];		   // Stylesheet - theme's folder name
-	$directory			 = $args['directory'];			 // Path within the theme
-	$childFile			 = $args['childFileToRemove'];    // Which file are we deleting.
+	$themeStyle		 = $args['stylesheet'];		   // Stylesheet - theme's folder name
+	$directory		 = $args['directory'];			 // Path within the theme
+	$childFile		 = $args['childFileToRemove'];    // Which file are we deleting.
 
 	$themeRoot = $activeThemeInfo->childThemeRoot; // physical path from system root.
 
 	$fileToDelete = $themeRoot	. PAS_CTH_SEPARATOR .
-									$themeStyle . PAS_CTH_SEPARATOR .
-									$directory	. PAS_CTH_SEPARATOR .
-									$childFile;
+					$themeStyle . PAS_CTH_SEPARATOR .
+					$directory	. PAS_CTH_SEPARATOR .
+					$childFile;
 
 	unlink( $fileToDelete );
 
@@ -123,9 +122,9 @@ function pas_cth_killChildFile( $args ) {
 	$folderSegments = explode( PAS_CTH_SEPARATOR, $directory );
 
 	for ( $ndx = count( $folderSegments ) - 1; $ndx >= 0; $ndx-- ) {
-		$dir = $themeRoot  . PAS_CTH_SEPARATOR .
-					 $themeStyle . PAS_CTH_SEPARATOR .
-					 implode( PAS_CTH_SEPARATOR, $folderSegments ); // rebuilds the physical path.
+		$dir =	$themeRoot  . PAS_CTH_SEPARATOR .
+				$themeStyle . PAS_CTH_SEPARATOR .
+				implode( PAS_CTH_SEPARATOR, $folderSegments ); // rebuilds the physical path.
 
 		if ( pas_cth_isFolderEmpty( $dir ) ) {
 			// Folder is empty, remove it.

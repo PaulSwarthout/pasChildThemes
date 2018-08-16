@@ -42,6 +42,19 @@ if ( ! class_exists( 'pas_cth_activeThemeInfo' ) ) {
 				$this->isChildTheme = false;
 			}
 		}
+		/* Could have used "preg_replace", but couldn't find a search parameter that wouldn't trip
+		 * over the forward slash as the final delimiter in the search.
+		 * For example...
+		 *    $path = preg_replace("/[\\/]+/", PAS_CTH_SEPARATOR, $path)
+		 * ...would trip over the 2nd forward slash character and PHP would throw an error.
+		 * additionally....
+		 *    $path = preg_replace("/[\\\/]+/", PAS_CTH_SEPARATOR, $path)
+		 * ...would trip over the extra backslash, preceding the 2nd forward slash.
+		 * I tried using an alternate delimiter like this....
+		 *    $path = preg_replace("|[\\/]+|", PAS_CTH_SEPARATOR, $path)
+		 * ...but my web server would trip over that too.
+		 * So I avoided using regular expressions for the fixDelimiters() function.
+		 */
 		public function fixDelimiters( $path ) {
 			$path = str_replace( "\\", "|+|", $path );
 			$path = str_replace( "/", "|+|", $path );
