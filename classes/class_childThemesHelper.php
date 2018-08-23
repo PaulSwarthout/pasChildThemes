@@ -226,8 +226,10 @@ OPTION;
 					'optionName'=> 'font',
 					'default'	=> get_option( 'pas_cth_font', 'Arial'),
 					'type'		=> 'select',
-					'options'	=> [ ['Arial', 'arial.ttf'],
-									 ['Black Chancery', 'BLKCHCRY.TTF'] ]
+					'options'	=> [ ['Questrial', 'Questrial-Regular.ttf'],
+									 ['Coolvetica', 'coolvetica rg.TTF'],
+									 ['Chancery Cursive', 'chancur.ttf'],
+									 ['Airstream NF', 'AirstreamNF.ttf'] ]
 				] );
 /* These options caused problems when switching themes. Suddenly, the ScreenShot Generation would
  * create screenshots with the wrong child theme name. For now, remove these options, and
