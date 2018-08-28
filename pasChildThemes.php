@@ -37,8 +37,10 @@ register_deactivation_hook( __FILE__, 'pas_cth_deactivate'  );//Plugin Deactivat
 $pas_cth_themeInfo = new pas_cth_activeThemeInfo();
 
 $args = [
-			'pluginDirectory'	=> ['path' => plugin_dir_path( __FILE__ ),
-			'url'				=> plugin_dir_url( __FILE__ ) ],
+			'pluginDirectory'	=> [
+									'path' => plugin_dir_path( __FILE__ ),
+									'url'  => plugin_dir_url ( __FILE__ )
+								   ],
 			'pluginName'		=> 'Child Themes Helper',
 			'pluginFolder'		=> 'pasChildThemes',
 			'activeThemeInfo'	=> $pas_cth_themeInfo
