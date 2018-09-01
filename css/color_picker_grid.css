@@ -1,0 +1,137 @@
+#cpTop {
+	position:fixed;
+	left:180px;
+	top:50px;
+	box-shadow:10px 10px 45px #350000;
+	width:600px;
+}
+#cpOuter {
+	display:inline-grid;
+	grid-template-columns:auto auto auto;
+	padding:10px 0 10px 0;
+}
+#color_picker_container {
+	display:inline-grid;
+	grid:subgrid;
+	grid-template-rows:auto auto auto;
+	color:black;
+	grid-gap:15px;
+	z-index:999999;
+	padding:0px;
+	margin:0px;
+}
+.row1, .row2, .row3 {
+	background:#FFFFFF;
+	text-align:center;
+	display:inline-grid;
+	grid:subgrid;
+	grid-template-columns:15% 20% auto;
+	padding:0px;
+	margin:0px;
+}
+
+.intval_item {
+	background:white;
+	padding:0px;
+	margin:0px;
+}
+.identifier_item {
+	background:white;
+	padding:0px;
+	margin:0px;
+}
+
+.slider_item {
+	background:white;
+	padding:0px;
+	margin:0px;
+}
+#color_picker_container.input[type=range] {
+	width:100px;
+}
+
+.slidecontainer {
+    width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.slider-red, .slider-green, .slider-blue {
+    -webkit-appearance: none;  /* Override default CSS styles */
+    appearance: none;
+    width: 100%; /* Full-width */
+    height: 14px; /* Specified height */
+    background: #d9d9d9; /* Grey background */
+    outline: none; /* Remove outline */
+    opacity: 1; /* Set transparency (for mouse-over effects on hover) */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider-red::-webkit-slider-thumb, .slider-green::-webkit-slider-thumb, .slider-blue::-webkit-slider-thumb {
+    -webkit-appearance: none; /* Override default look */
+    appearance: none;
+    width: 15px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    cursor: pointer; /* Cursor on hover */
+}
+.slider-red::-webkit-slider-thumb {
+    background: #FF0000; /* red background */
+}
+.slider-green::-webkit-slider-thumb {
+	background: #00FF00;
+}
+.slider-blue::-webkit-slider-thumb {
+	background: #0000FF;
+}
+.slider-red::-moz-range-thumb, .slider-green::-moz-range-thumb, .slider-blue::-moz-range-thumb {
+    width: 25px; /* Set a specific slider handle width */
+    height: 25px; /* Slider handle height */
+    cursor: pointer; /* Cursor on hover */
+}
+.slider-red::-moz-range-thumb {
+    background: #FF0000; /* Red background */
+}
+.slider-green::-moz-range-thumb {
+	background: #00FF00;
+}
+.slider-blue::-moz-range-thumb {
+	background: #0000FF;
+}
+
+
+
+#colorPickerWindow {
+	position:fixed;
+	top:0;
+	left:180px;
+	width:100%;
+	height:100%;
+//	margin-left:-25%;
+//	margin-top:-25%;
+	padding:10px 25px 15px 25px;
+	background-color:rgba(255,255,240,1);
+	border:solid 1pt black;
+	box-shadow:10px 20px 50px #C09090;
+	border-radius:25px;
+	font-size:10pt;
+	color:black;
+	display:inline;
+	visibility:visible;
+	overflow:hidden;
+}
+#exampleDIV {
+	width:100px;
+	border:solid 1pt black;
+	border-radius:25px;
+	margin:0 0 0 25px;
+	background:;
+}
+#exampleColor {
+	width:90px;
+	height:20px;
+	font-size:12pt;
+	font-weight:normal;
+	color:black;
+	background:white;
+	border:solid 1pt black;
+	margin:0 0 0 25px;
+}

@@ -25,6 +25,10 @@ require_once( dirname( __FILE__ ) . '/classes/class_createScreenShot.php' );
 require_once( dirname( __FILE__ ) . '/classes/class_childThemesHelper.php' );
 // All functions targeted by wp_ajax_* calls.
 require_once( dirname( __FILE__ ) . '/classes/class_ajax_functions.php' );
+// Reads the font name from the true type font file
+require_once( dirname( __FILE__ ) . '/classes/class_fontMeta.php' );
+// Color selection tool
+require_once( dirname( __FILE__ ) . '/classes/class_colorPicker.php' );
 
 register_activation_hook  ( __FILE__, 'pas_cth_activate'  ); // Plugin Activation
 register_deactivation_hook( __FILE__, 'pas_cth_deactivate'  );//Plugin Deactivation
@@ -45,12 +49,17 @@ $args = [
 			'pluginFolder'		=> 'pasChildThemes',
 			'activeThemeInfo'	=> $pas_cth_themeInfo
 		];
+$pas_cth_colorPicker	= new pas_cth_colorPicker( $args );
+$args['colorPicker']	= $pas_cth_colorPicker;
+
 $pas_cth_ChildThemesHelper  = new pas_cth_ChildThemesHelper( $args );
 $pas_cth_AJAXFunctions		= new pas_cth_AJAXFunctions( $args );
 
 add_action( 'admin_menu',				array( $pas_cth_ChildThemesHelper, 'dashboard_menu' )  );
 add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper, 'dashboard_styles'  ) );
 add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper, 'dashboard_scripts' ) );
+add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker, 'color_picker_styles' ) );
+add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker, 'color_picker_scripts') );
 
 add_action( 'init',		'pas_cth_startBuffering' );	// Response Buffering
 add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
@@ -97,6 +106,8 @@ add_action( 'wp_ajax_createChildTheme', Array( $pas_cth_AJAXFunctions, 'createCh
 
 // Save Options for generating a simple, custom, screenshot.png file for a new child theme.
 add_action( 'wp_ajax_saveOptions', Array( $pas_cth_AJAXFunctions, 'saveOptions' ) );
+
+add_action( 'wp_ajax_displayColorPicker', Array( $pas_cth_AJAXFunctions, 'chooseColor' ) );
 
 // Plugin Activation.
 function pas_cth_activate() {

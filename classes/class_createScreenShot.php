@@ -28,11 +28,11 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 			$img = imagecreate(  $imageSize['width'], $imageSize['height']  );
 
 			$bcColor	= get_option( "pas_cth_bcColor", PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR );
-			$rgb		= $this->getColors( $bcColor );
+			$rgb		= pas_cth_getColors( $bcColor );
 			$background = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
 
 			$fcColor	= get_option( "pas_cth_fcColor", PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR );
-			$rgb		= $this->getColors( $fcColor );
+			$rgb		= pas_cth_getColors( $fcColor );
 			$text_color = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
 
 			$font = $fontPath . get_option( 'pas_cth_font', PAS_CTH_DEFAULT_SCREENSHOT_FONT );
@@ -118,21 +118,6 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 
 			return true;
 		}
-		/* Converts a hex string of colors such as: #AABBCC to an array of decimal values.
-		 *  For example: an input of: #2AC4D2 would return:
-		 *  ['red'=>42, 'green'=>196, 'blue'=> 210]
-		 */
-		function getColors( $hexCode ) {
-			// Strip '#' from the front, if it exists
-			// This way, the function works, whether or not the '#' is prepended to the input.
-			$hexCode = (substr($hexCode, 0, 1) === "#" ? substr($hexCode, 1) : $hexCode);
-			return	[
-						'red'	=> hexdec( substr( $hexCode, 0, 2 ) ),
-						'green'	=> hexdec( substr( $hexCode, 2, 2 ) ),
-						'blue'	=> hexdec( substr( $hexCode, 4, 2 ) )
-					];
-		}
-
 		// Gets the graphical size of a string based upon the chosen font, font size, and the string
 		function getSize( $item ) {
 			/* imagettfbox() returns an array of indices representing the x and y coordinates for

@@ -205,3 +205,26 @@ function pas_cth_fixFolderSeparators( $path ) {
 
 	return $path;
 }
+/* Converts a hex string of colors such as: #AABBCC to an array of decimal values.
+ *  For example: an input of: #2AC4D2 would return:
+ *  ['red'=>42, 'green'=>196, 'blue'=> 210]
+ */
+function pas_cth_getColors( $hexCode ) {
+	// Strip '#' from the front, if it exists
+	// This way, the function works, whether or not the '#' is prepended to the input.
+	$hexCode	= (substr($hexCode, 0, 1) === "#" ? substr($hexCode, 1) : $hexCode);
+	$redHex		= substr( $hexCode, 0, 2);
+	$greenHex	= substr( $hexCode, 2, 2);
+	$blueHex	= substr( $hexCode, 4, 2);
+
+
+	return	[
+				'red'			=> hexdec( $redHex ),
+				'green'			=> hexdec( $greenHex ),
+				'blue'			=> hexdec( $blueHex ),
+				'redColor'		=> '#' . $redHex . "0000",
+				'greenColor'	=> '#00' . $greenHex . "00",
+				'blueColor'		=> '#0000' . $blueHex,
+				'color'			=> "rgba(" . hexdec( $redHex ) . ", " . hexdec( $greenHex ) . ", " . hexdec( $blueHex ) . ", 1)",
+			];
+}

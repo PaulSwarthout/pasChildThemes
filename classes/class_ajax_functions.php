@@ -10,12 +10,14 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		private $pluginName;
 		private $pluginFolder;
 		public  $activeThemeInfo;
+		private $colorPicker;
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
 			$this->pluginName		= $args['pluginName'];
 			$this->pluginFolder		= $args['pluginFolder'];
 			$this->activeThemeInfo	= $args['activeThemeInfo'];
+			$this->colorPicker		= $args['colorPicker'];
 		}
 		// To aid with debugging, when WP_DEBUG is true, this function displays a message code
 		// on the message box in the lower right corner.
@@ -494,6 +496,15 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 						];
 
 			update_option( "pas_cth_" . $inputs['optionName'], $inputs['optionValue'] );
+		}
+		function chooseColor() {
+			$initialColor = sanitize_text_field( $_POST['initialColor'] );
+			$originalColorField = sanitize_text_field( $_POST['callingFieldName'] );
+			$args = [
+						'initialColor' => $initialColor,
+						'callingFieldName' => $originalColorField
+					];
+			echo $this->colorPicker->getNewColor($args);
 		}
 	}
 }

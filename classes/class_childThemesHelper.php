@@ -6,6 +6,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		public $pluginFolder;
 		public $activeThemeInfo;
 		public $allThemes;
+		public $colorPicker;
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
@@ -13,6 +14,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$this->pluginFolder		= $args['pluginFolder'];
 			$this->activeThemeInfo	= $args['activeThemeInfo'];
 			$this->allThemes		= $this->enumerateThemes();
+			$this->colorPicker		= $args['colorPicker'];
 		}
 
 		// Load the pasChildThemes CSS style.css file
@@ -65,20 +67,27 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 							);
 		}
 		// WriteOption() displays an option on the pasChildThemes options page.
+		function loadAvailableFonts() {
+			$fonts = [];
+			$fonts_folder = $this->pluginDirectory['path'] . "assets/fonts";
+			$folder_files = scandir($fonts_folder);
+			foreach ($folder_files as $file) {
+				if (strtoupper(pathInfo($fonts_folder . '/' . $file, PATHINFO_EXTENSION)) === "TTF") {
+					$meta = new FontMeta($fonts_folder . '/' . $file);
+					array_push($fonts, ['fontFile'=>$file, 'fontName'=>$meta->getFontName()]);
+					unset($meta);
+				}
+			}
+			return $fonts;
+		}
+
 		function WriteOption( $args ) {
 			$label			= $args['label'];
 			$optionName		= $args['optionName'];
 			$defaultValue	= $args['default'];
 
-/* NOT YET IMPLEMENTED.
- *		$ifColorPicker =
- *			( array_key_exists( 'colorPicker', $args ) ? $args['colorPicker'] : false );
- *			if ( $ifColorPicker ) {
- *				$colorPicker = "show color picker";
- *			} else {
- *				$colorPicker = "";
- *			}
- */
+			$ifColorPicker =
+				( array_key_exists( 'colorPicker', $args ) ? $args['colorPicker'] : false );
 
 			$dots = DOTS; // string of periods. Will overflow the div.
 			$optionValue = get_option( "pas_cth_$optionName", $defaultValue );
@@ -91,12 +100,14 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 									 . "       name='$optionName' "
 									 . "       value='$optionValue' "
 									 . "       onblur='javascript:pas_cth_js_SetOption(this);' "
+									 . "       onfocus='javascript:pas_cth_js_showColorPicker(this);' "
 									 . $readonly . " >";
 						if (array_key_exists( 'stringFontFamily', $args )) {
 							$bShowFontSelection = $args['stringFontFamily'];
 						} else {
 							$bShowFontSelection = false;
 						}
+
 						break;
 					case "select":
 						$formElement =
@@ -107,9 +118,9 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						if ( array_key_exists( 'options', $args ) ) {
 							$options = $args['options'];
 							foreach ( $options as $value ) {
-								$selected = ( $value[1] == $optionValue ? " SELECTED " : "" );
-								$formElement .= "<option value='" . $value[1] . "' $selected >" .
-												$value[0] . "</option>";
+								$selected = ( $value['fontName'] == $optionValue ? " SELECTED " : "" );
+								$formElement .= "<option value='" . $value['fontFile'] . "' $selected >" .
+												$value['fontName'] . "</option>";
 							}
 							$formElement .= "</select>";
 						} else {
@@ -132,10 +143,10 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$outputString = <<<"OPTION"
 			<div class='pct'>
 			<span class='pctOptionHeading'>
-				<nobr>$label<span class='dots'>$dots</span></nobr>
+				<nobr>{$label}<span class='dots'>$dots</span></nobr>
 			</span>
 			<span class='pctOptionValue'>
-				$formElement
+			{$formElement}
 			</span>
 			</div>
 OPTION;
@@ -206,7 +217,7 @@ OPTION;
 					'optionName'=> 'bcColor',
 					'default'=> get_option( 'pas_cth_bcColor', PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR ),
 					'onblur'	=> 'pas_cth_js_pctSetOption( this )',
-					'colorPicker'=> false,
+					'colorPicker'=> true,
 					'type'		=> 'input'
 				] );
 
@@ -226,76 +237,15 @@ OPTION;
 					'optionName'=> 'font',
 					'default'	=> get_option( 'pas_cth_font', 'Arial'),
 					'type'		=> 'select',
-					'options'	=> [ ['Questrial', 'Questrial-Regular.ttf'],
-									 ['Coolvetica', 'coolvetica rg.TTF'],
-									 ['Chancery Cursive', 'chancur.ttf'],
-									 ['Airstream NF', 'AirstreamNF.ttf'] ]
-				] );
-/* These options caused problems when switching themes. Suddenly, the ScreenShot Generation would
- * create screenshots with the wrong child theme name. For now, remove these options, and
- * fix the problem when enhancing the screenshot generation in a later release.
-			echo $this->WriteOption(
-				[
-					'label'				=> 'String1: ',
-					'optionName'		=> 'string1',
-					'default'			=> $this->activeThemeInfo->childThemeName,
-					'type'				=> 'input',
-					'fontSize'			=> 50,
-					'topPad'			=> 0,
-					'maxFontSize'		=> true,
-					'fontSizePrompt'	=> true,
-					'stringFontFamily'	=> true
+					'options'	=> $this->loadAvailableFonts()
 				] );
 
-			echo $this->WriteOption(
-				[
-					'label'				=> 'String2: ',
-					'optionName'		=> 'string2',
-					'default'			=> "...is a child of " .
-											$this->activeThemeInfo->templateThemeName,
-					'type'				=> 'input',
-					'fontSize'			=> 50,
-					'topPad'			=> 0,
-					'maxFontSize'		=> true,
-					'fontSizePrompt'	=> true,
-					'stringFontFamily'	=> true
-				] );
-
-			echo $this->WriteOption(
-				[
-					'label'				=> 'String3: ',
-					'optionName'		=> 'string3',
-					'default'			=> PAS_CTH_PLUGINNAME,
-					'type'				=> 'input',
-					'readonly'			=> true,
-					'fontSize'			=> 46,
-					'topPad'			=> 0,
-					'maxFontSize'		=> true,
-					'fontSizePrompt'	=> true,
-					'stringFontFamily'	=> true
-				] );
-
-			echo $this->WriteOption(
-				[
-					'label'				=> 'String4: ',
-					'optionName'		=> 'string4',
-					'default'			=> PAS_CTH_MYURL,
-					'type'				=> 'input',
-					'readonly'			=> true,
-					'fontSize'			=> 46,
-					'topPad'			=> 0,
-					'maxFontSize'		=> true,
-					'fontSizePrompt'	=> true,
-					'stringFontFamily'	=> true
-				] );
-*/
 			// Dummy button. Options are saved onblur event for each option. This button simply
 			// forces an onblur event to be fired from the last option that had focus.
+
 			echo "<input type='button' class='blueButton' value='Save Options'>";
 		}
 		// Not yet implemented
-		function showColorPicker() {
-		}
 
 		/* Generates the screenshot.png file in the child theme, if one does not yet exist.
 		 * If changes to the options do not show up, clear your browser's stored images,
