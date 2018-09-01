@@ -118,7 +118,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						if ( array_key_exists( 'options', $args ) ) {
 							$options = $args['options'];
 							foreach ( $options as $value ) {
-								$selected = ( $value['fontName'] == $optionValue ? " SELECTED " : "" );
+								$selected = ( $value['fontFile'] == $optionValue ? " SELECTED " : "" );
 								$formElement .= "<option value='" . $value['fontFile'] . "' $selected >" .
 												$value['fontName'] . "</option>";
 							}
@@ -227,7 +227,7 @@ OPTION;
 					'optionName'=> 'fcColor',
 					'default'=> get_option( 'pas_cth_fcColor', PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR ),
 					'onblur'	=> 'pas_cth_js_pctSetOption( this )',
-					'colorPicker'=> false,
+					'colorPicker'=> true,
 					'type'		=> 'input'
 				] );
 

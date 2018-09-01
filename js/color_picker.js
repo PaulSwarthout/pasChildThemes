@@ -1,4 +1,8 @@
 // /js/color_picker.js
+if(typeof String.prototype.right == "undefined")
+	String.prototype.right = function(n){return this.substring(this.length - n, this.length)}
+if(typeof String.prototype.left == "undefined")
+	String.prototype.left = function(n) { return this.substring(0, n); }
 
 if(typeof String.prototype.digits == "undefined") {
 	String.prototype.digits = function(n) {
@@ -9,57 +13,127 @@ if(typeof String.prototype.digits == "undefined") {
 		return str;
 	}
 }
+function colorPickerElements() {
+	// <input type='range' id='{color}Slider' ... >
+	this.redSlider	= document.getElementById("redSlider")
+	this.greenSlider= document.getElementById("greenSlider")
+	this.blueSlider = document.getElementById("blueSlider")
 
-function setColor(c = null) {
-	var redSlider	= document.getElementById("redSlider")
-	var greenSlider = document.getElementById("greenSlider")
-	var blueSlider	= document.getElementById("blueSlider")
+	// <input type='text' id='{color}SliderValue' ...>
+	this.redInt		= document.getElementById("redInt")
+	this.greenInt	= document.getElementById("greenInt")
+	this.blueInt	= document.getElementById("blueInt")
 
-	var redSliderValue		= document.getElementById("redSliderValue")
-	var greenSliderValue	= document.getElementById("greenSliderValue")
-	var blueSliderValue		= document.getElementById("blueSliderValue")
+	// <div id='{color}DIV'>
+	this.redDIV		= document.getElementById("redDIV")
+	this.greenDIV	= document.getElementById("greenDIV")
+	this.blueDIV	= document.getElementById("blueDIV")
+	this.exampleDIV = document.getElementById("exampleDIV")
 
-	var redDIV = document.getElementById("redDIV")
-	var greenDIV = document.getElementById("greenDIV")
-	var blueDIV = document.getElementById("blueDIV")
-	var exampleDIV = document.getElementById("exampleDIV")
-	var exampleColor = document.getElementById("exampleColor")
-
-	var color;
-
-	if (c != null) {
-		if (c.left(1) == "#") {
-			c = c.right(c.length - 1)
-		}
-		redSlider.value = parseInt(c.left(2), 16);
-		c = c.right(c.length - 2)
-
-		greenSlider.value = parseInt(c.left(2), 16);
-		c = c.right(c.length - 2)
-
-		blueSlider.value = parseInt(c.left(2), 16);
-		c = null;
+	// <input type='text' id='exampleColor' ... >
+	this.colorText	= document.getElementById("colorText")
+}
+function colorValues(cpElements = null) {
+	if (cpElements == null) {
+		cpElements = new colorPickerElements();
 	}
+	this.redValue	= parseInt(cpElements.redSlider.value, 10)
+	this.greenValue = parseInt(cpElements.greenSlider.value, 10)
+	this.blueValue	= parseInt(cpElements.blueSlider.value, 10)
 
-	redSliderValue.value = redSlider.value;
-	color = "#" + parseInt(redSlider.value).toString(16).digits(2) + "0000";
-	redDIV.style.background = color;
+	this.redHex		= parseInt(cpElements.redInt.value, 10).toString(16).digits(2)
+	this.greenHex	= parseInt(cpElements.greenInt.value, 10).toString(16).digits(2)
+	this.blueHex	= parseInt(cpElements.blueInt.value, 10).toString(16).digits(2)
+	this.color	= ("#" + this.redHex + this.greenHex + this.blueHex).toUpperCase();
+	var parts = new colorParts(this.color);
+	this.redColor = parts.redColor;
+	this.greenColor = parts.greenColor;
+	this.blueColor = parts.blueColor;
+}
+function setRed(redInt) {
+	var cp = new colorPickerElements();
+	cp.redSlider.value = redInt
+	updateColorPicker();
+}
+function setGreen(greenInt) {
+	var cp = new colorPickerElements();
+	cp.greenSlider.value = greenInt;
+	updateColorPicker();
+}
+function setBlue(blueInt) {
+	var cp = new colorPickerElements();
+	cp.blueSlider.value = blueInt;
+	updateColorPicker();
+}
+function updateColorPicker() {
+	var cp = new colorPickerElements();
+	var cv;
 
-	greenSliderValue.value = greenSlider.value;
-	color = "#00" + parseInt(greenSlider.value).toString(16).digits(2) + "00";
-	greenDIV.style.background = color
+	cp.redInt.value = parseInt(cp.redSlider.value, 10)
+	cp.greenInt.value = parseInt(cp.greenSlider.value, 10)
+	cp.blueInt.value = parseInt(cp.blueSlider.value, 10)
 
-	blueSliderValue.value = blueSlider.value;
-	color = "#0000" + parseInt(blueSlider.value).toString(16).digits(2);
-	blueDIV.style.background = color
+	cv = new colorValues(cp)
+	cp.redDIV.style.backgroundColor = cv.redColor
+	cp.greenDIV.style.backgroundColor = cv.greenColor
+	cp.blueDIV.style.backgroundColor = cv.blueColor
 
-	color = "#" + parseInt(redSlider.value).toString(16) + parseInt(greenSlider.value).toString(16) + parseInt(blueSlider.value).toString(16);
-	exampleDIV.style.backgroundColor = "rgb(" + parseInt(redSlider.value,10) + ", " +
-												parseInt(greenSlider.value,10) + ", " +
-												parseInt(blueSlider.value, 10) + ")";
-	exampleColor.value = ("#" + parseInt(redSlider.value, 10).toString(16).digits(2) +
-	                           parseInt(greenSlider.value, 10).toString(16).digits(2) +
-							   parseInt(blueSlider.value, 10).toString(16).digits(2)).toUpperCase();
+	cp.exampleDIV.style.backgroundColor = cv.color;
+	cp.colorText.value = cv.color
+}
+
+
+function colorPickerLibrary() {
+	var cv = new colorValues();
+
+	this.rgb = "rgb(" + cv.redValue + ", " + cv.greenValue + ", " + cv.blueValue + ")";
+	this.colorCode = "#" + cv.redHex + cv.greenHex + cv.blueHex;
+	this.setColor = function (color) {
+		var parts = new colorParts(color);
+		var cp = new colorPickerElements();
+
+		cp.redSlider.value = parts.red
+		cp.greenSlider.value = parts.green
+		cp.blueSlider.value = parts.blue
+
+		cp.redInt.value = parts.red
+		cp.greenInt.value = parts.green
+		cp.blueInt.value = parts.blue
+
+		cp.redDIV.style.background = parts.redColor
+		cp.greenDIV.style.background = parts.greenColor
+		cp.blueDIV.style.background = parts.blueColor
+
+		cp.exampleDIV.style.background = color
+
+		cp.colorText.value = color
+	}
+	this.getColor = function () {
+		var cv = new colorValues();
+		return (cv.getColor());
+	}
+}
+function colorParts(color) {
+	var str = (color.left(1) == "#" ? color.right(color.length - 1) : color);
+	this.redHex = str.substr(0, 2)
+	this.red = parseInt(this.redHex, 16)
+	this.redColor = "#" + this.redHex + "0000";
+
+	this.greenHex = str.substr(2, 2)
+	this.green = parseInt(this.greenHex, 16)
+	this.greenColor = "#00" + this.greenHex + "00";
+
+	this.blueHex = str.substr(4, 2)
+	this.blue = parseInt(this.blueHex, 16)
+	this.blueColor = "#0000" + this.blueHex;
+}
+
+function setColor(color) {
+	var cpElements = new colorPickerElements();
+	var cpLibrary  = new colorPickerLibrary();
+
+	cpLibrary.setColor(color)
+	updateColorPicker();
 }
 function pas_cth_js_showColorPicker(clr) {
 	var xmlhttp = new XMLHttpRequest();
@@ -118,18 +192,22 @@ function pas_cth_js_createColorWindow(response) {
 	}
 	colorPickerWindow.innerHTML = response;
 }
-
-function saveColor(button) {
-	var frm = button.form
-	var callingFieldName = frm.callingFieldName.value
-	var callingField = document.getElementsByName(callingFieldName)[0];
-	callingField.value = frm.exampleColor.value;
-
+function exitColorPickerDialog() {
 	var colorPickerWindow = document.getElementById("colorPickerWindow");
 	var parent = colorPickerWindow.parentNode;
 	if (parent != null) {
 		parent.removeChild(colorPickerWindow)
 	}
 	colorPickerWindow.remove();
-
+}
+function saveColor(button) {
+	var frm = button.form
+	var callingFieldName = frm.callingFieldName.value
+	var callingField = document.getElementsByName(callingFieldName)[0];
+	callingField.value = frm.colorText.value;
+	pas_cth_js_SetOption(callingField);
+	exitColorPickerDialog();
+}
+function cancelColorChange(element) {
+	exitColorPickerDialog();
 }
