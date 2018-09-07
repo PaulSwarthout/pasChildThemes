@@ -35,7 +35,8 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 			$rgb		= pas_cth_getColors( $fcColor );
 			$text_color = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
 
-			$font = $fontPath . get_option( 'pas_cth_font', PAS_CTH_DEFAULT_SCREENSHOT_FONT );
+			$fontData = get_option( 'pas_cth_font', PAS_CTH_DEFAULT_SCREENSHOT_FONT );
+			$font = $pluginDirectory['path'] . "assets/fonts/" . $fontData['fontFile-base'] . ".ttf";
 
 			// Define the strings to write out.
 			// Padding is padding before the string.

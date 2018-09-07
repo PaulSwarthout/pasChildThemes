@@ -108,6 +108,7 @@ add_action( 'wp_ajax_createChildTheme', Array( $pas_cth_AJAXFunctions, 'createCh
 add_action( 'wp_ajax_saveOptions', Array( $pas_cth_AJAXFunctions, 'saveOptions' ) );
 
 add_action( 'wp_ajax_displayColorPicker', Array( $pas_cth_AJAXFunctions, 'chooseColor' ) );
+add_action( 'wp_ajax_saveDefaultFont', Array( $pas_cth_AJAXFunctions, "saveFont") );
 
 // Plugin Activation.
 function pas_cth_activate() {

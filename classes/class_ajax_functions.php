@@ -506,5 +506,12 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 					];
 			echo $this->colorPicker->getNewColor($args);
 		}
+
+		function saveFont() {
+			$fontFile = trim(sanitize_text_field($_POST['fontFile-base']));
+			$fontName = sanitize_text_field($_POST['fontName']);
+
+			update_option( 'pas_cth_font', [ 'fontName'=>$fontName, 'fontFile-base'=>$fontFile ] );
+		}
 	}
 }

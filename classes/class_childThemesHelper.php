@@ -7,6 +7,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		public $activeThemeInfo;
 		public $allThemes;
 		public $colorPicker;
+		public $fontSamples; // Array of sample font images, to be used in pas_cth_Options();
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
@@ -15,6 +16,13 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$this->activeThemeInfo	= $args['activeThemeInfo'];
 			$this->allThemes		= $this->enumerateThemes();
 			$this->colorPicker		= $args['colorPicker'];
+			$this->fontSampleImages	= [];
+		}
+		function __destruct() {
+			foreach ($this->fontSampleImages as $img) {
+				imagedestroy(  $img  );
+			}
+			unset($this->fontSampleImages);
 		}
 
 		// Load the pasChildThemes CSS style.css file
@@ -74,7 +82,14 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			foreach ($folder_files as $file) {
 				if (strtoupper(pathInfo($fonts_folder . '/' . $file, PATHINFO_EXTENSION)) === "TTF") {
 					$meta = new FontMeta($fonts_folder . '/' . $file);
-					array_push($fonts, ['fontFile'=>$file, 'fontName'=>$meta->getFontName()]);
+					$fontName = $meta->getFontName();
+					$sampleImage = $this->getFontSample($fonts_folder . '/' . $file, $fontName);
+					$fontArgs = [
+									'fontFile-base'=>basename($file, ".ttf").PHP_EOL,
+									'fontName'=>$fontName
+								];
+					array_push($fonts, $fontArgs);
+					unset ($fontArgs);
 					unset($meta);
 				}
 			}
@@ -82,16 +97,23 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		}
 
 		function WriteOption( $args ) {
-			$label			= $args['label'];
-			$optionName		= $args['optionName'];
-			$defaultValue	= $args['default'];
-
+			$label			= (array_key_exists('label', $args) ? $args['label'] : "");
+			$optionName		= (array_key_exists('optionName', $args) ? $args['optionName'] : "");
+			$defaultValue	= (array_key_exists('default', $args) ? $args['default'] : "");
+			$defaultFont	= (array_key_exists('defaultFont', $args) ? $args['defaultFont'] : "['fontName'=>'Roboto Medium', 'fontFile-base'=>'Roboto-Medium']");
+			$selectOptions	= (array_key_exists('selectOptions', $args) ? $args['selectOptions'] : "");
+			$readonly		= (array_key_exists( 'readonly', $args ) ? " READONLY " : "");
 			$ifColorPicker =
 				( array_key_exists( 'colorPicker', $args ) ? $args['colorPicker'] : false );
 
 			$dots = DOTS; // string of periods. Will overflow the div.
 			$optionValue = get_option( "pas_cth_$optionName", $defaultValue );
-			$readonly = ( array_key_exists( 'readonly', $args ) ? " READONLY " : "" );
+
+			if (constant('WP_DEBUG')) {
+				$crlf = "\r\n";
+			} else {
+				$crlf = "";
+			}
 
 			if ( array_key_exists( 'type', $args ) ) {
 				switch ( strtolower( $args['type'] ) ) {
@@ -99,28 +121,21 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						$formElement = "<input type='text' "
 									 . "       name='$optionName' "
 									 . "       value='$optionValue' "
-									 . "       onblur='javascript:pas_cth_js_SetOption(this);' "
-									 . "       onfocus='javascript:pas_cth_js_showColorPicker(this);' "
+									 . "       on-focus='javascript:pas_cth_js_showColorPicker(this);' "
+									 . (array_key_exists('showColor', $args) ? ($args['showColor'] ? " style='background-color:$optionValue;color:" . $this->colorPicker->invertColor($optionValue, true) . ";' " : "") : "")
 									 . $readonly . " >";
-						if (array_key_exists( 'stringFontFamily', $args )) {
-							$bShowFontSelection = $args['stringFontFamily'];
-						} else {
-							$bShowFontSelection = false;
-						}
-
 						break;
-					case "select":
+					case "select": // currently, only a font dropdown is required.
 						$formElement =
 							"<select name='" . esc_attr($optionName) . "' " .
 							"        onblur='javascript:pas_cth_js_SetOption(this);' " .
 							"        $readonly >" .
 							"<option value=''>Choose the Font</option>";
 						if ( array_key_exists( 'options', $args ) ) {
-							$options = $args['options'];
-							foreach ( $options as $value ) {
-								$selected = ( $value['fontFile'] == $optionValue ? " SELECTED " : "" );
-								$formElement .= "<option value='" . $value['fontFile'] . "' $selected >" .
-												$value['fontName'] . "</option>";
+							foreach ( $options as $fontOption ) {
+								$selected = ( $fontOption['fontFile-basename'] == $optionValue ? " SELECTED " : "" );
+								$formElement .= "<option value='" . $fontOption['fontFile'] . "' $selected >" .
+												$fontOption['fontName'] . "</option>";
 							}
 							$formElement .= "</select>";
 						} else {
@@ -131,7 +146,66 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 								"       onblur='javascript:pas_cth_js_SetOption( this );' " .
 								" $readonly >";
 						}
-				}
+						break;
+					case "imageselect":
+						$nofont = false;
+
+
+						if (0 === strlen($defaultFont['fontName'])) {
+							$defaultFont = ['fontName'=>'Choose Your Font', 'fontFile-base'=>''];
+							$nofont = true;
+						}
+						if ( ! $nofont) {
+							$imgSrc = "<img src='" . $this->pluginDirectory['url'] . "assets/fonts/samples/" . $defaultFont['fontFile-base'] . ".png" . "'>";
+						} else {
+							$imgSrc = "";
+						}
+
+// HereDocs String for the text-box portion of the drop-down-list box
+					$formElement = <<< "FONTTEXTBOX"
+					{$crlf}<!-- ******************************************* -->{$crlf}
+					<div id='imageDropDown' onclick='javascript:showDropDown("listDropDown");'>{$crlf}
+						<span class='imageSelectRow'>{$crlf}
+							<span class='isRowCol1' id='selectedFontName'>{$crlf}
+								{$defaultFont['fontName']}
+							</span>{$crlf}
+							<span class='isRowCol2' id='selectedFontSample'>{$crlf}
+								{$imgSrc}{$crlf}
+							</span>{$crlf}
+						</span>{$crlf}
+					</div>{$crlf}<!-- End of id='imageDropDown' -->{$crlf}
+					{$crlf}<!-- ******************************************* -->{$crlf}
+					<div class='listDropDown' id='listDropDown'>{$crlf}
+FONTTEXTBOX;
+
+						foreach ($selectOptions as $row) {
+							$jsdata =
+								[
+									'data-row'=>$row,
+									'text-box'=>'imageDropDown',
+									'list-box'=>'listDropDown',
+									'url'=>$this->pluginDirectory['url'] . "assets/fonts/samples/"
+								];
+							$jsdata = json_encode($jsdata);
+							$imgSrc = "<img src='" . $this->pluginDirectory['url'] . 'assets/fonts/samples/' . $row['fontFile-base'] . '.png' . "'>";
+
+// HereDocs String for the list-box portion of the drop-down-list box.
+						$formElement .= <<< "FONTLISTBOX"
+							<div class='imageSelectRow' data-font='{$jsdata}' onclick='javascript:selectThisFont(this);'>{$crlf}
+								<span class='isRowCol1'>{$crlf}
+									{$row['fontName']}{$crlf}
+								</span>{$crlf}
+								<span class='isRowCol2'>{$crlf}
+									{$imgSrc}{$crlf}
+								</span>{$crlf}
+							</div>{$crlf}
+FONTLISTBOX;
+						}
+						// These two lines MUST be outside the loop.
+						$formElement .= "$crlf~</div><!-- end of class='listDropDown' -->$crlf" .
+										"$crlf<!-- ******************************************* -->$crlf";
+						break;
+				} // end of switch() statement
 			} else {
 				$formElement = "<input type='text' " .
 					           "       name='" . esc_attr($optionName) . "' " .
@@ -141,14 +215,15 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			}
 
 			$outputString = <<<"OPTION"
-			<div class='pct'>
-			<span class='pctOptionHeading'>
-				<nobr>{$label}<span class='dots'>$dots</span></nobr>
-			</span>
-			<span class='pctOptionValue'>
-			{$formElement}
-			</span>
-			</div>
+			{$crlf}<!-- start of class='pct' -->{$crlf}
+			<div class='pct'>{$crlf}
+				<span class='pctOptionHeading'>{$crlf}
+					<span class='nobr'>{$label}<span class='dots'>$dots</span></span>{$crlf}
+				</span>{$crlf}
+				<span class='pctOptionValue'>{$crlf}
+					{$formElement}{$crlf}
+				</span>{$crlf}
+			</div>{$crlf}<!-- end of class='pct' -->{$crlf}
 OPTION;
 
 			return ( $outputString );
@@ -192,7 +267,7 @@ OPTION;
 			echo "If you make changes here and your screenshot.png doesn't change when you ";
 			echo "generate it, clear your browser's image cache.";
 			echo "</p>";
-
+/*
 			echo $this->WriteOption(
 				[
 					'label'		=> 'Image Width: ',
@@ -210,15 +285,15 @@ OPTION;
 					'onblur'	=> 'pas_cth_js_pctSetOption( this )',
 					'type'		=> 'input'
 				] );
-
+*/
 			echo $this->WriteOption(
 				[
 					'label'		=> 'Background Color: ',
 					'optionName'=> 'bcColor',
 					'default'=> get_option( 'pas_cth_bcColor', PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR ),
-					'onblur'	=> 'pas_cth_js_pctSetOption( this )',
 					'colorPicker'=> true,
-					'type'		=> 'input'
+					'type'		=> 'input',
+					'showColor' => true
 				] );
 
 			echo $this->WriteOption(
@@ -226,18 +301,18 @@ OPTION;
 					'label'		=> 'Text Color: ',
 					'optionName'=> 'fcColor',
 					'default'=> get_option( 'pas_cth_fcColor', PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR ),
-					'onblur'	=> 'pas_cth_js_pctSetOption( this )',
 					'colorPicker'=> true,
-					'type'		=> 'input'
+					'type'		=> 'input',
+					'showColor' => true
 				] );
 
 			echo $this->WriteOption(
 				[
-					'label'		=> 'Font: ',
-					'optionName'=> 'font',
-					'default'	=> get_option( 'pas_cth_font', 'Arial'),
-					'type'		=> 'select',
-					'options'	=> $this->loadAvailableFonts()
+					'label'		 => 'Font: ',
+					'optionName' => 'font',
+					'defaultFont'=> get_option( 'pas_cth_font', unserialize(PAS_CTH_DEFAULT_FONT) ),
+					'type'		 => 'imageselect',
+					'selectOptions'	=> $this->loadAvailableFonts(),
 				] );
 
 			// Dummy button. Options are saved onblur event for each option. This button simply
@@ -245,8 +320,6 @@ OPTION;
 
 			echo "<input type='button' class='blueButton' value='Save Options'>";
 		}
-		// Not yet implemented
-
 		/* Generates the screenshot.png file in the child theme, if one does not yet exist.
 		 * If changes to the options do not show up, clear your browser's stored images,
 		 * files, fonts, etc.
@@ -505,6 +578,45 @@ OPTION;
 			echo '</ul>';
 
 			echo "</div>";
+		}
+		function getFontSample($fontFile, $fontName) {
+			$img = imagecreate(  300, 50  );
+			$childThemeName = $this->activeThemeInfo->childThemeName;
+
+			$bcColor	= "#FFFFFF";
+			$rgb		= pas_cth_getColors( $bcColor );
+			$background = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
+
+			$fcColor	= "#000000";
+			$rgb		= pas_cth_getColors( $fcColor );
+			$text_color = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
+
+			$font = $fontFile;
+			$sampleText = $childThemeName;
+
+			$xPos		= 15;
+			$yPos		= 40;
+			$fontSize	= 18;
+			$angle		= 0;
+			$bbox = imagefttext(  $img,
+								  $fontSize,
+								  $angle,
+								  $xPos,
+								  $yPos,
+								  $text_color,
+								  $font,
+								  $sampleText );
+
+			$fontSampleImageName =
+					"assets/fonts/samples/" . trim(basename($fontFile, ".ttf").PHP_EOL) . ".png";
+			$outFile = $this->pluginDirectory['path'] . $fontSampleImageName;
+
+			imagepng(  $img, $outFile  );
+
+			imagecolordeallocate(  $img, $text_color  );
+			imagecolordeallocate(  $img, $background  );
+
+			return ($fontSampleImageName);
 		}
 	}
 }

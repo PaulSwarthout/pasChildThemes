@@ -40,8 +40,6 @@ function pas_cth_js_processResponse(response) {
 
 	// DEBUG:{} only occurs when WP_DEBUG = true AND we're dealing with the pasDebug class.
 	} else if ("DEBUG:{" == response.left("DEBUG:{".length).toUpperCase()) {
-/* class pasDebug has been removed from the plugin.
-
 		actionBox = document.getElementById("actionBox");
 		if (actionBox != null && actionBox != undefined) {
 			if (actionBox.parentNode != null) {
@@ -53,8 +51,6 @@ function pas_cth_js_processResponse(response) {
 		debugResponse = debugResponse.left(debugResponse.length - 1);
 		box = pas_cth_js_createBox('debugBox', 'debug');
 		box.innerHTML = debugResponse;
-* end of debug code
-*/
 	// Nothing special. We've got output from the PHP function, dump it to the screen.
 	} else {
 		pas_cth_js_showBox().innerHTML = response;

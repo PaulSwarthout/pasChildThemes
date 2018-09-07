@@ -206,8 +206,112 @@ function saveColor(button) {
 	var callingField = document.getElementsByName(callingFieldName)[0];
 	callingField.value = frm.colorText.value;
 	pas_cth_js_SetOption(callingField);
+	var fgColor = invertColor(frm.colorText.value, true)
+	callingField.style.color = fgColor;
+	callingField.style.backgroundColor = frm.colorText.value
+	callingField.style.border = "inset";
 	exitColorPickerDialog();
 }
 function cancelColorChange(element) {
 	exitColorPickerDialog();
+}
+function invertColor(hex, bw) {
+    if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+    }
+    var r = parseInt(hex.slice(0, 2), 16),
+        g = parseInt(hex.slice(2, 4), 16),
+        b = parseInt(hex.slice(4, 6), 16);
+    if (bw) {
+        // http://stackoverflow.com/a/3943023/112731
+        return (r * 0.299 + g * 0.587 + b * 0.114) > 186
+            ? '#000000'
+            : '#FFFFFF';
+    }
+    // invert color components
+    r = (255 - r).toString(16).digits(2);
+    g = (255 - g).toString(16).digits(2);
+    b = (255 - b).toString(16).digits(2);
+    // pad each with zeros and return
+    return "#" + r + g + b;
+}
+function showDropDown(listBoxID) {
+	var listBox = document.getElementById(listBoxID)
+	if (listBox.style.display == "") {
+		listBox.style.display = "inline-block";
+	} else {
+		listBox.style.display = "";
+	}
+}
+function selectThisFont(fontDataElement) {
+	var fontData = JSON.parse(fontDataElement.getAttribute("data-font"));
+	var row				= fontData['data-row'];
+	var fontName		= row['fontName']
+	var fontBase		= row['fontFile-base'];
+	var fontFile		= fontData['url'] + fontBase + ".ttf";
+	var fontSampleImg	= fontData['url'] + fontBase + ".png";
+
+	var textBox = document.getElementById(fontData['text-box']);
+	var listBox = document.getElementById(fontData['list-box']);
+
+	var selectedFontNameElement = document.getElementById("selectedFontName")
+	var selectedFontSampleElement = document.getElementById("selectedFontSample")
+
+	selectedFontNameElement.innerHTML = fontName
+
+	var img = document.getElementById("sampleFontImage")
+	if (img != null) {
+		if (img.parentNode != null) {
+			img.parentNode.removeChild(img);
+		}
+		img.remove();
+	}
+	img = document.createElement("img")
+	img.setAttribute("id", "sampleFontImage")
+	img.src = fontFile
+	img.style.cssText = "visibility:visible;display:inline;";
+	selectedFontSampleElement.appendChild(img)
+
+	textBox.style.display = "inline";
+	listBox.style.display = "none";
+
+	var xmlhttp = new XMLHttpRequest();
+	var data = new FormData();
+	data.append("action", "saveDefaultFont");
+	data.append("fontName", fontName);
+	data.append("fontFile-base", fontBase);
+
+	xmlhttp.open("POST", ajaxurl,true);
+	xmlhttp.onreadystatechange = function () {
+
+		if (4 == xmlhttp.readyState) {
+			// strip the AJAX zero from wp_die() WORDPRESS ONLY
+			var response = (xmlhttp.responseText.length >= 1 ?
+								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
+								xmlhttp.responseText);
+			switch (xmlhttp.status) {
+				case 200: // Everything is Okay
+					/* If responseText is not empty, there might be a request to overwrite
+					 * or a request to delete that needs to be displayed.
+					 * else, reload the page.
+					 * <= 1 accounts for the AJAX return of zero that sometimes shows up
+					 * despite my best efforts to avoid that.
+					 */
+					if (response.length <= 0) {
+						// refresh the current display
+						location.reload();
+					} else {
+						// display any output from the wp_ajax_* function.
+						pas_cth_js_processResponse(response);
+					}
+					break;
+
+				case 400: // There was an error
+					msg = "400 Error:<br>" + xmlhttp.statusText;
+					pas_cth_js_showBox().innerHTML = msg;
+					break;
+			}
+		}
+	}
+	xmlhttp.send(data);
 }

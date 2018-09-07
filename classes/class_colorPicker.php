@@ -102,5 +102,31 @@ GETNEWCOLOR;
  // Previous line ends the HereDocs string. Do not indent that line, or add anything else to the end of it.
 			return $output;
 		}
+
+		function invertColor($hex, $bw) {
+			$hex = (substr($hex, 0, 1) === "#" ? substr($hex, 1) : $hex);
+			$r = hexdec(substr($hex, 0, 2));
+			$g = hexdec(substr($hex, 2, 2));
+			$b = hexdec(substr($hex, 4, 2));
+			if ($bw) {
+				// http://stackoverflow.com/a/3943023/112731
+				return (($r * 0.299 + $g * 0.587 + $b * 0.114) > 186
+					? '#000000'
+					: '#FFFFFF');
+			}
+			// invert color components
+			$r = $this->digits(dechex(255 - $r), 2);
+			$g = $this->digits(dechex(255 - $g), 2);
+			$b = $this->digits(dechex(255 - $b), 2);
+			// pad each with zeros and return
+			return "#" . $r . $g . $b;
+		}
+		function digits($v, $n) {
+			while (strlen($v) < $n) {
+				$v = "0" . $v;
+			}
+			return ($v);
+
+		}
 	}
 }
