@@ -268,7 +268,7 @@ function selectThisFont(fontDataElement) {
 	}
 	img = document.createElement("img")
 	img.setAttribute("id", "sampleFontImage")
-	img.src = fontFile
+	img.src = fontSampleImg
 	img.style.cssText = "visibility:visible;display:inline;";
 	selectedFontSampleElement.appendChild(img)
 
@@ -298,8 +298,8 @@ function selectThisFont(fontDataElement) {
 					 * despite my best efforts to avoid that.
 					 */
 					if (response.length <= 0) {
-						// refresh the current display
-						location.reload();
+						// do nothing. Just return.
+
 					} else {
 						// display any output from the wp_ajax_* function.
 						pas_cth_js_processResponse(response);

@@ -121,7 +121,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						$formElement = "<input type='text' "
 									 . "       name='$optionName' "
 									 . "       value='$optionValue' "
-									 . "       on-focus='javascript:pas_cth_js_showColorPicker(this);' "
+									 . "       onfocus='javascript:pas_cth_js_showColorPicker(this);' "
 									 . (array_key_exists('showColor', $args) ? ($args['showColor'] ? " style='background-color:$optionValue;color:" . $this->colorPicker->invertColor($optionValue, true) . ";' " : "") : "")
 									 . $readonly . " >";
 						break;
@@ -156,7 +156,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 							$nofont = true;
 						}
 						if ( ! $nofont) {
-							$imgSrc = "<img src='" . $this->pluginDirectory['url'] . "assets/fonts/samples/" . $defaultFont['fontFile-base'] . ".png" . "'>";
+							$imgSrc = "<img id='sampleFontImage' src='" . $this->pluginDirectory['url'] . "assets/fonts/samples/" . $defaultFont['fontFile-base'] . ".png" . "'>";
 						} else {
 							$imgSrc = "";
 						}
@@ -172,6 +172,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 							<span class='isRowCol2' id='selectedFontSample'>{$crlf}
 								{$imgSrc}{$crlf}
 							</span>{$crlf}
+							<span class='isRowCol3'>{$crlf}&nbsp;{$crlf}</span>{$crlf}
 						</span>{$crlf}
 					</div>{$crlf}<!-- End of id='imageDropDown' -->{$crlf}
 					{$crlf}<!-- ******************************************* -->{$crlf}
@@ -198,6 +199,7 @@ FONTTEXTBOX;
 								<span class='isRowCol2'>{$crlf}
 									{$imgSrc}{$crlf}
 								</span>{$crlf}
+								<span class='isRowCol3'>{$crlf}&nbsp;{$crlf}</span>{$crlf}
 							</div>{$crlf}
 FONTLISTBOX;
 						}
@@ -580,7 +582,8 @@ OPTION;
 			echo "</div>";
 		}
 		function getFontSample($fontFile, $fontName) {
-			$img = imagecreate(  300, 50  );
+			$imageSize = ['width'=>300, 'height'=>50];
+			$img = imagecreate(  $imageSize['width'], $imageSize['height']  );
 			$childThemeName = $this->activeThemeInfo->childThemeName;
 
 			$bcColor	= "#FFFFFF";
@@ -594,15 +597,22 @@ OPTION;
 			$font = $fontFile;
 			$sampleText = $childThemeName;
 
-			$xPos		= 15;
-			$yPos		= 40;
-			$fontSize	= 18;
+			$xPos		= 0;
+			$yPos		= 10;
+			$sizes		= $this->getFontSize( [
+												'fontName'=>$fontName,
+												'font'=>$font,
+												'imageSize'=>$imageSize,
+												'sampleText'=>$sampleText,
+												'xPos'=>$xPos,
+												'yPos'=>$yPos,
+											  ] );
 			$angle		= 0;
 			$bbox = imagefttext(  $img,
-								  $fontSize,
+								  $sizes['maxFontSize'],
 								  $angle,
-								  $xPos,
-								  $yPos,
+								  0,
+								  45,
 								  $text_color,
 								  $font,
 								  $sampleText );
@@ -617,6 +627,76 @@ OPTION;
 			imagecolordeallocate(  $img, $background  );
 
 			return ($fontSampleImageName);
+		}
+
+		function getSize( $item ) {
+			/* imagettfbox() returns an array of indices representing the x and y coordinates for
+			 * each of the 4 corners of an imaginary box that bounds the $item. The definition of
+			 * what each indice of $boundingBox represents may be found here:
+			 * http://php.net/manual/en/function.imagettfbbox.php
+			 */
+			$boundingBox = imagettfbbox( $item['fontSize'], 0, $item['fontName'], $item['string'] );
+			$width = abs( $boundingBox[2] - $boundingBox[0] );
+			$height = abs( $boundingBox[1] - $boundingBox[7] );
+
+			return ['width'=>$width, 'height'=>$height];
+		}
+		function sampleIsTooBig($args) {
+			$imageSize = $args['imageSize'];
+			$sampleSize = $args['sampleSize'];
+			$result = false;
+
+			if ($imageSize['width'] < $sampleSize['width'] || $imageSize['height'] < $sampleSize['height']) {
+				$result = true;
+			}
+
+			return $result;
+
+		}
+		function sampleIsTooSmall($args) {
+			$imageSize = $args['imageSize'];
+			$sampleSize = $args['sampleSize'];
+			$result = false;
+			if ($sampleSize['width'] < $imageSize['width'] && $sampleSize['height'] < $imageSize['height']) {
+				$result = true;
+			}
+
+			return $result;
+		}
+		/*
+		 * Calculate the largest font size that will fit in the $imgWidth x $imgHeight space.
+		 */
+		function getFontSize($args) {
+			$font = $args['font'];
+			$fontNamey = $args['fontName'];
+			$imageSize = $args['imageSize'];
+			$sampleText = $args['sampleText'];
+
+			// Presumably this font size is bigger than what will fit in the 300 x 50 space.
+			$fontSize = 70;
+			// reduce the font size until it's smaller than the space.
+			do {
+				$fontSize -= 10;
+				$size = $this->getSize(['fontSize'=>$fontSize, 'fontName'=>$font, 'string'=>$sampleText]);
+			} while ($this->sampleIsTooBig(['font'=>$args['fontName'],'fontSize'=>$fontSize,'imageSize'=>$imageSize, 'sampleSize'=>$size]));
+
+			// increase the font size until it's bigger than the space
+			while ($this->sampleIsTooSmall(['font'=>$args['fontName'],'fontSize'=>$fontSize, 'imageSize'=>$imageSize, 'sampleSize'=>$size])) {
+				$fontSize += 2;
+				$size = $this->getSize(['fontSize'=>$fontSize, 'fontName'=>$font, 'string'=>$sampleText]);
+			}
+			// At this point, we are 1 iteration of the above loop too big. Subtract 2 point sizes
+			// And we have the largest font size that will fit in the 300 x 50 sample font space.
+			$fontSize -= 2;
+			$size = $this->getSize(['fontSize'=>$fontSize, 'fontName'=>$font, 'string'=>$sampleText]);
+			$rtn = [
+						'maxFontSize'=>$fontSize,
+						'sampleWidth'=>$size['width'],
+						'sampleHeight'=>$size['height'],
+						'imageSize'=>$imageSize,
+						'font'=>$font
+					];
+			return $rtn;
 		}
 	}
 }
