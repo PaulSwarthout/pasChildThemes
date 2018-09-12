@@ -501,8 +501,8 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			$initialColor = sanitize_text_field( $_POST['initialColor'] );
 			$originalColorField = sanitize_text_field( $_POST['callingFieldName'] );
 			$args = [
-						'initialColor' => $initialColor,
-						'callingFieldName' => $originalColorField
+						'initialColor'		=> $initialColor,
+						'callingFieldName'	=> $originalColorField
 					];
 			echo $this->colorPicker->getNewColor($args);
 		}

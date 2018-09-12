@@ -5,8 +5,10 @@ if ( ! class_exists('pas_cth_colorPicker') ) {
 		private $defaultColor;
 
 		function __construct($args) {
-			$this->defaultColor		= (array_key_exists('color', $args) ? $args['color'] : "#800000");
-			$this->pluginDirectory	= (array_key_exists('pluginDirectory', $args) ? $args['pluginDirectory'] : "");
+			$this->defaultColor		=
+				(array_key_exists('color', $args) ? $args['color'] : "#800000");
+			$this->pluginDirectory	=
+				(array_key_exists('pluginDirectory', $args) ? $args['pluginDirectory'] : "");
 		}
 
 		function color_picker_styles() {
@@ -26,8 +28,8 @@ if ( ! class_exists('pas_cth_colorPicker') ) {
 		}
 
 		function getNewColor($args) {
-			$initialColor		= $args['initialColor'];
-			$callingFieldName	= $args['callingFieldName'];
+			$initialColor		= esc_html($args['initialColor']);
+			$callingFieldName	= esc_html($args['callingFieldName']);
 
 			$rgb = pas_cth_getColors($initialColor);
 			$output = <<< "GETNEWCOLOR"
@@ -102,12 +104,22 @@ GETNEWCOLOR;
  // Previous line ends the HereDocs string. Do not indent that line, or add anything else to the end of it.
 			return $output;
 		}
-
+		// Get the complementary color. If the color passed in is dark, then the output will be light
+		// and vice versa.
 		function invertColor($hex, $bw) {
-			$hex = (substr($hex, 0, 1) === "#" ? substr($hex, 1) : $hex);
+			// Strip the leading pound sign. If it's been converted to a special character, strip that too
+			$hex = (substr($hex, 0, 1) === "#"	?
+						substr($hex, 1)			:
+						(substr($hex, 0, 6) === "&pound;"	?
+							substr($hex, 7)					:
+								(substr($hex, 0, 4) === "&#163;"	?
+									substr($hex, 4)					:
+										$hex)));
+
 			$r = hexdec(substr($hex, 0, 2));
 			$g = hexdec(substr($hex, 2, 2));
 			$b = hexdec(substr($hex, 4, 2));
+
 			if ($bw) {
 				// http://stackoverflow.com/a/3943023/112731
 				return (($r * 0.299 + $g * 0.587 + $b * 0.114) > 186
@@ -121,12 +133,15 @@ GETNEWCOLOR;
 			// pad each with zeros and return
 			return "#" . $r . $g . $b;
 		}
+		/*
+		 * digits() pads $v with zeroes to the left.
+		 * For example, if we pass in the hex digit ("A", 2) then digits() will return "0A"
+		 */
 		function digits($v, $n) {
 			while (strlen($v) < $n) {
 				$v = "0" . $v;
 			}
 			return ($v);
-
 		}
 	}
 }

@@ -2,6 +2,7 @@
 
 /**
  * Class FontMeta based on several stackoverflow answers.
+ * https://gist.github.com/nimmneun/2ba1a6e64cc2c075c155f65fee9422c0
  *
  * @method string getCopyright()
  * @method string getFontFamily()
@@ -24,7 +25,7 @@
  * @method string getCompatibleFullName()
  * @method string getPostscriptCid()
  */
-class FontMeta
+class pas_cth_FontMeta
 {
     /**
      * @var string

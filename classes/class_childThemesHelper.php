@@ -83,7 +83,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$folder_files = scandir($fonts_folder);
 			foreach ($folder_files as $file) {
 				if (strtoupper(pathInfo($fonts_folder . '/' . $file, PATHINFO_EXTENSION)) === "TTF") {
-					$meta = new FontMeta($fonts_folder . '/' . $file);
+					$meta = new pas_cth_FontMeta($fonts_folder . '/' . $file);
 					$fontName = $meta->getFontName();
 					$sampleImage = $this->getFontSample($fonts_folder . '/' . $file, $fontName);
 					$fontArgs = [
@@ -113,43 +113,27 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$dots = DOTS; // string of periods. Will overflow the div.
 			$optionValue = get_option( "pas_cth_$optionName", $defaultValue );
 
-			if (constant('WP_DEBUG')) {
+			// {$crlf} is a carriage return, line feed. When WP_DEBUG == true, the HTML output will
+			// be made to be readable in the view source window. It helped with debugging.
+			if (constant('WP_DEBUG') && pas_cth_isWin()) {
 				$crlf = "\r\n";
 			} else {
 				$crlf = "";
 			}
-
 			if ( array_key_exists( 'type', $args ) ) {
 				switch ( strtolower( $args['type'] ) ) {
 					case "input":
-						$formElement = "<input type='text' "
-									 . "       name='$optionName' "
-									 . "       value='$optionValue' "
-									 . "       onfocus='javascript:pas_cth_js_showColorPicker(this);' "
-									 . (array_key_exists('showColor', $args) ? ($args['showColor'] ? " style='background-color:$optionValue;color:" . $this->colorPicker->invertColor($optionValue, true) . ";' " : "") : "")
-									 . $readonly . " >";
-						break;
-					case "select": // currently, only a font dropdown is required.
 						$formElement =
-							"<select name='" . esc_attr($optionName) . "' " .
-							"        onblur='javascript:pas_cth_js_SetOption(this);' " .
-							"        $readonly >" .
-							"<option value=''>Choose the Font</option>";
-						if ( array_key_exists( 'options', $args ) ) {
-							foreach ( $options as $fontOption ) {
-								$selected = ( $fontOption['fontFile-basename'] == $optionValue ? " SELECTED " : "" );
-								$formElement .= "<option value='" . $fontOption['fontFile'] . "' $selected >" .
-												$fontOption['fontName'] . "</option>";
-							}
-							$formElement .= "</select>";
-						} else {
-							$formElement =
-								"<input type='text' " .
-								"       name='$optionName' " .
-							    "       value='$optionValue' " .
-								"       onblur='javascript:pas_cth_js_SetOption( this );' " .
-								" $readonly >";
-						}
+							  "<input type='text' "
+							. "       name='$optionName' "
+							. "       value='$optionValue' "
+							. "       onfocus='javascript:pas_cth_js_showColorPicker(this);' "
+							. (array_key_exists('showColor', $args) ?
+								($args['showColor'] ?
+									" style='background-color:$optionValue;color:" . $this->colorPicker->invertColor($optionValue, true) . ";' " :
+									"") :
+								"")
+							. $readonly . " >";
 						break;
 					case "imageselect":
 						$nofont = false;
@@ -190,9 +174,14 @@ FONTTEXTBOX;
 									'url'=>$this->pluginDirectory['url'] . "assets/fonts/samples/"
 								];
 							$jsdata = json_encode($jsdata);
-							$imgSrc = "<img src='" . $this->pluginDirectory['url'] . 'assets/fonts/samples/' . $row['fontFile-base'] . '.png' . "'>";
+							$src = $this->pluginDirectory['url'] .
+								   'assets/fonts/samples/'		 .
+								   $row['fontFile-base']		 . '.png';
+
+							$imgSrc = "<img src='$src'>";
 
 // HereDocs String for the list-box portion of the drop-down-list box.
+// isRowCol3 is used strictly to provide spacing so the scrollbar doesn't hide part of the image.
 						$formElement .= <<< "FONTLISTBOX"
 							<div class='imageSelectRow' data-font='{$jsdata}' onclick='javascript:selectThisFont(this);'>{$crlf}
 								<span class='isRowCol1'>{$crlf}
@@ -206,8 +195,8 @@ FONTTEXTBOX;
 FONTLISTBOX;
 						}
 						// These two lines MUST be outside the loop.
-						$formElement .= "$crlf~</div><!-- end of class='listDropDown' -->$crlf" .
-										"$crlf<!-- ******************************************* -->$crlf";
+						$formElement .= "{$crlf}</div><!-- end of class='listDropDown' -->{$crlf}" .
+										"{$crlf}<!-- ******************************************* -->{$crlf}";
 						break;
 				} // end of switch() statement
 			} else {
@@ -271,25 +260,6 @@ OPTION;
 			echo "If you make changes here and your screenshot.png doesn't change when you ";
 			echo "generate it, clear your browser's image cache.";
 			echo "</p>";
-/*
-			echo $this->WriteOption(
-				[
-					'label'		=> 'Image Width: ',
-					'optionName'=> 'imageWidth',
-					'default'	=> get_option( 'pas_cth_imageWidth', PAS_CTH_DEFAULT_IMAGE_WIDTH ),
-					'onblur'	=> 'pas_cth_js_pctSetOption( this )',
-					'type'		=> 'input'
-				 ] );
-
-			echo $this->WriteOption(
-				[
-					'label'		=> 'Image Height: ',
-					'optionName'=> 'imageHeight',
-					'default' => get_option( 'pas_cth_imageHeight', PAS_CTH_DEFAULT_IMAGE_HEIGHT ),
-					'onblur'	=> 'pas_cth_js_pctSetOption( this )',
-					'type'		=> 'input'
-				] );
-*/
 			echo $this->WriteOption(
 				[
 					'label'		=> 'Background Color: ',
@@ -321,8 +291,8 @@ OPTION;
 
 			// Dummy button. Options are saved onblur event for each option. This button simply
 			// forces an onblur event to be fired from the last option that had focus.
-
-			echo "<input type='button' class='blueButton' value='Save Options'>";
+			// No longer required.
+//			echo "<input type='button' class='blueButton' value='Save Options'>";
 		}
 		/* Generates the screenshot.png file in the child theme, if one does not yet exist.
 		 * If changes to the options do not show up, clear your browser's stored images,
@@ -619,6 +589,9 @@ OPTION;
 								  $font,
 								  $sampleText );
 
+			if (! file_exists( $this->pluginDirectory['path'] . 'assets/fonts/samples' ) ) {
+				mkdir( $this->pluginDirectory['path'] . 'assets/fonts/samples' );
+			}
 			$fontSampleImageName =
 					"assets/fonts/samples/" . trim(basename($fontFile, ".ttf").PHP_EOL) . ".png";
 			$outFile = $this->pluginDirectory['path'] . $fontSampleImageName;
@@ -648,7 +621,8 @@ OPTION;
 			$sampleSize = $args['sampleSize'];
 			$result = false;
 
-			if ($imageSize['width'] < $sampleSize['width'] || $imageSize['height'] < $sampleSize['height']) {
+			if (($imageSize['width'] < $sampleSize['width'])	||
+				($imageSize['height'] < $sampleSize['height']))		{
 				$result = true;
 			}
 
@@ -659,7 +633,8 @@ OPTION;
 			$imageSize = $args['imageSize'];
 			$sampleSize = $args['sampleSize'];
 			$result = false;
-			if ($sampleSize['width'] < $imageSize['width'] && $sampleSize['height'] < $imageSize['height']) {
+			if (($sampleSize['width'] < $imageSize['width'])	 &&
+				($sampleSize['height'] < $imageSize['height']))		{
 				$result = true;
 			}
 
