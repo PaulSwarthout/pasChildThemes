@@ -30,9 +30,6 @@ require_once( dirname( __FILE__ ) . '/classes/class_fontMeta.php' );
 // Color selection tool
 require_once( dirname( __FILE__ ) . '/classes/class_colorPicker.php' );
 
-register_activation_hook  ( __FILE__, 'pas_cth_activate'  ); // Plugin Activation
-register_deactivation_hook( __FILE__, 'pas_cth_deactivate'  );//Plugin Deactivation
-
 /* Go get the current theme information.
  * This is a wrapper for the wp_get_theme() function.
  * It loads the information that we'll need for our purposes and tosses everything else
@@ -61,7 +58,7 @@ add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper, 'dashboa
 add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker, 'color_picker_styles' ) );
 add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker, 'color_picker_scripts') );
 
-add_action( 'init',		'pas_cth_startBuffering' );	// Response Buffering
+add_action( 'init',		'pas_cth_startBuffering' );		// Response Buffering
 add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
 
 /* AJAX PHP functions may be found in the 'classes/class_ajax_functions.php' file
@@ -110,17 +107,12 @@ add_action( 'wp_ajax_saveOptions', Array( $pas_cth_AJAXFunctions, 'saveOptions' 
 add_action( 'wp_ajax_displayColorPicker', Array( $pas_cth_AJAXFunctions, 'chooseColor' ) );
 add_action( 'wp_ajax_saveDefaultFont', Array( $pas_cth_AJAXFunctions, "saveFont") );
 
-// Plugin Activation.
-function pas_cth_activate() {
-	add_option( 'pas_cth_fcColor',		PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR );
-	add_option( 'pas_cth_bcColor',		PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR );
-	add_option( 'pas_cth_font',			PAS_CTH_DEFAULT_SCREENSHOT_FONT );
-
-	add_option( 'pas_cth_imageWidth',	PAS_CTH_DEFAULT_IMAGE_WIDTH );
-	add_option( 'pas_cth_imageHeight',	PAS_CTH_DEFAULT_IMAGE_HEIGHT );
+function pas_cth_activatePlugin() {
 }
+
 // Plugin Deactivation
 function pas_cth_deactivate() {
+	update_option('pas_cth_test', 'plugin-deactivated');
 	delete_option( 'pas_cth_fcColor' );
 	delete_option( 'pas_cth_bcColor' );
 	delete_option( 'pas_cth_font' );
@@ -131,6 +123,10 @@ function pas_cth_deactivate() {
 	delete_option( 'pas_cth_string3' );
 	delete_option( 'pas_cth_string4' );
 }
+
+register_activation_hook(__FILE__, 'pas_cth_activatePlugin' );
+register_deactivation_hook( __FILE__, 'pas_cth_deactivate'  );//Plugin Deactivation
+
 
 /*
  * The next 3 functions set up buffering on the page.

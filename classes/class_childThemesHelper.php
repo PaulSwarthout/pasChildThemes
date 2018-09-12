@@ -8,6 +8,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		public $allThemes;
 		public $colorPicker;
 		public $fontSamples; // Array of sample font images, to be used in pas_cth_Options();
+		public $fontList;
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
@@ -17,6 +18,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$this->allThemes		= $this->enumerateThemes();
 			$this->colorPicker		= $args['colorPicker'];
 			$this->fontSampleImages	= [];
+			$this->fontList			= $this->loadFonts();
 		}
 		function __destruct() {
 			foreach ($this->fontSampleImages as $img) {
@@ -93,6 +95,8 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 					unset($meta);
 				}
 			}
+			delete_option('pas_cth_fontList');
+			add_option('pas_cth_fontList', $fonts);
 			return $fonts;
 		}
 
@@ -149,8 +153,6 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						break;
 					case "imageselect":
 						$nofont = false;
-
-
 						if (0 === strlen($defaultFont['fontName'])) {
 							$defaultFont = ['fontName'=>'Choose Your Font', 'fontFile-base'=>''];
 							$nofont = true;
@@ -697,6 +699,13 @@ OPTION;
 						'font'=>$font
 					];
 			return $rtn;
+		}
+
+		function create_sample_fonts() {
+			$this->fontList = $this->loadAvailableFonts();
+		}
+		function loadFonts() {
+			return get_option('pas_cth_fontList', []);
 		}
 	}
 }
