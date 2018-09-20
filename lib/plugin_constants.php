@@ -9,8 +9,8 @@ define( 'PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR', '#FFFF00' );
 define( 'PAS_CTH_DEFAULT_FONT',
 		serialize(['fontFile-base'=>'Roboto-Medium', 'fontName'=>'Roboto Medium']) );
 
-define( 'PAS_CTH_MYNAME', 'Paul Swarthout' );
-define( 'PAS_CTH_MYURL', 'http://www.PaulSwarthout.com/WordPress' );
+define( 'PAS_CTH_MYNAME', 'Child Themes Helper plugin' );
+define( 'PAS_CTH_MYURL', 'http://www.paulswarthout.com/child-themes-helper' );
 define( 'PAS_CTH_PLUGINNAME', '...created by Child Themes Helper...' );
 
 define( 'DOTS', '...............................................................................' );

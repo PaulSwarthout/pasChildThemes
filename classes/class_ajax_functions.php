@@ -390,27 +390,32 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		 * pas_cth_js_createChildTheme() in 'js/pasChildThemes.js'
 		 */
 		function createChildTheme() {
+			$err = 0;
 			$inputs =	[
 							'childThemeName'=> sanitize_text_field( $_POST['childThemeName'] ),
 							'templateTheme' => sanitize_text_field( $_POST['templateTheme'] ),
 							'description'   => sanitize_textarea_field( $_POST['description'] ),
 							'authorName'		=> sanitize_text_field( $_POST['authorName'] ),
-							'authorURI'			=> sanitize_text_field( $_POST['authorURI'] )
+							'authorURI'			=> sanitize_text_field( $_POST['authorURI'] ),
+							'version'		=> sanitize_text_field( $_POST['version'] )
 						];
 
 			if ( 0 === strlen( trim( $inputs['childThemeName'] ) ) ) {
 				pas_cth_displayError( "Notice",
 									 "Child Theme Name cannot be blank." );
+				$err++;
 			}
 
 			if ( 0 === strlen( trim( $inputs['templateTheme'] ) ) ) {
 				pas_cth_displayError( "Notice",
 									 "Template Theme is required." );
+				$err++;
 			}
 
 			if ( 0 === strlen( trim( $inputs['description'] ) ) ) {
-				pas_cth_displayError( "Notice",
-									 "Please write a meaningful description for your theme." );
+				$inputs['description'] = $inputs['childThemeName'] .
+										 " is a child theme of " .
+										 $inputs['templateTheme'];
 			}
 
 			if ( 0 === strlen( trim( $inputs['authorName'] ) ) ) {
@@ -419,6 +424,10 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 
 			if ( 0 === strlen( trim( $inputs['authorURI'] ) ) ) {
 				$inputs['authorURI'] = PAS_CTH_MYURL;
+			}
+
+			if (0 !== $err) {
+				return;
 			}
 
 			// Create the stylesheet folder
@@ -446,7 +455,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			// Create the style.css file for the child theme.
 			$styleFile = fopen( $childThemePath . PAS_CTH_SEPARATOR . "style.css", "w" );
 			$newlineChar = "\n";
-
+/*
 			$inputs =	[
 							'themeURI'		=> sanitize_text_field( $_POST['themeURI'] ),
 							'description'	=> sanitize_textarea_field( $_POST['description'] ),
@@ -455,6 +464,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 							'templateTheme' => sanitize_text_field( $_POST['templateTheme'] ),
 							'version'		=> sanitize_text_field( $_POST['version'] )
 						];
+*/
 			fwrite( $styleFile, "/*" . $newlineChar );
 			fwrite( $styleFile, " Theme Name:  " . $childThemeName		. $newlineChar );
 			fwrite( $styleFile, " Theme URI:   " . $inputs['themeURI']	. $newlineChar );
