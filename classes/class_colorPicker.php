@@ -3,12 +3,14 @@ if ( ! class_exists('pas_cth_colorPicker') ) {
 	class pas_cth_colorPicker {
 		private $pluginDirectory;
 		private $defaultColor;
+		private $libraryFunctions;
 
 		function __construct($args) {
 			$this->defaultColor		=
 				(array_key_exists('color', $args) ? $args['color'] : "#800000");
 			$this->pluginDirectory	=
 				(array_key_exists('pluginDirectory', $args) ? $args['pluginDirectory'] : "");
+			$this->libraryFunctions = $args['libraryFunctions'];
 		}
 
 		function color_picker_styles() {
@@ -31,7 +33,7 @@ if ( ! class_exists('pas_cth_colorPicker') ) {
 			$initialColor		= esc_html($args['initialColor']);
 			$callingFieldName	= esc_html($args['callingFieldName']);
 
-			$rgb = pas_cth_getColors($initialColor);
+			$rgb = $this->libraryFunctions->getColors($initialColor);
 			$output = <<< "GETNEWCOLOR"
 	<form>
 		<input type='hidden' name='originalColor'	 value='$initialColor'>

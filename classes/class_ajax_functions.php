@@ -11,6 +11,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		private $pluginFolder;
 		public  $activeThemeInfo;
 		private $colorPicker;
+		private $libraryFunctions;
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
@@ -18,6 +19,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			$this->pluginFolder		= $args['pluginFolder'];
 			$this->activeThemeInfo	= $args['activeThemeInfo'];
 			$this->colorPicker		= $args['colorPicker'];
+			$this->libraryFunctions = $args['libraryFunctions'];
 		}
 		// To aid with debugging, when WP_DEBUG is true, this function displays a message code
 		// on the message box in the lower right corner.
@@ -66,7 +68,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 					. "<li>Attempt to change your theme back to the original theme.</li>"
 					. "</ol>"
 					. "You cannot use this plugin to forcibly crash your theme.";
-				pas_cth_displayError( "Cannot Delete or Overwrite File", $msg );
+				$this->libraryFunctions->displayError( "Cannot Delete or Overwrite File", $msg );
 				unset( $msg );
 				return false;
 			}
@@ -147,7 +149,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 								. $inputs['directory'] . PAS_CTH_SEPARATOR
 								. $inputs['childFileToRemove'];
 
-			if ( pas_cth_areFilesIdentical( $childThemeFile, $templateThemeFile ) ) {
+			if ( $this->libraryFunctions->areFilesIdentical( $childThemeFile, $templateThemeFile ) ) {
 				/* deletes the specified file and removes any folders that are now empty because
 				 * the file was deleted or an empty subfolder was deleted.
 				 */
@@ -157,7 +159,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 							'childFileToRemove' => $inputs['childFileToRemove'],
 							'activeThemeInfo'	=> $this->activeThemeInfo
 						];
-				pas_cth_killChildFile( $args );
+				$this->libraryFunctions->killChildFile( $args );
 			} else {
 				// Files are not identical. Child file is different than the original template file.
 				// This might be because the user modified the file, but it could also be,
@@ -270,7 +272,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			 */
 			if ( !  file_exists( $childThemeFile ) ) {
 				$this->copyFile( $args );
-			} elseif ( pas_cth_areFilesIdentical( $childThemeFile, $templateThemeFile ) ) {
+			} elseif ( $this->libraryFunctions->areFilesIdentical( $childThemeFile, $templateThemeFile ) ) {
 //				$this->copyFile( $args ); // No need to actually copy it.
 										// File exists and files are identical
 			} else {
@@ -383,7 +385,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 						'childFileToRemove'	=> sanitize_file_name( $_POST['childFileToRemove'] ),
 						'activeThemeInfo'   => $this->activeThemeInfo
 					];
-			pas_cth_killChildFile( $args );
+			$this->libraryFunctions->killChildFile( $args );
 		}
 
 		/* createChildTheme() is called from the Javascript function
@@ -401,13 +403,13 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 						];
 
 			if ( 0 === strlen( trim( $inputs['childThemeName'] ) ) ) {
-				pas_cth_displayError( "Notice",
+				$this->libraryFunctions->displayError( "Notice",
 									 "Child Theme Name cannot be blank." );
 				$err++;
 			}
 
 			if ( 0 === strlen( trim( $inputs['templateTheme'] ) ) ) {
-				pas_cth_displayError( "Notice",
+				$this->libraryFunctions->displayError( "Notice",
 									 "Template Theme is required." );
 				$err++;
 			}
@@ -431,7 +433,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			}
 
 			// Create the stylesheet folder
-			$themeRoot = pas_cth_fixFolderSeparators( get_theme_root() );
+			$themeRoot = $this->libraryFunctions->fixFolderSeparators( get_theme_root() );
 			$childThemeName = $inputs['childThemeName'];
 			// New child theme folder will be the specified name with no whitespace, in lower case.
 			$childThemeStylesheet =
@@ -442,7 +444,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			$childThemePath = $themeRoot . PAS_CTH_SEPARATOR . $childThemeStylesheet;
 
 			if ( file_exists( $childThemePath ) ) {
-				pas_cth_displayError(
+				$this->libraryFunctions->displayError(
 					"ERROR",
 					"Child theme: <span style='text-decoration:double underline;'>"
 					. esc_html( $inputs['childThemeName'] )
@@ -508,7 +510,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			update_option( "pas_cth_" . $inputs['optionName'], $inputs['optionValue'] );
 		}
 		function chooseColor() {
-			$initialColor = sanitize_text_field( $_POST['initialColor'] );
+			$initialColor		= sanitize_text_field( $_POST['initialColor'] );
 			$originalColorField = sanitize_text_field( $_POST['callingFieldName'] );
 			$args = [
 						'initialColor'		=> $initialColor,

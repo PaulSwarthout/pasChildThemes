@@ -16,6 +16,7 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 			$screenShotFile		= $args['targetFile'];
 			$pluginDirectory	= $args['pluginDirectory'];
 			$activeThemeInfo	= $args['activeThemeInfo'];
+			$libraryFunctions	= $args['libraryFunctions'];
 
 			$fontPath = $pluginDirectory['path'] . 'assets/fonts/';
 			$fontPath = $activeThemeInfo->fixDelimiters( $fontPath );
@@ -28,11 +29,11 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 			$img = imagecreate(  $imageSize['width'], $imageSize['height']  );
 
 			$bcColor	= get_option( "pas_cth_bcColor", PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR );
-			$rgb		= pas_cth_getColors( $bcColor );
+			$rgb		= $libraryFunctions->getColors( $bcColor );
 			$background = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
 
 			$fcColor	= get_option( "pas_cth_fcColor", PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR );
-			$rgb		= pas_cth_getColors( $fcColor );
+			$rgb		= $libraryFunctions->getColors( $fcColor );
 			$text_color = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
 
 			$fontData = get_option( 'pas_cth_font', PAS_CTH_DEFAULT_SCREENSHOT_FONT );

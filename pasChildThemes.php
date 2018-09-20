@@ -16,7 +16,7 @@ if (  ! defined(  'ABSPATH'  )  ) exit;
 // Constants created for this plugin
 require_once( dirname( __FILE__ ) . '/lib/plugin_constants.php' );
 // General functions for this plugin
-require_once( dirname( __FILE__ ) . '/lib/common_functions.php' );
+//require_once( dirname( __FILE__ ) . '/lib/common_functions.php' );
 // Current active theme information
 require_once( dirname( __FILE__ ) . '/classes/class_activeThemeInfo.php' ); //
 // Class to create the screenshot.png file for the active theme.
@@ -29,6 +29,8 @@ require_once( dirname( __FILE__ ) . '/classes/class_ajax_functions.php' );
 require_once( dirname( __FILE__ ) . '/classes/class_fontMeta.php' );
 // Color selection tool
 require_once( dirname( __FILE__ ) . '/classes/class_colorPicker.php' );
+// Common Functions
+require_once( dirname( __FILE__ ) . '/classes/class_common_functions.php' );
 
 /* Go get the current theme information.
  * This is a wrapper for the wp_get_theme() function.
@@ -36,6 +38,7 @@ require_once( dirname( __FILE__ ) . '/classes/class_colorPicker.php' );
  *	that is returned by the wp_get_theme() function.
  */
 $pas_cth_themeInfo = new pas_cth_activeThemeInfo();
+$pas_cth_library	= new pas_cth_library_functions();
 
 $args = [
 			'pluginDirectory'	=> [
@@ -44,7 +47,8 @@ $args = [
 								   ],
 			'pluginName'		=> 'Child Themes Helper',
 			'pluginFolder'		=> 'pasChildThemes',
-			'activeThemeInfo'	=> $pas_cth_themeInfo
+			'activeThemeInfo'	=> $pas_cth_themeInfo,
+			'libraryFunctions'	=> $pas_cth_library
 		];
 $pas_cth_colorPicker	= new pas_cth_colorPicker( $args );
 $args['colorPicker']	= $pas_cth_colorPicker;
