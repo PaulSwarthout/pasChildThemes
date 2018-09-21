@@ -1,7 +1,10 @@
 <?PHP
 if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 	class pas_cth_library_functions {
-		function __construct() {
+		private $pluginDirectory;
+
+		function __construct($args) {
+			$this->pluginDirectory = (array_key_exists('pluginDirectory', $args) ? $args['pluginDirectory'] : null);
 		}
 
 		/*
@@ -32,7 +35,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 					   "File1: $a<br><br>" .
 					   "File2: $b<br><br>" .
 					   "Aborting....";
-				pas_cth_displayError( "FILE ERROR", $msg );
+				$this->displayError( "FILE ERROR", $msg );
 				unset( $msg );
 				exit;
 			}
@@ -56,7 +59,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			if ( $ah === false || $bh === false ) {
 				$msg = "File1: " . esc_html($a) . "<br>File2: " . esc_html($b) . "<br>" .
 					   "Unable to open one or both of the files listed above. <br><br>Aborting....";
-				pas_cth_displayError( "FILE ERROR", $msg );
+				$this->displayError( "FILE ERROR", $msg );
 				// Should never be here. Checks for file_exists() above should prevent this.
 				unset( $msg );
 				exit;
@@ -97,7 +100,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		 * returns true if the folder is empty or false otherwise.
 		 */
 		function isFolderEmpty( $dir ) {
-			return ( 0 === pas_cth_fileCount( $dir ) ? true : false );
+			return ( 0 === $this->fileCount( $dir ) ? true : false );
 		}
 		/*
 		 * pas_cth_killChildFile() removes the specified child theme file from the child theme.
@@ -131,7 +134,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 						$themeStyle . PAS_CTH_SEPARATOR .
 						implode( PAS_CTH_SEPARATOR, $folderSegments ); // rebuilds the physical path.
 
-				if ( pas_cth_isFolderEmpty( $dir ) ) {
+				if ( $this->isFolderEmpty( $dir ) ) {
 					// Folder is empty, remove it.
 					rmdir( $dir );
 				} else {
@@ -239,6 +242,11 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			 * what each indice of $boundingBox represents may be found here:
 			 * http://php.net/manual/en/function.imagettfbbox.php
 			 */
+			if ( ! file_exists($item['fontName']) ) {
+				$font = unserialize(PAS_CTH_DEFAULT_FONT);
+				$item['fontName'] = $this->pluginDirectory['path'] . "assets/fonts/" . $font['fontFile-base'] . ".ttf";
+				update_option('pas_cth_font', $font);
+			}
 			$boundingBox = imagettfbbox( $item['fontSize'], 0, $item['fontName'], $item['string'] );
 			$width = abs( $boundingBox[2] - $boundingBox[0] );
 			$height = abs( $boundingBox[1] - $boundingBox[7] );
