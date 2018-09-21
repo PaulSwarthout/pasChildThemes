@@ -273,20 +273,28 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		 * Calculate the largest font size that will fit in the $imgWidth x $imgHeight space.
 		 */
 		function getMaxFontSize($args) {
-			$font		= $args['font'];
-			$imageSize	= $args['imageSize'];
-			$sampleText = $args['sampleText'];
+			$font			= $args['font'];
+			$imageSize		= $args['imageSize'];
+			$sampleText		= $args['sampleText'];
+			$maxNumbLines	= (array_key_exists('totalLines', $args) ? $args['totalLines'] : 1);
+			$padding		= (array_key_exists('pad', $args) ? $args['pad'] : 0);
 
-			// Presumably this font size is bigger than what will fit in the 300 x 50 space.
+			// Presumably this font size is bigger than what will fit in the space.
+			// Gotta start somewhere.
+			// could check it and increase if not. Then we could use a smaller starting point for less
+			// iterations.
 			$fontSize = 90;
-			// reduce the font size until it's smaller than the space.
+			if ($maxNumbLines > 1) {
+				$imageSize['height'] = ($imageSize['height'] / $maxNumbLines) - $padding;
+			}
 			$sampleArgs =
 				[
-					'font'=>$args['fontName'],
+					'font'=>$args['font'],
 					'fontSize'=>$fontSize,
 					'imageSize'=>$imageSize,
 					'sampleSize'=>$fontSize
 				];
+			// reduce the font size until it's smaller than the space.
 			do {
 				$fontSize -= 10;
 				$size = $this->getSize(['fontSize'=>$fontSize, 'fontName'=>$font, 'string'=>$sampleText]);
@@ -298,7 +306,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			// increase the font size until it's bigger than the space
 			$sampleArgs =
 				[
-					'font'=>$args['fontName'],
+					'font'=>$args['font'],
 					'fontSize'=>$fontSize,
 					'imageSize'=>$imageSize,
 					'sampleSize'=>$size

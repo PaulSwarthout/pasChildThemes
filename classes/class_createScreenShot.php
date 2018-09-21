@@ -10,13 +10,15 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 		*
 		* This class will get some enhancements for the next release.
 		*/
+		private $libraryFunctions;
+
 		function __construct( $args ) {
-			$childThemeName		= $args['childThemeName'];
-			$templateThemeName	= $args['templateThemeName'];
-			$screenShotFile		= $args['targetFile'];
-			$pluginDirectory	= $args['pluginDirectory'];
-			$activeThemeInfo	= $args['activeThemeInfo'];
-			$libraryFunctions	= $args['libraryFunctions'];
+			$childThemeName			= $args['childThemeName'];
+			$templateThemeName		= $args['templateThemeName'];
+			$screenShotFile			= $args['targetFile'];
+			$pluginDirectory		= $args['pluginDirectory'];
+			$activeThemeInfo		= $args['activeThemeInfo'];
+			$this->libraryFunctions	= $args['libraryFunctions'];
 
 			$fontPath = $pluginDirectory['path'] . 'assets/fonts/';
 			$fontPath = $activeThemeInfo->fixDelimiters( $fontPath );
@@ -29,53 +31,80 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 			$img = imagecreate(  $imageSize['width'], $imageSize['height']  );
 
 			$bcColor	= get_option( "pas_cth_bcColor", PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR );
-			$rgb		= $libraryFunctions->getColors( $bcColor );
+			$rgb		= $this->libraryFunctions->getColors( $bcColor );
 			$background = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
 
 			$fcColor	= get_option( "pas_cth_fcColor", PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR );
-			$rgb		= $libraryFunctions->getColors( $fcColor );
+			$rgb		= $this->libraryFunctions->getColors( $fcColor );
 			$text_color = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
 
-			$fontData = get_option( 'pas_cth_font', PAS_CTH_DEFAULT_SCREENSHOT_FONT );
+			$fontData = get_option( 'pas_cth_font', PAS_CTH_DEFAULT_FONT );
 			$font = $pluginDirectory['path'] . "assets/fonts/" . $fontData['fontFile-base'] . ".ttf";
 
 			// Define the strings to write out.
 			// Padding is padding before the string.
 			// yPos = startOffset + for each index( initial padding + string height )
+
+			$totalLines = 4;
 			$texts =
 				[
-					[
-						'string' => $childThemeName,
-						'fontSize' => 50,
-						'fontName' => $font,
-						'pad'=>0,
-					],
+					0	=>
+						$this->buildBlock(
+							[
+								'item'				=>	0,
+								'font'				=>	$font,
+								'imageSize'			=>	$imageSize,
+								'sampleText'		=>	$childThemeName,
+								'fontSizeReduction' =>	(integer) 0,
+								'totalLines'		=>	$totalLines,
+								'pad'				=>	0
+							]
+						),
 
-					[
-						'string' => "...is a child of $templateThemeName",
-						'fontSize' => 48,
-						'fontName' => $font,
-						'pad'=>50
-					],
+					1	=>
+						$this->buildBlock(
+							[
+								'item'				=>	1,
+								'font'				=>	$font,
+								'imageSize'			=>	$imageSize,
+								'sampleText'		=>	"is a child of $templateThemeName",
+								'fontSizeReduction' =>	(integer) (-5),
+								'totalLines'		=>	$totalLines,
+								'pad'				=>	0
+							]
+						),
 
-					[
-						'string' => PAS_CTH_PLUGINNAME,
-						'fontSize' => 40,
-						'fontName' => $font,
-						'pad'=>150
-					],
+					2	=>
+						$this->buildBlock(
+							[
+								'item'				=>	2,
+								'font'				=>	$font,
+								'imageSize'			=>	$imageSize,
+								'sampleText'		=>	PAS_CTH_PLUGINNAME,
+								'fontSizeReduction'	=>	(integer) (-5),
+								'totalLines'		=>	$totalLines,
+								'pad'				=>	0
+							]
+						),
 
-					[
-						'string' => PAS_CTH_MYURL,
-						'fontSize' => 36,
-						'fontName' => $font,
-						'pad'=>100
-					]
+					3	=>
+						$this->buildBlock(
+							[
+								'item'				=>	3,
+								'font'				=>	$font,
+								'imageSize'			=>	$imageSize,
+								'sampleText'		=>	PAS_CTH_MYURL,
+								'fontSizeReduction' =>	(integer) (-10),
+								'totalLines'		=>	$totalLines,
+								'pad'				=>	0
+							]
+						)
 				];
+
 			// Calculate the total height so we can center the text block in the image.
 			$totalHeight = 0;
 			for ( $ndx = 0; $ndx < count( $texts ); $ndx++ ) {
-				$size = $this->getSize(
+				$size = $this->libraryFunctions->getSize(
 						[
 							'string' => $texts[$ndx]['string'],
 							'fontSize'=> $texts[$ndx]['fontSize'],
@@ -83,7 +112,16 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 						] );
 				$texts[$ndx]['width']	= $size['width'];
 				$texts[$ndx]['height']	= $size['height'];
-				$totalHeight			+= $texts[$ndx]['pad'] + $size['height'];
+				$totalHeight			+= $texts[$ndx]['height'];
+			}
+
+			$blankSpace = $imageSize['height'] - $totalHeight; // total unused space
+
+			// Leave space, above and below and following each line. 4 lines = 6 spaces.
+			$padding = floor($blankSpace / ($texts[0]['totalLines'] + 2));
+			$totalHeight += $texts[0]['totalLines'] * $padding;
+			for ($ndx = 0; $ndx < count($texts); $ndx++) {
+				$texts[$ndx]['pad'] = $padding;
 			}
 
 			$startYPos = ( $imageSize['height'] - $totalHeight ) / 2;
@@ -91,9 +129,8 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 
 			for ( $ndx = 0; $ndx < count( $texts ); $ndx++ ) {
 
-				$offset		+= $texts[$ndx]['pad'];
 				$xPos		= floor( ( $imageSize['width'] - $texts[$ndx]['width'] )/2 );
-				$yPos		= floor( $offset );
+				$yPos		= floor( $offset + $texts[$ndx]['height']);
 				$fontSize	= $texts[$ndx]['fontSize'];
 				$angle		= 0;
 				$fontName	= $texts[$ndx]['fontName'];
@@ -109,7 +146,7 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 									  $textLine );
 
 				// must be set after $yPos is set. Bottom of loop is best.
-				$offset += $texts[$ndx]['height'];
+				$offset += $texts[$ndx]['height'] + $texts[$ndx]['pad'];
 			}
 
 			imagepng(  $img, $screenShotFile  );
@@ -120,17 +157,27 @@ if ( ! class_exists( 'pas_cth_ScreenShot' )  ) {
 
 			return true;
 		}
-		// Gets the graphical size of a string based upon the chosen font, font size, and the string
-		function getSize( $item ) {
-			/* imagettfbox() returns an array of indices representing the x and y coordinates for
-			 * each of the 4 corners of an imaginary box that bounds the $item. The definition of
-			 * what each indice of $boundingBox represents may be found here:
-			 * http://php.net/manual/en/function.imagettfbbox.php
-			 */
-			$boundingBox = imagettfbbox( $item['fontSize'], 0, $item['fontName'], $item['string'] );
-			$width = abs( $boundingBox[2] - $boundingBox[0] );
-			$height = abs( $boundingBox[1] - $boundingBox[7] );
-			return ['width'=>$width, 'height'=>$height];
+		function buildBlock($args) {
+			$sizeArgs =
+				[
+					'font'			=>	$args['font'],
+					'imageSize'		=>	$args['imageSize'],
+					'sampleText'	=>	$args['sampleText'],
+					'totalLines'	=>	$args['totalLines']
+				];
+			$size = $this->libraryFunctions->getMaxFontSize($sizeArgs);
+
+			return
+				[
+					'fontName'	=> $args['font'],
+					'fontSize'	=> $size['maxFontSize'] + $args['fontSizeReduction'],
+					'pad'		=> 0,
+					'string'	=> $args['sampleText'],
+					'width'		=> $size['sampleWidth'],
+					'height'	=> $size['sampleHeight'],
+					'totalLines'=> $args['totalLines']
+				];
+
 		}
 	}
 }
