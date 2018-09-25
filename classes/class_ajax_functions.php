@@ -1,7 +1,7 @@
 <?PHP
 /*
- * pas_cth_selectFile() is called as an AJAX call from the Javascript function selectFile().
- * The Javascript function selectFile() is activated by an onclick event from the themes' filelists
+ * pas_cth_selectFile( ) is called as an AJAX call from the Javascript function selectFile( ).
+ * The Javascript function selectFile( ) is activated by an onclick event from the themes' filelists
  * when the user clicks on a file name.
  */
 if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
@@ -9,7 +9,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		private $pluginDirectory;
 		private $pluginName;
 		private $pluginFolder;
-		public  $activeThemeInfo;
+		public $activeThemeInfo;
 		private $colorPicker;
 		private $libraryFunctions;
 
@@ -28,8 +28,8 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 				echo "<p class='mID'>" . $msgID . "</p>";
 			}
 		}
-		function selectFile() {
-			if ( ! current_user_can( 'manage_options' ) )  {
+		function selectFile( ) {
+			if ( ! current_user_can( 'manage_options' ) ) {
 				wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 			}
 
@@ -42,9 +42,9 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 
 			/* Removes the stylesheet folder
 			 * For example:
-			 *   /mytheme/assets/images/boxo.png
+			 * /mytheme/assets/images/boxo.png
 			 * would become:
-			 *   /assets/images/boxo.png
+			 * /assets/images/boxo.png
 			 */
 			$folderSegments = explode( PAS_CTH_SEPARATOR, $inputs['directory'] );
 			unset( $folderSegments[0] ); // Strip theme stylesheet folder from the beginning.
@@ -99,18 +99,18 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			switch ( $inputs['themeType'] ) {
 				case PAS_CTH_CHILDTHEME:
 					echo "<input data-jsdata='" . esc_attr( $jsdata ) . "' ";
-					echo "       type='button' ";
-					echo "       value='Remove File from Child' ";
-					echo "       class='wideBlueButton' ";
-					echo "       onclick='javascript:pas_cth_js_removeChildFile( this );'>";
+					echo " type='button' ";
+					echo " value='Remove File from Child' ";
+					echo " class='wideBlueButton' ";
+					echo " onclick='javascript:pas_cth_js_removeChildFile( this );'>";
 					echo "<br><br>";
 					break;
 				case PAS_CTH_TEMPLATETHEME:
 					echo "<input data-jsdata='" . esc_attr( $jsdata ) . "' ";
-					echo "       type='button' ";
-					echo "       value='Copy File to Child' ";
-					echo "       class='wideBlueButton' ";
-					echo "       onclick='javascript:pas_cth_js_copyTemplateFile( this );'>";
+					echo " type='button' ";
+					echo " value='Copy File to Child' ";
+					echo " class='wideBlueButton' ";
+					echo " onclick='javascript:pas_cth_js_copyTemplateFile( this );'>";
 					echo "<br><br>";
 					break;
 				default:
@@ -118,19 +118,19 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 					break;
 			}
 			echo "<input data-jsdata='" . esc_attr( $jsdata ) . "' ";
-			echo "       type='button' ";
-			echo "       value='Edit File' ";
-			echo "       class='wideBlueButton' ";
-			echo "       onclick='javascript:pas_cth_js_editFile( this );'>";
+			echo " type='button' ";
+			echo " value='Edit File' ";
+			echo " class='wideBlueButton' ";
+			echo " onclick='javascript:pas_cth_js_editFile( this );'>";
 			echo "<p id='clickBox'>Dismiss</p>";
 			echo $this->displayMessageID( "sf" ); // only displayed when WP_DEBUG = true
 			echo "}";
 		}
 		/*
-		 * pas_cth_verifyRemoveFile()
-		 *   is called from the Javascript function removeChildFile() in 'js/pasChildThemes.js'
+		 * pas_cth_verifyRemoveFile( )
+		 * is called from the Javascript function removeChildFile( ) in 'js/pasChildThemes.js'
 		 */
-		function verifyRemoveFile() {
+		function verifyRemoveFile( ) {
 			// Posted from Javascript AJAX call
 			$inputs = [
 						'childStylesheet'	=> sanitize_text_field( $_POST['childStylesheet'] ),
@@ -200,23 +200,23 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 				echo "<br><br>";
 				echo "<div class='questionPrompt'>";
 				echo "<INPUT data-jsdata='" . esc_html( $JSData ) . "' " .
-					   " type='button' value='DELETE FILE' class='blueButton' " .
-					   " onclick='javascript:pas_cth_js_deleteChildFile( this );'>";
+					 " type='button' value='DELETE FILE' class='blueButton' " .
+					 " onclick='javascript:pas_cth_js_deleteChildFile( this );'>";
 				echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 				echo "<INPUT type='button' "
-				   . "       value='Cancel' "
-				   . "       class='blueButton' "
-				   . "       onclick='javascript:pas_cth_js_cancelDeleteChild( this );'>";
+				 . " value='Cancel' "
+				 . " class='blueButton' "
+				 . " onclick='javascript:pas_cth_js_cancelDeleteChild( this );'>";
 
 				echo $this->displayMessageID( "vrf" );
 				echo "</div>";
 			}
 		}
 		/*
-		 * pas_cth_verifyCopyFile()
-		 *   is called from the Javascript function copyTemplateFile() in 'js/pasChildThemes.js'
+		 * pas_cth_verifyCopyFile( )
+		 * is called from the Javascript function copyTemplateFile( ) in 'js/pasChildThemes.js'
 		 */
-		function verifyCopyFile() {
+		function verifyCopyFile( ) {
 			$inputs =[
 						'childStylesheet'	=> sanitize_text_field( $_POST['childStylesheet'] ),
 						'directory'			=> sanitize_text_field( $_POST['directory'] ),
@@ -257,7 +257,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			 * We loop on $_POST, but use the $inputs array.
 			 * This was intentional. This is not an error.
 			 * Ordinarily, we would expect the 2nd line to be:
-			 *    $args[key] = $value;
+			 * $args[key] = $value;
 			 * But $value is unsanitized. $inputs[$key] is the sanitized version of $value.
 			 */
 			foreach ( $_POST as $key => $value ) {
@@ -266,11 +266,11 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 
 			/* If file doesn't exist. Copy it. We're done.
 			 * If the file does exist, and the child theme file and the template theme file
-			 *   are already identical. We're done. No need to copy it.
+			 * are already identical. We're done. No need to copy it.
 			 * If the file does exist, and the files are not identical,
 			 * prompt the user to overwrite.
 			 */
-			if ( !  file_exists( $childThemeFile ) ) {
+			if ( ! file_exists( $childThemeFile ) ) {
 				$this->copyFile( $args );
 			} elseif ( $this->libraryFunctions->areFilesIdentical( $childThemeFile, $templateThemeFile ) ) {
 //				$this->copyFile( $args ); // No need to actually copy it.
@@ -314,17 +314,17 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 					 " onclick='javascript:pas_cth_js_overwriteFile( this );'>";
 				echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 				echo "<INPUT type='button' "
-				   . "       value='Cancel' "
-				   . "       class='blueButton' "
-				   . "       onclick='javascript:pas_cth_js_cancelDeleteChild( this );'>";
+				 . " value='Cancel' "
+				 . " class='blueButton' "
+				 . " onclick='javascript:pas_cth_js_cancelDeleteChild( this );'>";
 				echo $this->displayMessageID( "vcf" );
 				echo "</div>";
 			}
 		}
 		/*
-		 * pas_cth_copyFile()
-		 *   is called from the Javascript function overwriteFile() in 'js/pasChildThemes.js' AND
-		 *   from pas_cth_verifyCopyFile() when the child theme file does not exist.
+		 * pas_cth_copyFile( )
+		 * is called from the Javascript function overwriteFile( ) in 'js/pasChildThemes.js' AND
+		 * from pas_cth_verifyCopyFile( ) when the child theme file does not exist.
 		 * If the child theme file does not exist, $args are passed in, instead of
 		 * coming as a AJAX POST.
 		 * If the folders to the new child theme file do not exist: create them.
@@ -347,11 +347,11 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			}
 
 			$dir = $childThemeRoot . PAS_CTH_SEPARATOR . $childStylesheet . PAS_CTH_SEPARATOR;
-			$folderSegments  = explode( PAS_CTH_SEPARATOR, $directory );
+			$folderSegments = explode( PAS_CTH_SEPARATOR, $directory );
 
 			for ( $ndx = 0; $ndx < count( $folderSegments ); $ndx++ ) {
 				$dir .= PAS_CTH_SEPARATOR . $folderSegments[$ndx];
-				if ( !  file_exists( $dir ) ) {
+				if ( ! file_exists( $dir ) ) {
 					mkdir( $dir );
 				}
 			}
@@ -367,36 +367,36 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 							$fileToCopy;
 
 			$result = copy( $sourceFile, $targetFile );
-			if ( !  $result ) {
+			if ( ! $result ) {
 				echo "Failed to copy<br>$sourceFile<hr>to<hr>$targetFile<br>";
 			}
 		}
 
 		/*
-		 * pas_cth_deleteFile()
-		 *   is called from the Javascript function deleteChildFile() in 'js/pasChildThemes.js'
+		 * pas_cth_deleteFile( )
+		 * is called from the Javascript function deleteChildFile( ) in 'js/pasChildThemes.js'
 		 * Delete the file and any empty folders made empty by the deletion of the file
 		 * or subsequent subfolders.
 		 */
-		function deleteFile() {
+		function deleteFile( ) {
 			$args = [
 						'stylesheet'		=> sanitize_text_field( $_POST['stylesheet'] ),
 						'directory'			=> sanitize_text_field( $_POST['directory'] ),
 						'childFileToRemove'	=> sanitize_file_name( $_POST['childFileToRemove'] ),
-						'activeThemeInfo'   => $this->activeThemeInfo
+						'activeThemeInfo' => $this->activeThemeInfo
 					];
 			$this->libraryFunctions->killChildFile( $args );
 		}
 
-		/* createChildTheme() is called from the Javascript function
-		 * pas_cth_js_createChildTheme() in 'js/pasChildThemes.js'
+		/* createChildTheme( ) is called from the Javascript function
+		 * pas_cth_js_createChildTheme( ) in 'js/pasChildThemes.js'
 		 */
-		function createChildTheme() {
+		function createChildTheme( ) {
 			$err = 0;
 			$inputs =	[
 							'childThemeName'=> sanitize_text_field( $_POST['childThemeName'] ),
 							'templateTheme' => sanitize_text_field( $_POST['templateTheme'] ),
-							'description'   => sanitize_textarea_field( $_POST['description'] ),
+							'description' => sanitize_textarea_field( $_POST['description'] ),
 							'authorName'	=> sanitize_text_field( $_POST['authorName'] ),
 							'authorURI'		=> sanitize_text_field( $_POST['authorURI'] ),
 							'version'		=> sanitize_text_field( $_POST['version'] ),
@@ -429,12 +429,12 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 				$inputs['authorURI'] = PAS_CTH_MYURL;
 			}
 
-			if (0 !== $err) {
+			if ( 0 !== $err ) {
 				return;
 			}
 
 			// Create the stylesheet folder
-			$themeRoot = $this->libraryFunctions->fixFolderSeparators( get_theme_root() );
+			$themeRoot = $this->libraryFunctions->fixFolderSeparators( get_theme_root( ) );
 			$childThemeName = $inputs['childThemeName'];
 			// New child theme folder will be the specified name with no whitespace, in lower case.
 			$childThemeStylesheet =
@@ -469,30 +469,30 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 						];
 */
 			fwrite( $styleFile, "/*" . $newlineChar );
-			fwrite( $styleFile, " Theme Name:  " . $childThemeName		. $newlineChar );
-			fwrite( $styleFile, " Theme URI:   " . $inputs['themeURI']	. $newlineChar );
+			fwrite( $styleFile, " Theme Name: " . $childThemeName		. $newlineChar );
+			fwrite( $styleFile, " Theme URI: " . $inputs['themeURI']	. $newlineChar );
 			fwrite( $styleFile, " Description: " . $inputs['description']. $newlineChar );
-			fwrite( $styleFile, " Author:      " . $inputs['authorName']	. $newlineChar );
-			fwrite( $styleFile, " Author URI:  " . $inputs['authorURI']	. $newlineChar );
-			fwrite( $styleFile, " Template:    " . $inputs['templateTheme']. $newlineChar );
-			fwrite( $styleFile, " Version:     " . $inputs['version']	. $newlineChar );
+			fwrite( $styleFile, " Author: " . $inputs['authorName']	. $newlineChar );
+			fwrite( $styleFile, " Author URI: " . $inputs['authorURI']	. $newlineChar );
+			fwrite( $styleFile, " Template: " . $inputs['templateTheme']. $newlineChar );
+			fwrite( $styleFile, " Version: " . $inputs['version']	. $newlineChar );
 			fwrite( $styleFile, "*/" . $newlineChar );
 			fclose( $styleFile );
 
-			// Create the functions.php file for the child theme. Use the wp_enqueue_style() function
+			// Create the functions.php file for the child theme. Use the wp_enqueue_style( ) function
 			// to correctly set up the stylesheets for the child theme.
 			$functionsFile = fopen( $childThemePath . PAS_CTH_SEPARATOR . "functions.php", "w" );
 			fwrite( $functionsFile, "<" . "?" . "PHP" . $newlineChar );
 			fwrite( $functionsFile, "add_action( 'wp_enqueue_scripts', '" . $childThemeStylesheet . "_theme_styles' );" . $newlineChar );
 			fwrite( $functionsFile, "function " .
 									$childThemeStylesheet .
-									"_theme_styles() {" .
+									"_theme_styles( ) {" .
 									$newlineChar );
 			fwrite( $functionsFile, "\twp_enqueue_style( 'parent-style', " .
-				                    "                    get_template_directory_uri() . " .
-				                    "                    '/style.css' );" . $newlineChar );
+				 " get_template_directory_uri( ) . " .
+				 " '/style.css' );" . $newlineChar );
 			fwrite( $functionsFile, "\twp_enqueue_style( '" . $childThemeStylesheet . "-style', " .
-				                    "dirname( __FILE__ ) . '/style.css' );" . $newlineChar );
+				 "dirname( __FILE__ ) . '/style.css' );" . $newlineChar );
 			fwrite( $functionsFile, "}" . $newlineChar );
 			fwrite( $functionsFile, "?>" );
 			fclose( $functionsFile );
@@ -502,27 +502,27 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			echo "SUCCESS:" . esc_url_raw( $_POST['href'] );
 		}
 		// Save options.
-		function saveOptions() {
+		function saveOptions( ) {
 			$inputs =	[
-							'optionName'  => sanitize_text_field( $_POST['optionName'] ),
+							'optionName' => sanitize_text_field( $_POST['optionName'] ),
 							'optionValue' => sanitize_text_field( $_POST['optionValue'] )
 						];
 
 			update_option( "pas_cth_" . $inputs['optionName'], $inputs['optionValue'] );
 		}
-		function chooseColor() {
+		function chooseColor( ) {
 			$initialColor		= sanitize_text_field( $_POST['initialColor'] );
 			$originalColorField = sanitize_text_field( $_POST['callingFieldName'] );
 			$args = [
 						'initialColor'		=> $initialColor,
 						'callingFieldName'	=> $originalColorField
 					];
-			echo $this->colorPicker->getNewColor($args);
+			echo $this->colorPicker->getNewColor( $args );
 		}
 
-		function saveFont() {
-			$fontFile = trim(sanitize_text_field($_POST['fontFile-base']));
-			$fontName = sanitize_text_field($_POST['fontName']);
+		function saveFont( ) {
+			$fontFile = trim( sanitize_text_field( $_POST['fontFile-base'] ) );
+			$fontName = sanitize_text_field( $_POST['fontName'] );
 
 			update_option( 'pas_cth_font', [ 'fontName'=>$fontName, 'fontFile-base'=>$fontFile ] );
 		}

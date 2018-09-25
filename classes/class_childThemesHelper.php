@@ -7,7 +7,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		public $activeThemeInfo;
 		public $allThemes;
 		public $colorPicker;
-		public $fontSamples; // Array of sample font images, to be used in pas_cth_Options();
+		public $fontSamples; // Array of sample font images, to be used in pas_cth_Options( );
 		public $fontList;
 		public $libraryFunctions;
 
@@ -16,32 +16,32 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$this->pluginName		= $args['pluginName'];
 			$this->pluginFolder		= $args['pluginFolder'];
 			$this->activeThemeInfo	= $args['activeThemeInfo'];
-			$this->allThemes		= $this->enumerateThemes();
+			$this->allThemes		= $this->enumerateThemes( );
 			$this->colorPicker		= $args['colorPicker'];
 			$this->fontSampleImages	= [];
-//			$this->fontList			= $this->loadFonts();
+//			$this->fontList			= $this->loadFonts( );
 			$this->libraryFunctions = $args['libraryFunctions'];
 		}
-		function __destruct() {
-			foreach ($this->fontSampleImages as $img) {
-				imagedestroy(  $img  );
+		function __destruct( ) {
+			foreach ( $this->fontSampleImages as $img ) {
+				imagedestroy( $img );
 			}
-			unset($this->fontSampleImages);
+			unset( $this->fontSampleImages );
 		}
 
 		// Load the pasChildThemes CSS style.css file
-		function dashboard_styles() {
+		function dashboard_styles( ) {
 			// Prevents browser from caching the stylesheet during development
-			$uniqStr = (constant( 'WP_DEBUG' ) ? "?u=" . rand(0, 999999) . "&" : "");
-			wp_enqueue_style(	'pasChildThemes',
+			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?u=" . rand( 0, 999999 ) . "&" : "" );
+			wp_enqueue_style( 	'pasChildThemes',
 								$this->pluginDirectory['url'] . "css/style.css" . $uniqStr,
 								false );
 		}
 
 		// Load the pasChildThemes Javascript script file
-		function dashboard_scripts() {
+		function dashboard_scripts( ) {
 			// Prevents browser from caching the stylesheet during development
-			$uniqStr = (constant( 'WP_DEBUG' ) ? "?u=" . rand(0, 999999) . "&" : "");
+			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?u=" . rand( 0, 999999 ) . "&" : "" );
 			wp_enqueue_script( 'pas_cth_Script',
 								$this->pluginDirectory['url'] . "js/pasChildThemes.js" . $uniqStr,
 								false );
@@ -51,15 +51,15 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		}
 
 		// pasChildThemes Dashboard Menu
-		function dashboard_menu() {
-			add_menu_page(	'ChildThemesHelper',
+		function dashboard_menu( ) {
+			add_menu_page( 	'ChildThemesHelper',
 							'Child Themes Helper',
 							'manage_options',
 							'manage_child_themes',
 							Array( $this, 'manage_child_themes' ),
 							"",
 							61 // appears just below the Appearances menu.
-						);
+						 );
 			// Prevent overwriting the template theme's screenshot.png file.
 			if ( $this->activeThemeInfo->isChildTheme ) {
 				add_submenu_page( 	'manage_child_themes',
@@ -70,45 +70,45 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 									Array( $this, 'generateScreenShot' )
 								 );
 			}
-			add_submenu_page(   'manage_child_themes',
+			add_submenu_page( 'manage_child_themes',
 								'Options',
 								'Options',
 								'manage_options',
 								'Options',
 								Array( $this, 'pas_cth_Options' )
-							);
+							 );
 		}
-		// WriteOption() displays an option on the pasChildThemes options page.
-		function loadAvailableFonts() {
+		// WriteOption( ) displays an option on the pasChildThemes options page.
+		function loadAvailableFonts( ) {
 			$fonts = [];
 			$fonts_folder = $this->pluginDirectory['path'] . "assets/fonts";
-			$folder_files = scandir($fonts_folder);
-			foreach ($folder_files as $file) {
-				if (strtoupper(pathInfo($fonts_folder . '/' . $file, PATHINFO_EXTENSION)) === "TTF") {
-					$meta = new pas_cth_FontMeta($fonts_folder . '/' . $file);
-					$fontName = $meta->getFontName();
-					$sampleImage = $this->getFontSample($fonts_folder . '/' . $file, $fontName);
+			$folder_files = scandir( $fonts_folder );
+			foreach ( $folder_files as $file ) {
+				if ( strtoupper( pathInfo( $fonts_folder . '/' . $file, PATHINFO_EXTENSION ) ) === "TTF" ) {
+					$meta = new pas_cth_FontMeta( $fonts_folder . '/' . $file );
+					$fontName = $meta->getFontName( );
+					$sampleImage = $this->getFontSample( $fonts_folder . '/' . $file, $fontName );
 					$fontArgs = [
-									'fontFile-base'=>basename($file, ".ttf").PHP_EOL,
+									'fontFile-base'=>basename( $file, ".ttf" ).PHP_EOL,
 									'fontName'=>$fontName
 								];
-					array_push($fonts, $fontArgs);
-					unset ($fontArgs);
-					unset($meta);
+					array_push( $fonts, $fontArgs );
+					unset ( $fontArgs );
+					unset( $meta );
 				}
 			}
-			delete_option('pas_cth_fontList');
-			add_option('pas_cth_fontList', $fonts);
+			delete_option( 'pas_cth_fontList' );
+			add_option( 'pas_cth_fontList', $fonts );
 			return $fonts;
 		}
 
 		function WriteOption( $args ) {
-			$label			= (array_key_exists('label', $args) ? $args['label'] : "");
-			$optionName		= (array_key_exists('optionName', $args) ? $args['optionName'] : "");
-			$defaultValue	= (array_key_exists('default', $args) ? $args['default'] : "");
-			$defaultFont	= (array_key_exists('defaultFont', $args) ? $args['defaultFont'] : "['fontName'=>'Roboto Medium', 'fontFile-base'=>'Roboto-Medium']");
-			$selectOptions	= (array_key_exists('selectOptions', $args) ? $args['selectOptions'] : "");
-			$readonly		= (array_key_exists( 'readonly', $args ) ? " READONLY " : "");
+			$label			= ( array_key_exists( 'label', $args ) ? $args['label'] : "" );
+			$optionName		= ( array_key_exists( 'optionName', $args ) ? $args['optionName'] : "" );
+			$defaultValue	= ( array_key_exists( 'default', $args ) ? $args['default'] : "" );
+			$defaultFont	= ( array_key_exists( 'defaultFont', $args ) ? $args['defaultFont'] : "['fontName'=>'Roboto Medium', 'fontFile-base'=>'Roboto-Medium']" );
+			$selectOptions	= ( array_key_exists( 'selectOptions', $args ) ? $args['selectOptions'] : "" );
+			$readonly		= ( array_key_exists( 'readonly', $args ) ? " READONLY " : "" );
 			$ifColorPicker =
 				( array_key_exists( 'colorPicker', $args ) ? $args['colorPicker'] : false );
 
@@ -117,7 +117,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 
 			// {$crlf} is a carriage return, line feed. When WP_DEBUG == true, the HTML output will
 			// be made to be readable in the view source window. It helped with debugging.
-			if (constant('WP_DEBUG') && $this->libraryFunctions->isWin()) {
+			if ( constant( 'WP_DEBUG' ) && $this->libraryFunctions->isWin( ) ) {
 				$crlf = "\r\n";
 			} else {
 				$crlf = "";
@@ -126,24 +126,24 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 				switch ( strtolower( $args['type'] ) ) {
 					case "input":
 						$formElement =
-							  "<input type='text' "
-							. "       name='$optionName' "
-							. "       value='$optionValue' "
-							. "       onfocus='javascript:pas_cth_js_showColorPicker(this);' "
-							. (array_key_exists('showColor', $args) ?
-								($args['showColor'] ?
-									" style='background-color:$optionValue;color:" . $this->colorPicker->invertColor($optionValue, true) . ";' " :
-									"") :
-								"")
+							 "<input type='text' "
+							. " name='$optionName' "
+							. " value='$optionValue' "
+							. " onfocus='javascript:pas_cth_js_showColorPicker( this );' "
+							. ( array_key_exists( 'showColor', $args ) ?
+								( $args['showColor'] ?
+									" style='background-color:$optionValue;color:" . $this->colorPicker->invertColor( $optionValue, true ) . ";' " :
+									"" ) :
+								"" )
 							. $readonly . " >";
 						break;
 					case "imageselect":
 						$nofont = false;
-						if (0 === strlen($defaultFont['fontName'])) {
+						if ( 0 === strlen( $defaultFont['fontName'] ) ) {
 							$defaultFont = ['fontName'=>'Choose Your Font', 'fontFile-base'=>''];
 							$nofont = true;
 						}
-						if ( ! $nofont) {
+						if ( ! $nofont ) {
 							$imgSrc = "<img id='sampleFontImage' src='" . $this->pluginDirectory['url'] . "assets/fonts/samples/" . $defaultFont['fontFile-base'] . ".png" . "'>";
 						} else {
 							$imgSrc = "";
@@ -152,7 +152,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 // HereDocs String for the text-box portion of the drop-down-list box
 					$formElement = <<< "FONTTEXTBOX"
 					{$crlf}<!-- ******************************************* -->{$crlf}
-					<div id='imageDropDown' onclick='javascript:showDropDown("listDropDown");'>{$crlf}
+					<div id='imageDropDown' onclick='javascript:showDropDown( "listDropDown" );'>{$crlf}
 						<span class='imageSelectRow'>{$crlf}
 							<span class='isRowCol1' id='selectedFontName'>{$crlf}
 								{$defaultFont['fontName']}
@@ -167,7 +167,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 					<div class='listDropDown' id='listDropDown'>{$crlf}
 FONTTEXTBOX;
 
-						foreach ($selectOptions as $row) {
+						foreach ( $selectOptions as $row ) {
 							$jsdata =
 								[
 									'data-row'=>$row,
@@ -175,17 +175,17 @@ FONTTEXTBOX;
 									'list-box'=>'listDropDown',
 									'url'=>$this->pluginDirectory['url'] . "assets/fonts/samples/"
 								];
-							$jsdata = json_encode($jsdata);
+							$jsdata = json_encode( $jsdata );
 							$src = $this->pluginDirectory['url'] .
-								   'assets/fonts/samples/'		 .
-								   $row['fontFile-base']		 . '.png';
+								 'assets/fonts/samples/'		 .
+								 $row['fontFile-base']		 . '.png';
 
 							$imgSrc = "<img src='$src'>";
 
 // HereDocs String for the list-box portion of the drop-down-list box.
 // isRowCol3 is used strictly to provide spacing so the scrollbar doesn't hide part of the image.
 						$formElement .= <<< "FONTLISTBOX"
-							<div class='imageSelectRow' data-font='{$jsdata}' onclick='javascript:selectThisFont(this);'>{$crlf}
+							<div class='imageSelectRow' data-font='{$jsdata}' onclick='javascript:selectThisFont( this );'>{$crlf}
 								<span class='isRowCol1'>{$crlf}
 									{$row['fontName']}{$crlf}
 								</span>{$crlf}
@@ -200,13 +200,13 @@ FONTLISTBOX;
 						$formElement .= "{$crlf}</div><!-- end of class='listDropDown' -->{$crlf}" .
 										"{$crlf}<!-- ******************************************* -->{$crlf}";
 						break;
-				} // end of switch() statement
+				} // end of switch( ) statement
 			} else {
 				$formElement = "<input type='text' " .
-					           "       name='" . esc_attr($optionName) . "' " .
-					           "       value='" . esc_attr($optionValue) . "' " .
-					           "       onblur='javascript:pas_cth_js_SetOption( this );' " .
-					           "       $readonly >";
+					 " name='" . esc_attr( $optionName ) . "' " .
+					 " value='" . esc_attr( $optionValue ) . "' " .
+					 " onblur='javascript:pas_cth_js_SetOption( this );' " .
+					 " $readonly >";
 			}
 
 			$outputString = <<<"OPTION"
@@ -224,24 +224,24 @@ OPTION;
 			return ( $outputString );
 		}
 
-		function enumerateThemes() {
-			$themes = array();
+		function enumerateThemes( ) {
+			$themes = array( );
 
 			// Loads all theme data
-			$all_themes = wp_get_themes();
+			$all_themes = wp_get_themes( );
 
 			// Loads theme names into themes array
 			foreach ( $all_themes as $theme ) {
 				$name = $theme->get( 'Name' );
-				$stylesheet = $theme->get_stylesheet();
+				$stylesheet = $theme->get_stylesheet( );
 
-				if ( $theme->parent() ) {
+				if ( $theme->parent( ) ) {
 					$status = true;
 				} else {
 					$status = false;
 				}
 				$parent = $theme->get( 'Template' );
-				$parentStylesheet = $theme->get_stylesheet();
+				$parentStylesheet = $theme->get_stylesheet( );
 
 				$themes[$stylesheet] = [
 						'themeName'			=> $name,
@@ -256,7 +256,7 @@ OPTION;
 		}
 
 		// pasChildThemes' Options page.
-		function pas_cth_Options() {
+		function pas_cth_Options( ) {
 			echo "<h1>Screen Shot Options</h1>";
 			echo "<p id='notice'>";
 			echo "If you make changes here and your screenshot.png doesn't change when you ";
@@ -286,9 +286,9 @@ OPTION;
 				[
 					'label'		 => 'Font: ',
 					'optionName' => 'font',
-					'defaultFont'=> get_option( 'pas_cth_font', unserialize(PAS_CTH_DEFAULT_FONT) ),
+					'defaultFont'=> get_option( 'pas_cth_font', unserialize( PAS_CTH_DEFAULT_FONT ) ),
 					'type'		 => 'imageselect',
-					'selectOptions'	=> $this->loadAvailableFonts(),
+					'selectOptions'	=> $this->loadAvailableFonts( ),
 				] );
 
 			// Dummy button. Options are saved onblur event for each option. This button simply
@@ -300,7 +300,7 @@ OPTION;
 		 * If changes to the options do not show up, clear your browser's stored images,
 		 * files, fonts, etc.
 		 */
-		function generateScreenShot() {
+		function generateScreenShot( ) {
 			$screenShotFile = $this->activeThemeInfo->childThemeRoot . PAS_CTH_SEPARATOR
 							. $this->activeThemeInfo->childStylesheet
 							. PAS_CTH_SEPARATOR
@@ -311,15 +311,15 @@ OPTION;
 				'childThemeName'	=> $this->activeThemeInfo->childThemeName,
 				'templateThemeName' => $this->activeThemeInfo->templateStylesheet,
 				'pluginDirectory'	=> $this->pluginDirectory,
-				'activeThemeInfo'   => $this->activeThemeInfo,
+				'activeThemeInfo' => $this->activeThemeInfo,
 				'libraryFunctions'	=> $this->libraryFunctions
 					];
 
-			// pas_cth_ScreenShot()::__construct() creates the screenshot.png file.
+			// pas_cth_ScreenShot( )::__construct( ) creates the screenshot.png file.
 			// $status not needed afterwards
 			// Will overwrite an existing screenshot.png without checking. // Need to fix this.
 			$status = new pas_cth_ScreenShot( $args );
-			unset( $status ); // ScreenShot.png is created in the class' __construct() function.
+			unset( $status ); // ScreenShot.png is created in the class' __construct( ) function.
 
 
 			// All done. Reload the Dashboard Themes page.
@@ -327,9 +327,9 @@ OPTION;
 			wp_redirect( admin_url( "themes.php" ) );
 		}
 
-		// showActiveChildTheme() will display the list of files for the child theme
+		// showActiveChildTheme( ) will display the list of files for the child theme
 		// in the left-hand pane.
-		function showActiveChildTheme() {
+		function showActiveChildTheme( ) {
 			$currentThemeInfo = $this->activeThemeInfo; // this is an object.
 			if ( $this->activeThemeInfo->templateStylesheet ) {
 				echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
@@ -339,21 +339,21 @@ OPTION;
 			}
 			echo "<p class='themeName'>" . $this->activeThemeInfo->childThemeName . "</p>";
 
-			$childThemeFolder = $this->activeThemeInfo->getChildFolder();
+			$childThemeFolder = $this->activeThemeInfo->getChildFolder( );
 
 			echo "<div class='innerCellLeft'>";
 			$this->listFolderFiles( $childThemeFolder, PAS_CTH_CHILDTHEME );
 			echo "</div>";
 		}
 
-		// showActiveParentTheme() will display the list of files for the template theme
+		// showActiveParentTheme( ) will display the list of files for the template theme
 		// in the right-hand pane.
-		function showActiveParentTheme() {
+		function showActiveParentTheme( ) {
 			echo "<p class='pasChildTheme_HDR'>THEME TEMPLATE</p>";
 			echo "<p class='actionReminder'>Click a file to <u>COPY</u> it to the child theme</p>";
 			echo "<p class='themeName'>" . $this->activeThemeInfo->templateThemeName . "</p>";
 
-			$parentFolder = $this->activeThemeInfo->getTemplateFolder();
+			$parentFolder = $this->activeThemeInfo->getTemplateFolder( );
 
 			echo "<div class='innerCellLeft'>";
 			$this->listFolderFiles( $parentFolder, PAS_CTH_TEMPLATETHEME );
@@ -361,16 +361,16 @@ OPTION;
 		}
 		/*
 		 *	manage_child_themes is the main driver function. This function is called from
-		 *  the Dashboard menu option 'Child Themes Helper'. This function either:
+		 * the Dashboard menu option 'Child Themes Helper'. This function either:
 		 *	1 ) Displays the file list for the child theme and the file list for the template theme or
 		 *	2 ) If the currently active theme is NOT a child theme, it displays the "form" to create a new
-		 *	   child theme.
+		 *	 child theme.
 		 */
-		function manage_child_themes() {
+		function manage_child_themes( ) {
 			if ( ! current_user_can( 'manage_options' ) ) { exit; }
 
 			$select = "<label for='templateTheme'>"
-			        . "Template Theme ( defaults to currently active theme )"
+			 . "Template Theme ( defaults to currently active theme )"
 							. "<br><select name='templateTheme' id='templateTheme'>";
 			foreach ( $this->allThemes as $key => $value ) {
 				if ( ! $value['childTheme'] ) { // do not list any theme that is a child theme.
@@ -438,14 +438,14 @@ OPTION;
 				echo "<br>";
 				echo "<div class='questionPrompt'>";
 				echo "<input type='button' ";
-				echo "       value='Create Child Theme' ";
-				echo "       class='blueButton' ";
-				echo "       onclick='javascript:pas_cth_js_createChildTheme( this );'>";
+				echo " value='Create Child Theme' ";
+				echo " class='blueButton' ";
+				echo " onclick='javascript:pas_cth_js_createChildTheme( this );'>";
 				echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 				echo "<input type='button' ";
-				echo "       value='Reset' ";
-				echo "       class='blueButton' ";
-				echo "       onclick='javascript:pas_cth_js_resetForm( this.form );'>";
+				echo " value='Reset' ";
+				echo " class='blueButton' ";
+				echo " onclick='javascript:pas_cth_js_resetForm( this.form );'>";
 				echo "</div>";
 
 				echo "</div>";
@@ -457,14 +457,14 @@ OPTION;
 			echo "<div class='pas-grid-item'>"; // Start grid item 1
 
 			// Shows file list in the left pane
-			$this->showActiveChildTheme();
+			$this->showActiveChildTheme( );
 
 			echo "</div>"; // end grid item 1
 
 			echo "<div class='pas-grid-item'>"; // start grid item 2
 
 			// Shows file list in the right pane
-			$this->showActiveParentTheme();
+			$this->showActiveParentTheme( );
 
 			echo "</div>"; // end grid item 2
 			echo "</div>"; // end grid container
@@ -472,18 +472,18 @@ OPTION;
 
 
 		/*
-		 * stripRoot()
-		 * The listFolderFiles() function takes a full physical path as a parameter.
+		 * stripRoot( )
+		 * The listFolderFiles( ) function takes a full physical path as a parameter.
 		 * But the full path to the file must be known when the user clicks on a file
 		 * in the file list. But the full path up to and including the "themes" folder
 		 * is constant.
 		 *
-		 * The stripRoot() function removes everything in the $path up to and not including
-		 * the theme's stylesheet folder. In other words, stripRoot() strips the theme root
-		 * from the file path so that listFolderFiles() when writing out a file, doesn't have
+		 * The stripRoot( ) function removes everything in the $path up to and not including
+		 * the theme's stylesheet folder. In other words, stripRoot( ) strips the theme root
+		 * from the file path so that listFolderFiles( ) when writing out a file, doesn't have
 		 * to include the full path in every file.
 		 *
-		 * stripRoot() takes the full $path and the $themeType as
+		 * stripRoot( ) takes the full $path and the $themeType as
 		 * parameters.
 		 */
 		function stripRoot( $path, $themeType ) {
@@ -496,7 +496,7 @@ OPTION;
 			return $path;
 		}
 
-		/* The listFolderFiles() function is the heart of the child theme and template theme
+		/* The listFolderFiles( ) function is the heart of the child theme and template theme
 		 * file listings.
 		 * It is called recursively until all of the themes' files are found.
 		 * It excludes the ".", "..", and ".git" folders, if they exist.
@@ -533,8 +533,8 @@ OPTION;
 					/* $jsdata or JavaScript data will be stuffed into the data-jsdata
 					 * HTML attribute and written out as part of the file list. This way,
 					 * on the onclick event, the file path and themeType will be passed to
-					 * the pas_cth_js_selectFile() javascript function, and then
-					 * on to the pas_cth_AJAXFunctions::selectFile() PHP function via an AJAX call.
+					 * the pas_cth_js_selectFile( ) javascript function, and then
+					 * on to the pas_cth_AJAXFunctions::selectFile( ) PHP function via an AJAX call.
 					 */
 					$jsdata = json_encode(
 											[
@@ -542,11 +542,11 @@ OPTION;
 											 'fileName'=>$ff,
 											 'themeType'=>$themeType
 											]
-										);
+										 );
 					echo "<li>"
 						 . "<p class='file' "
-						 . "   data-jsdata='" . esc_attr($jsdata) . "' "
-						 . "   onclick='javascript:pas_cth_js_selectFile( this );'>";
+						 . " data-jsdata='" . esc_attr( $jsdata ) . "' "
+						 . " onclick='javascript:pas_cth_js_selectFile( this );'>";
 					echo "<nobr>$ff</nobr>";
 					echo "</p>";
 				}
@@ -556,18 +556,18 @@ OPTION;
 
 			echo "</div>";
 		}
-		function getFontSample($fontFile, $fontName) {
+		function getFontSample( $fontFile, $fontName ) {
 			$imageSize = ['width'=>300, 'height'=>50];
-			$img = imagecreate(  $imageSize['width'], $imageSize['height']  );
+			$img = imagecreate( $imageSize['width'], $imageSize['height'] );
 			$childThemeName = $this->activeThemeInfo->childThemeName;
 
 			$bcColor	= "#FFFFFF";
 			$rgb		= $this->libraryFunctions->getColors( $bcColor );
-			$background = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
+			$background = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
 
 			$fcColor	= "#000000";
 			$rgb		= $this->libraryFunctions->getColors( $fcColor );
-			$text_color = imagecolorallocate(  $img, $rgb['red'], $rgb['green'], $rgb['blue']  );
+			$text_color = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
 
 			$font = $fontFile;
 			$sampleText = $childThemeName;
@@ -584,28 +584,28 @@ OPTION;
 								'yPos'		=>	$yPos,
 							] );
 			$angle		= 0;
-			$bbox = imagefttext(  $img,
-								  $sizes['maxFontSize'],
-								  $angle,
-								  0,
-								  45,
-								  $text_color,
-								  $font,
-								  $sampleText );
+			$bbox = imagefttext( $img,
+								 $sizes['maxFontSize'],
+								 $angle,
+								 0,
+								 45,
+								 $text_color,
+								 $font,
+								 $sampleText );
 
-			if (! file_exists( $this->pluginDirectory['path'] . 'assets/fonts/samples' ) ) {
+			if ( ! file_exists( $this->pluginDirectory['path'] . 'assets/fonts/samples' ) ) {
 				mkdir( $this->pluginDirectory['path'] . 'assets/fonts/samples' );
 			}
 			$fontSampleImageName =
-					"assets/fonts/samples/" . trim(basename($fontFile, ".ttf").PHP_EOL) . ".png";
+					"assets/fonts/samples/" . trim( basename( $fontFile, ".ttf" ).PHP_EOL ) . ".png";
 			$outFile = $this->pluginDirectory['path'] . $fontSampleImageName;
 
-			imagepng(  $img, $outFile  );
+			imagepng( $img, $outFile );
 
-			imagecolordeallocate(  $img, $text_color  );
-			imagecolordeallocate(  $img, $background  );
+			imagecolordeallocate( $img, $text_color );
+			imagecolordeallocate( $img, $background );
 
-			return ($fontSampleImageName);
+			return ( $fontSampleImageName );
 		}
 
 	}
