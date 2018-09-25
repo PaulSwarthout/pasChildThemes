@@ -397,9 +397,10 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 							'childThemeName'=> sanitize_text_field( $_POST['childThemeName'] ),
 							'templateTheme' => sanitize_text_field( $_POST['templateTheme'] ),
 							'description'   => sanitize_textarea_field( $_POST['description'] ),
-							'authorName'		=> sanitize_text_field( $_POST['authorName'] ),
-							'authorURI'			=> sanitize_text_field( $_POST['authorURI'] ),
-							'version'		=> sanitize_text_field( $_POST['version'] )
+							'authorName'	=> sanitize_text_field( $_POST['authorName'] ),
+							'authorURI'		=> sanitize_text_field( $_POST['authorURI'] ),
+							'version'		=> sanitize_text_field( $_POST['version'] ),
+							'themeURI'		=> sanitize_text_field( $_POST['themeURI'] )
 						];
 
 			if ( 0 === strlen( trim( $inputs['childThemeName'] ) ) ) {
@@ -410,7 +411,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 
 			if ( 0 === strlen( trim( $inputs['templateTheme'] ) ) ) {
 				$this->libraryFunctions->displayError( "Notice",
-									 "Template Theme is required." );
+									 "Parent Theme is required." );
 				$err++;
 			}
 
