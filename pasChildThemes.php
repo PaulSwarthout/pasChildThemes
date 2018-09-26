@@ -3,7 +3,7 @@
 	Plugin Name: Child Themes Helper
 	Plugin URI: http://www.paulswarthout.com/Child-Themes-Helper/
 	Description: ( 1 ) Copies files from the template theme to the child theme, perfectly duplicating the path structure. ( 2 ) Removes file from the child theme, and removes any empty folders that were made empty by the removal of the child theme file. ( 3 ) Creates new child themes from installed template themes.
-	Version: 1.1
+	Version: 1.1.1
 	Author: Paul A. Swarthout
 	Author URI: http://www.PaulSwarthout.com
 	License: GPL2
