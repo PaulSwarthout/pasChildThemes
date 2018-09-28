@@ -35,16 +35,16 @@ require_once( dirname( __FILE__ ) . '/classes/class_common_functions.php' );
  * It loads the information that we'll need for our purposes and tosses everything else
  *	that is returned by the wp_get_theme( ) function.
  */
-$pluginDirectory =
+$pas_cth_pluginDirectory =
 	[
 		'path' => plugin_dir_path( __FILE__ ),
-		'url' => plugin_dir_url ( __FILE__ )
+		'url' => plugin_dir_url  ( __FILE__ )
 	];
 $pas_cth_themeInfo = new pas_cth_activeThemeInfo( );
-$pas_cth_library	= new pas_cth_library_functions( ['pluginDirectory' => $pluginDirectory] );
+$pas_cth_library	= new pas_cth_library_functions( ['pluginDirectory' => $pas_cth_pluginDirectory] );
 
 $args = [
-			'pluginDirectory'	=> $pluginDirectory,
+			'pluginDirectory'	=> $pas_cth_pluginDirectory,
 			'pluginName'		=> 'Child Themes Helper',
 			'pluginFolder'		=> 'pasChildThemes',
 			'activeThemeInfo'	=> $pas_cth_themeInfo,
