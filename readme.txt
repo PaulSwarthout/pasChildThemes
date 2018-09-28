@@ -5,7 +5,7 @@ Donate link: https://paypal.me/PaulSwarthout
 Tags: child themes helper, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
 Requires at least: 4.7.0
 Tested up to: 4.9.8
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 Requires PHP: 5.5.38
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
