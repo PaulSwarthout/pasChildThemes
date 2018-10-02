@@ -6,10 +6,10 @@
  */
 if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 	class pas_cth_AJAXFunctions {
+		public $activeThemeInfo;
 		private $pluginDirectory;
 		private $pluginName;
 		private $pluginFolder;
-		public $activeThemeInfo;
 		private $colorPicker;
 		private $libraryFunctions;
 
@@ -402,7 +402,6 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 							'version'		=> sanitize_text_field( $_POST['version'] ),
 							'themeURI'		=> sanitize_text_field( $_POST['themeURI'] )
 						];
-
 			if ( 0 === strlen( trim( $inputs['childThemeName'] ) ) ) {
 				$this->libraryFunctions->displayError( "Notice",
 									 "Child Theme Name cannot be blank." );
@@ -458,16 +457,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			// Create the style.css file for the child theme.
 			$styleFile = fopen( $childThemePath . PAS_CTH_SEPARATOR . "style.css", "w" );
 			$newlineChar = "\n";
-/*
-			$inputs =	[
-							'themeURI'		=> sanitize_text_field( $_POST['themeURI'] ),
-							'description'	=> sanitize_textarea_field( $_POST['description'] ),
-							'authorName'	=> sanitize_text_field( $_POST['authorName'] ),
-							'authorURI'		=> sanitize_text_field( $_POST['authorURI'] ),
-							'templateTheme' => sanitize_text_field( $_POST['templateTheme'] ),
-							'version'		=> sanitize_text_field( $_POST['version'] )
-						];
-*/
+
 			fwrite( $styleFile, "/*" . $newlineChar );
 			fwrite( $styleFile, " Theme Name: " . $childThemeName		. $newlineChar );
 			fwrite( $styleFile, " Theme URI: " . $inputs['themeURI']	. $newlineChar );
@@ -481,6 +471,12 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 
 			// Create the functions.php file for the child theme. Use the wp_enqueue_style( ) function
 			// to correctly set up the stylesheets for the child theme.
+
+			$stylesheetURL = dirname(get_stylesheet_uri());
+			$stylesheetURL = $this->libraryFunctions->setDelimiters($stylesheetURL);
+			$stylesheetURL = $this->libraryFunctions->dirUp($stylesheetURL, 1);
+			$stylesheetURL .= PAS_CTH_SEPARATOR . $childThemeStylesheet . PAS_CTH_SEPARATOR . "style.css";
+
 			$functionsFile = fopen( $childThemePath . PAS_CTH_SEPARATOR . "functions.php", "w" );
 			fwrite( $functionsFile, "<" . "?" . "PHP" . $newlineChar );
 			fwrite( $functionsFile, "add_action( 'wp_enqueue_scripts', '" . $childThemeStylesheet . "_theme_styles' );" . $newlineChar );
@@ -491,8 +487,9 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			fwrite( $functionsFile, "\twp_enqueue_style( 'parent-style', " .
 				 " get_template_directory_uri( ) . " .
 				 " '/style.css' );" . $newlineChar );
-			fwrite( $functionsFile, "\twp_enqueue_style( '" . $childThemeStylesheet . "-style', " .
-				 "dirname( __FILE__ ) . '/style.css' );" . $newlineChar );
+			fwrite( $functionsFile, "\twp_enqueue_style( '" .
+									$childThemeStylesheet . "-style', " .
+									"'$stylesheetURL' );" . $newlineChar );
 			fwrite( $functionsFile, "}" . $newlineChar );
 			fwrite( $functionsFile, "?>" );
 			fclose( $functionsFile );

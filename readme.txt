@@ -5,7 +5,7 @@ Donate link: https://paypal.me/PaulSwarthout
 Tags: child themes helper, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
 Requires at least: 4.7.0
 Tested up to: 4.9.8
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 Requires PHP: 5.5.38
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -81,8 +81,19 @@ is the name of your Child Theme. The page scrolls.
 For this example, the Child Theme was created as a child of the 'Twenty Sixteen' theme and it's name appears at the top. The page scrolls.
 
 == Changelog ==
+= 1.1.3 =
+	When creating a child theme, the path to the child theme stylesheet was wrong in functions.php.
+	I used dirname( __FILE__ ) . "/style.css", but this created a server rooted path
+	not a URL path to the child theme's stylesheet. This is now fixed.
+
+= 1.1.2 =
+	Discovered a non-unique "global" variable. Variables outside classes are global by their very nature. They must be unique across 
+	all of WordPress and any plugins or themes written or not yet written. This plugin prefixes all objects with global scope with the
+	prefix "pas_cth_". The $pluginDirectory variable in pasChildThemes.php needed to be renamed to $pas_cth_pluginDirectory.
+	
 = 1.1.1 =
-**oops:** Version 1\.1 was missing some files. Caused it to crash. Files that were new to 1.1 didn't get added to the WordPress plugin repository.
+	Version 1\.1 was missing some files. This caused the plugin to crash when activated.
+	Files that were new to version 1.1 didn't get added to the WordPress plugin repository.
 
 = 1.1 =
 

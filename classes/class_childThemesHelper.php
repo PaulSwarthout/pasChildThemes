@@ -405,6 +405,7 @@ OPTION;
 				echo "Do you want to create a child theme?";
 				echo "<br><br>"; // replace with CSS in future release;
 				echo "<form>";
+				echo "<input type='hidden' name='themeRoot' value='" . $this->activeThemeInfo->childThemeRoot . "'>";
 				echo "<input type='hidden' name='action' value='createChildTheme'>";
 				echo "<input type='hidden' name='href' value='" . admin_url( "themes.php" ) . "'>";
 				echo "<label for='childThemeName'>";

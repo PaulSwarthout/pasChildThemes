@@ -346,5 +346,20 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			return get_option( 'pas_cth_fontList', [] );
 		}
 
+		public function setDelimiters($path, $delimiter = PAS_CTH_SEPARATOR) {
+			$path = str_replace( "\\", "|+|", $path );
+			$path = str_replace( "/", "|+|", $path );
+			$path = str_replace( "|+|", $delimiter, $path );
+			return $path;
+		}
+		public function dirUp($path, $levels = 1) {
+			$delimiter = PAS_CTH_SEPARATOR;
+			$folders = explode($delimiter, $path);
+			for ($ndx = 0; $ndx < $levels; $ndx++) {
+				unset($folders[count($folders) - 1] );
+			}
+			return implode($delimiter, $folders);
+		}
+
 	}
 }
