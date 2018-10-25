@@ -249,107 +249,6 @@
 	font-size:12pt;
 }
 
-.clt, .clt ul, .clt li {
-     position: relative;
-}
-
-.pas_cth_directory {
-	font-style:italic;
-	font-size:14pt;
-	color:#990000;
-}
-
-.clt ul {
-    list-style: none;
-    padding-left: 32px;
-}
-.clt li::before, .clt li::after {
-    content: "";
-    position: absolute;
-    left: -12px;
-}
-.clt li::before {
-    border-top: 1px solid #000;
-    top: 9px;
-    width: 8px;
-    height: 0;
-}
-.clt li::after {
-    border-left: 1px solid #000;
-    height: 100%;
-    width: 0px;
-    top: 2px;
-}
-.clt ul > li:last-child::after {
-    height: 8px;
-}
-.file {
-	width:10px;
-	font-size:12pt;
-	overflow:visible;
-}
-#debugger, #debugger1, #debugger2 {
-	width:100%;
-	height:50px;
-	overflow:hidden;
-	z-index:999999;
-	position:fixed;
-	top:0px;
-	left:0px;
-	font-size:8pt;
-	font-family:courier-new;
-	visibility:visible;
-	display:inline;
-	border:solid 1pt red;
-	background-color:rgba(255,255,200,1);
-	color:black;
-}
-.debug, #debug {
-	width:100%;
-	height:100%;
-	overflow:scroll;
-	z-index:999999;
-	margin-top:10px;
-	position:fixed;
-	left:0px;
-	top:0px;
-	background-color:white;
-	color:black;
-	font-family:courier-new;
-	font-size:14pt;
-	visibility:visible;
-	display:inline;
-}
-.debugHeading {
-	margin-top:15px;
-	font-family:courier-new;
-	font-size:14pt;
-}
-.debugOutput {
-	font-family:courier-new;
-	font-size:10pt;
-	background-color:white;
-	color:black;
-	border:solid 1pt red;
-	box-shadow:4px 4px 10px #990000;
-	width:900px;
-	overflow:auto;
-}
-#debuggerHide {
-	width:100px;
-	height:50px;
-	position:fixed;
-	bottom:50%;
-	right:0px;
-	border:solid 2px yellow;
-	border-radius:100px;
-	background-color:rgba(255,100,100,.3);
-	color:black;
-	font-weight:bold;
-	overflow:hidden;
-
-}
-
 
 .pctOptionHeading {
 	grid-column:1;
@@ -402,4 +301,41 @@ p.mID {
 	position:absolute;
 	right:20px;
 	bottom:0px;
+}
+.pas_cth_directory {
+	font-style:italic;
+	font-size:14pt;
+	color:#990000;
+}
+.file {
+	width:10px;
+	font-size:12pt;
+	overflow:visible;
+}
+.clt, .clt ul, .clt li {
+     position: relative;
+}
+.clt ul {
+    list-style: none;
+    padding-left: 32px;
+}
+.clt li::before, .clt li::after {
+    content: "";
+    position: absolute;
+    left: -12px;
+}
+.clt li::before {
+    border-top: 1px solid #000;
+    top: 9px;
+    width: 8px;
+    height: 0;
+}
+.clt li::after {
+    border-left: 1px solid #000;
+    height: 100%;
+    width: 0px;
+    top: 2px;
+}
+.clt ul > li:last-child::after {
+    height: 8px;
 }
