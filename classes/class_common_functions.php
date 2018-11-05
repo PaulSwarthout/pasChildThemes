@@ -7,6 +7,19 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			$this->pluginDirectory = ( array_key_exists( 'pluginDirectory', $args ) ? $args['pluginDirectory'] : null );
 		}
 
+		function DemoMode() {
+			$userlogin = wp_get_current_user()->user_login;
+			if (! defined("DEMO_MODE") ) {
+				return "manage_options";
+			} else {
+				if (defined("DEMO_MODE") && $userlogin == "demo") {
+					return constant("DEMO_MODE");
+				} else {
+					return "manage_options";
+				}
+			}
+		}
+
 		/*
 		 * pas_cth_isWin( ) Are we running on a Windows server ( true ) or not ( false ).
 		 * While this function isn't really needed since PHP_OS is available everywhere,
@@ -112,13 +125,14 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			$activeThemeInfo = $args['activeThemeInfo'];
 			$themeStyle		 = $args['stylesheet'];		 // Stylesheet - theme's folder name
 			$directory		 = $args['directory'];			 // Path within the theme
-			$childFile		 = $args['childFileToRemove']; // Which file are we deleting.
+			$childFile		 = $args['file']; // Which file are we deleting.
 
 			$themeRoot = $activeThemeInfo->childThemeRoot; // physical path from system root.
+			$themeStyle = $activeThemeInfo->childStylesheet;
 
-			$fileToDelete = $themeRoot	. PAS_CTH_SEPARATOR .
-							$themeStyle . PAS_CTH_SEPARATOR .
-							$directory	. PAS_CTH_SEPARATOR .
+			$fileToDelete = $activeThemeInfo->childThemeRoot	. PAS_CTH_SEPARATOR .
+							$activeThemeInfo->childStylesheet	. PAS_CTH_SEPARATOR .
+							$directory							. PAS_CTH_SEPARATOR .
 							$childFile;
 
 			unlink( $fileToDelete );
@@ -130,8 +144,8 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			$folderSegments = explode( PAS_CTH_SEPARATOR, $directory );
 
 			for ( $ndx = count( $folderSegments ) - 1; $ndx >= 0; $ndx-- ) {
-				$dir =	$themeRoot . PAS_CTH_SEPARATOR .
-						$themeStyle . PAS_CTH_SEPARATOR .
+				$dir =	$activeThemeInfo->childThemeRoot  . PAS_CTH_SEPARATOR .
+						$activeThemeInfo->childStylesheet . PAS_CTH_SEPARATOR .
 						implode( PAS_CTH_SEPARATOR, $folderSegments ); // rebuilds the physical path.
 
 				if ( $this->isFolderEmpty( $dir ) ) {
@@ -168,11 +182,11 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			// Dismiss box lures the user to believe that's how you close the error box.
 			// But really, the user can click anywhere in the message box and it will close.
 			echo "<div name='errorMessageBox' ";
-			echo " class='errorMessageBox' ";
-			echo " onclick='javascript:pas_cth_js_killMe( this );'>";
+			echo " class='errorMessageBox' >";
+//			echo " onclick='javascript:pas_cth_js_killMe( this );'>";
 			echo "<p id='errorMessageHeader'>" . esc_html( $heading ) . "</p><br><br>";
 			echo $message;
-			echo "<p id='clickBox'>Dismiss</p>";
+			echo "<p id='dismissBox' onclick='javascript:pas_cth_js_killMe( document.getElementsByName(\"errorMessageBox\")[0] );'>Dismiss</p>";
 			echo "</div>";
 		}
 
@@ -359,6 +373,23 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 				unset($folders[count($folders) - 1] );
 			}
 			return implode($delimiter, $folders);
+		}
+		/*
+		 * Sometimes it's helpful to be able to see the HTML code in a 'view-source' not all crammed together.
+		 * This function appends a (windows) carriage return / line-feed or (Linux) line-feed
+		 * to the end of (php) echo commands such that when debugging, the view-source html code is more readable.
+		 * It is preferrable to only call this function once, so store it in a local variable.
+		 */
+		public function crlf() {
+			if (constant('WP_DEBUG')) {
+				if ($this->isWin()) {
+					return "\r\n";
+				} else {
+					return "\n";
+				}
+			} else {
+				return "";
+			}
 		}
 
 	}

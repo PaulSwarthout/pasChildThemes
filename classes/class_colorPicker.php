@@ -50,7 +50,7 @@ if ( ! class_exists( 'pas_cth_colorPicker' ) ) {
 							VALUE
 						</div>
 						<div class='identifier_item'>
-							R<br>E<br>D
+							RED
 						</div>
 						<div class='slider_item' id='redDIV' style='background:{$rgb['redColor']} ! important;'>
 							<div class='slideContainer'>
@@ -67,7 +67,7 @@ if ( ! class_exists( 'pas_cth_colorPicker' ) ) {
 							VALUE
 						</div>
 						<div class='identifier_item'>
-							G<br>R<br>N
+							GRN
 						</div>
 						<div class='slider_item' id='greenDIV' style='background:{$rgb['greenColor']} ! important;'>
 							<div class='slideContainer'>
@@ -80,7 +80,7 @@ if ( ! class_exists( 'pas_cth_colorPicker' ) ) {
 						INT<br><input type='text' id='blueInt' name='blueInt' value='{$rgb['blue']}' onchange='javascript:setBlue( this.value );'><br>VALUE
 						</div>
 						<div class='identifier_item'>
-							B<br>L<br>U
+							BLU
 						</div>
 						<div class='slider_item' id='blueDIV' style='background:{$rgb['blueColor']} ! important;'>
 							<div class='slideContainer'>

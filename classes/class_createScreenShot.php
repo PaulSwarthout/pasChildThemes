@@ -30,11 +30,11 @@ if ( ! class_exists( 'pas_cth_ScreenShot' ) ) {
 
 			$img = imagecreate( $imageSize['width'], $imageSize['height'] );
 
-			$bcColor	= get_option( "pas_cth_bcColor", PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR );
+			$bcColor	= get_option( "pas_cth_bcc", PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR );
 			$rgb		= $this->libraryFunctions->getColors( $bcColor );
 			$background = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
 
-			$fcColor	= get_option( "pas_cth_fcColor", PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR );
+			$fcColor	= get_option( "pas_cth_fcc", PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR );
 			$rgb		= $this->libraryFunctions->getColors( $fcColor );
 			$text_color = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
 

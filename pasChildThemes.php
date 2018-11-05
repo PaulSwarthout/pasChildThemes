@@ -53,7 +53,7 @@ $args = [
 $pas_cth_colorPicker	= new pas_cth_colorPicker( $args );
 $args['colorPicker']	= $pas_cth_colorPicker;
 
-$pas_cth_ChildThemesHelper = new pas_cth_ChildThemesHelper( $args );
+$pas_cth_ChildThemesHelper	= new pas_cth_ChildThemesHelper( $args );
 $pas_cth_AJAXFunctions		= new pas_cth_AJAXFunctions( $args );
 
 add_action( 'admin_menu',				array( $pas_cth_ChildThemesHelper, 'dashboard_menu' ) );
@@ -78,8 +78,8 @@ add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
  * From there the path is different based upon the $themeType, either Child ( left ) or Template ( right ).
  *
  * For removing a child theme file, the next steps, in order, are:
- * PHP selectFile( )					#1
- *	 JS pas_cth_js_removeChildFile( ) #2
+ * PHP selectFile( )					#1 REMOVED THIS FUNCTION and Eliminated 1 AJAX call
+ * JS pas_cth_js_removeChildFile( ) #2
  * PHP verifyRemoveFile( )			#3
  * JS pas_cth_js_deleteChildFile( ) #4
  * PHP deleteFile( )					#5
@@ -93,7 +93,6 @@ add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
  * PHP copyFile( )					#10
  * File has been copied. We're done.
  */
-add_action( 'wp_ajax_selectFile',		array( $pas_cth_AJAXFunctions, 'selectFile' ) ); //#1,#6
 add_action( 'wp_ajax_verifyRemoveFile',	array( $pas_cth_AJAXFunctions, 'verifyRemoveFile' ) ); //#3
 add_action( 'wp_ajax_deleteFile',		array( $pas_cth_AJAXFunctions, 'deleteFile' ) ); //#5
 add_action( 'wp_ajax_verifyCopyFile',	array( $pas_cth_AJAXFunctions, 'verifyCopyFile' ) ); //#8

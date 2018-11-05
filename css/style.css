@@ -1,29 +1,59 @@
+:root {
+	--default-theme-display-width:400px;
+	--default-left-button-width:25px;
+	--default-directory-font-size:14pt;
+	--default-file-font-size:18px;
+	--default-createTheme-field-background:#FFFFD8;
+	--default-createTheme-fieldWidth:95%;
+}
 .pas-grid-container {
   display: inline-grid;
-  grid-template-columns: auto auto auto;
-  background-color:rgb(255,255,240);
+  background-color:rgba(255,255,225, 1);
   color:black;
   padding: 10px;
   width:100%;
 }
-.pas-grid-item {
+.pas-grid-item-child, .pas-grid-item-parent {
   background-color: rgba(255, 255, 255, 1);
-  border: 1px solid rgba(0, 0, 0, 0.1);
+/*  border: 1px solid rgba(0, 0, 0, 0.1); */
   color:black;
   padding: 20px;
-  font-size: 14px;
-  font-weight:normal;
   text-align: left;
 }
-.parentTheme {
-	font-size:18pt;
-	font-weight:bold;
-	font-variant:small-caps;
+.pas-grid-left-column {
+  background-color:white;
+  color:black;
+  text-align: left;
+}
+/*
+ * "child" and "parent" prompt on the left top of the screen when using a single column due to width restraints
+ */
+.childPrompt, .parentPrompt {
+	background-color:black;
+	color:white;
 	text-align:center;
+	font-size:var(--default-font-size);
+	font-weight:bold;
+	font-family:monospace;
+	height:125px;
+	writing-mode:vertical-lr;
+	text-orientation:upright;
+	cursor:pointer;
+}
+.childPrompt {
+	border-bottom:solid 1pt white;
+}
+.parentPrompt {
+	border-top:solid 1pt white;
+}
+.themeName {
+	color:#990000;
+	border-top:solid 1pt #990000;
+	border-bottom:solid 1pt #990000;
+	text-align:center;
+	margin-top:0px;
 }
 .pasChildTheme_HDR {
-	font-size:24pt;
-	font-weight:bold;
 	font-variant:small-caps;
 	text-align:center;
 	width:100%;
@@ -32,131 +62,535 @@
 }
 .actionReminder {
 	position:relative;
-	top:-35px;
-	font-size:10pt;
 	font-weight:normal;
 	text-align:center;
 	width:100%;
 	color:#FF0000;
 	margin-bottom:0px;
 }
-.themeName {
-	font-size:14pt;
-	color:#990000;
-	border-top:solid 1pt #990000;
-	border-bottom:solid 1pt #990000;
-	text-align:center;
-	margin-top:0px;
-}
-#clickBox {
-	border:solid 1px black;
-	border-radius:10px;
-	box-shadow:3px 3px 6px darkgray;
-	font-family:courier-new;
-	font-size:12pt;
-	font-variant:small-caps;
-	color:black;
-	background-color:white;
-	width:75px;
-	padding:5px;
-	text-align:center;
-	position:absolute;
-	bottom:10px;
-	right:20px;
+.innerCellLeft, .innerCellRight {
+	text-align:left;
 }
 #actionBox, .errorMessageBox {
 	position:fixed;
-	top:50%;
-	left:50%;
-	width:450px;
-	height:350px;
-	margin-left:-225px;
-	margin-top:-175px;
-	padding:10px 25px 15px 25px;
 	background-color:rgba(255,255,240,1);
 	border:solid 1pt black;
-	box-shadow:10px 20px 50px #C09090;
-	border-radius:25px;
-	font-size:10pt;
 	color:black;
 	display:inline;
 	visibility:visible;
 	overflow:hidden;
 }
-#themeMenu {
+/*
+ * #hoverPrompt, #innerLine, .redHighlight, .actionPrompt are all used with
+ * @media (min-width:830px) ONLY. #hoverPrompt is display:none for all other
+ * media rules.
+ */
+#hoverPrompt {
+	visibility:visible;
+	background-color:rgba(250, 250, 250, 1);
+	color:black;
+	text-align:center;
 	position:fixed;
-	top:50%;
-	left:50%;
-	width:450px;
-	height:250px;
-	margin-left:-225px;
-	margin-top:-125px;
-	padding:0px 25px 15px 25px;
-	background-color:rgba(255,255,240,1);
 	border:solid 1pt black;
-	box-shadow:10px 20px 50px darkgray;
-	border-radius:25px;
-	font-size:10pt;
+	border-radius:10px;
+	box-shadow:4px 4px 8px #909090;
+}
+#innerLine {
+	width:100%;
+	text-align:left;
+	margin:5px 0px 0px 2px;
+	border-top:solid 1pt #909090;
+}
+.redHighlight {
+	color:red;
+	font-weight:bold;
+	font-size:12pt;
+}
+.actionPrompt {
+	font-weight:bold;
+	font-style:italic;
+}
+.fileHighlight {
+	font-family:monospace;
+	font-weight:normal;
+	text-align:left;
+	margin:0px 0px 0px 0px;
+	line-height:13px;
+}
+p.file {
+	line-height:15px;
+	margin:5px;
+}
+p.pas_cth_directory {
+	line-height:15px;
+	margin:10px 0px 5px 0px;
+}
+#dismissBox {
+	border:solid 1px black;
+	font-variant:small-caps;
+	color:black;
+	background-color:white;
+	text-align:center;
+}
+.tipBox {
+	width:50px;
+	height:50px;
+	text-align:center;
+	line-height:50px;
+	font-family:monospace;
+	font-size:18pt;
+	border:solid 1pt black;
+	border-radius:10px;
+	background-color:white;
+	color:black;
+	box-shadow:3px 3px 6px #909090;
+	position:absolute;
+}
+/*
+ * Full width display, full size, only uses about 825px.
+ */
+.createChildThemeBox {
+	background-color:transparent;
 	color:black;
 	display:inline-block;
-	visibility:visible;
 	overflow:hidden;
+	padding:0px 0px 0px 10px;
 }
-.createChildThemeBox {
-	position:fixed;
-	top:20%;
-	left:20%;
-	width:400px;
-	height:600px;
-	margin-left:-80px;
-	margin-top:-100px;
-	padding:25px;
-	background-color:rgba(255,255,240,1);
-	border:solid 1px black;
-	box-shadow:10px 15px 40px #400000;
-	border-radius:25px;
-	font-size:12pt;
+.createChildThemeBoxForm {
+	background-color:white;
+	margin:10px 0 0 0;
+	padding:0 0 0 10px;
+	border:solid 1pt black;
+	width:100%;
+}
+.createChildThemeBoxForm_HDR {
+	width:100%;
+	text-align:center;
+	font-weight:bold;
+	font-variant:small-caps;
 	color:black;
-	display:inline;
-	visibility:visible;
-	overflow:auto;
+	font-size:12pt;
 }
 .createChildThemeBox input[type=text] {
-	border-radius:25px;
-	background-color:#FFFFE0;
+	background-color:var(--default-createTheme-field-background);
 	color:black;
-	font-size:12pt;
 	margin-bottom:8px;
-	width:100%;
 	box-shadow:2px 4px 4px darkgray;
 }
 .createChildThemeBox textarea {
 	border-radius:25px;
-	background-color:#FFFFE0;
+	background-color:var(--default-createTheme-field-background);
 	color:black;
 	font-size:12pt;
 	margin-bottom:8px;
-	width:100%;
+	width:var(--default-createTheme-fieldWidth);
 	height:70px;
 	padding:15px 20px 15px 20px;
 	box-shadow:2px 4px 4px darkgray;
 	resize:none;
 }
 .createChildThemeBox select {
-	background-color:#FFFFE0;
+	background-color:var(--default-createTheme-field-background);
 	color:black;
 	font-size:12pt;
 	margin-bottom:8px;
-	width:100%;
+	width:var(--default-createTheme-fieldWidth);
 	box-shadow:2px 4px 4px darkgray;
 	border-radius:25px;
 }
 .createChildThemeBox label {
 	font-family:courier-new;
-	font-size:8pt;
+	font-size:12pt;
 	font-weight:bold;
 	font-style:italic;
 	color:black;
+}
+@media (min-width:830px) {
+	.pasChildTheme_HDR {
+		font-size:24pt;
+		font-weight:bold;
+	}
+	.themeName {
+		font-size:14pt;
+	}
+	.actionReminder {
+		top:-35px;
+		font-size:10pt;
+	}
+	.pas-grid-container {
+		grid-template-columns: 0px var(--default-theme-display-width) var(--default-theme-display-width);
+	}
+	.childPrompt, .parentPrompt {
+		display:none;
+	}
+	.pas-grid-item-parent {
+		display:inline;
+	}
+	#actionBox, .errorMessageBox {
+		box-shadow:10px 20px 50px #C09090;
+		border-radius:25px;
+		font-size:10pt;
+		top:50%;
+		left:50%;
+		width:450px;
+		height:200px;
+		margin-left:-225px;
+		margin-top:-100px;
+		padding:10px 25px 15px 25px;
+	}
+	.pas_cth_directory {
+		font-style:italic;
+		font-size:var(--default-directory-font-size);
+		color:#990000;
+		white-space:nowrap;
+	}
+	.file {
+		width:100%;
+		font-size:var(--default-file-font-size);
+		overflow:visible;
+	}
+	#hoverPrompt {
+		width:350px;
+		height:100px;
+		font-size:12pt;
+	}
+	#innerLine {
+		margin:5px 0px 0px 2px;
+		border-top:solid 1pt #909090;
+	}
+	.redHighlight {
+		font-weight:bold;
+		font-size:12pt;
+	}
+	.fileHighlight {
+		font-size:12pt;
+		font-weight:bold;
+	}
+	#dismissBox {
+		border-radius:10px;
+		box-shadow:3px 3px 6px darkgray;
+		font-family:courier-new;
+		font-size:12pt;
+		width:75px;
+		padding:5px;
+		position:absolute;
+		bottom:10px;
+		right:20px;
+	}
+	.warningHeading, #errorMessageHeader {
+		font-size:18pt;
+		font-weight:bold;
+		font-variant:small-caps;
+		color:#500000;
+		text-align:center;
+		width:100%;
+		line-height:25px;
+		display:inline-block;
+		margin:10px 0px 0px 0px;
+	}
+	.fileHighlight {
+		font-size:12pt;
+		font-variant:small-caps;
+		margin:0px 0px 0px 0px;
+	}
+	.emphasize {
+		font-weight:bold;
+		text-decoration:underline double;
+		margin:10px 0px 30px 0px;
+		width:100%;
+		text-align:center;
+	}
+	.buttonRow {
+		width:100%;
+		text-align:center;
+	}
+	.blueButton {
+		font-family:courier-new;
+		font-size:12pt;
+		background-color:blue;
+		color:white;
+		width:150px;
+		border-radius:15px;
+		box-shadow:3px 3px 3px #8080FF;
+	}
+	.wideBlueButton {
+		font-family:courier-new;
+		font-size:12pt;
+		background-color:blue;
+		color:white;
+		width:250px;
+		border-radius:15px;
+		box-shadow:3px 3px 3px #8080FF;
+	}
+	.createChildThemeBox {
+		width:500px;
+		font-size:14pt;
+	}
+	.createChildThemeBox input[type=text] {
+		border-radius:15px;
+		font-size:14pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox textarea {
+		border-radius:15px;
+		font-size:14pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox select {
+		border-radius:15px;
+		font-size:14pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox label {
+		font-size:12pt;
+	}
+
+}
+@media (min-width:240px) and (max-width:500px) {
+	.createChildThemeBox {
+		width:100%;
+	}
+}
+/*
+ * Reduce the font sizes and box sizes for a smaller device view.
+ */
+@media (min-width:350px) and (max-width:829px) {
+	.pasChildTheme_HDR {
+		font-size:18pt;
+		font-weight:bold;
+	}
+	.pas-grid-container {
+		grid-template-columns: 25px 400px 0px;
+	}
+	.themeName {
+		font-size:12pt;
+	}
+	.actionReminder {
+		top:-35px;
+		font-size:10pt;
+	}
+	.childPrompt, .parentPrompt {
+		display:inline;
+	}
+	.pas-grid-item-parent {
+		display:none;
+	}
+	#actionBox, .errorMessageBox {
+		box-shadow:5px 8px 16px #C09090;
+		border-radius:15px;
+		font-size:8pt;
+		top:50%;
+		left:50%;
+		width:300px;
+		height:200px;
+		margin-left:-150px;
+		margin-top:-100px;
+		padding:4px 4px 4px 4px;
+	}
+	.pas_cth_directory {
+		font-style:italic;
+		font-size:12pt;
+		color:#990000;
+		white-space:nowrap;
+	}
+	.file {
+		width:100%;
+		font-size:10pt;
+		overflow:visible;
+	}
+	#hoverPrompt {
+		display:none;
+	}
+	.warningHeading, #errorMessageHeader {
+		font-size:14pt;
+		font-weight:bold;
+		font-variant:small-caps;
+		color:#500000;
+		text-align:center;
+		width:100%;
+		line-height:20px;
+		display:inline-block;
+		margin:10px 0px 0px 0px;
+	}
+	.fileHighlight {
+		font-size:10pt;
+		margin:0px 0px 0px 0px;
+	}
+	.emphasize {
+		font-weight:bold;
+		text-decoration:underline double;
+		margin:10px 0px 20px 0px;
+		width:100%;
+		text-align:center;
+	}
+	.buttonRow {
+		width:100%;
+		text-align:center;
+	}
+	.blueButton {
+		font-family:courier-new;
+		font-size:10pt;
+		background-color:blue;
+		color:white;
+		width:100px;
+		border-radius:10px;
+		box-shadow:3px 3px 3px #8080FF;
+	}
+	.wideBlueButton {
+		font-family:courier-new;
+		font-size:10pt;
+		background-color:blue;
+		color:white;
+		width:150px;
+		border-radius:10px;
+		box-shadow:3px 3px 3px #8080FF;
+	}
+	.createChildThemeBox {
+		font-size:12pt;
+	}
+	.createChildThemeBox input[type=text] {
+		border-radius:15px;
+		font-size:12pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox textarea {
+		border-radius:15px;
+		font-size:12pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox select {
+		border-radius:15px;
+		font-size:12pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox label {
+		font-size:10pt;
+	}
+}
+@media (min-width:239px) and (max-width:349px) {
+	.pasChildTheme_HDR {
+		font-size:10pt;
+		font-weight:bold;
+	}
+	.pas-grid-container {
+		grid-template-columns: 25px 215px 0px;
+	}
+	.themeName {
+		font-size:10pt;
+	}
+	.actionReminder {
+		top:-15px;
+		font-size:8pt;
+	}
+	.childPrompt, .parentPrompt {
+		display:inline;
+	}
+	.pas-grid-item-parent {
+		display:none;
+	}
+	#actionBox, .errorMessageBox {
+		box-shadow:5px 8px 16px #C09090;
+		border-radius:8px;
+		font-size:6pt;
+		top:50%;
+		left:50%;
+		width:200px;
+		height:240px;
+		margin-left:-100px;
+		margin-top:-120px;
+		padding:4px 4px 4px 4px;
+	}
+	.pas_cth_directory {
+		font-style:italic;
+		font-size:10pt;
+		color:#990000;
+		white-space:nowrap;
+	}
+	.file {
+		width:100%;
+		font-size:8pt;
+		overflow:visible;
+	}
+	#hoverPrompt {
+		display:none;
+	}
+	.warningHeading, #errorMessageHeader {
+		font-size:12pt;
+		font-weight:bold;
+		font-variant:small-caps;
+		color:#500000;
+		text-align:center;
+		width:100%;
+		line-height:15px;
+		display:inline-block;
+		margin:8px 0px 0px 0px;
+	}
+	.fileHighlight {
+		font-size:8pt;
+		margin:0px 0px 0px 0px;
+	}
+	.emphasize {
+		font-weight:bold;
+		text-decoration:underline double;
+		margin:7px 0px 14px 0px;
+		width:100%;
+		text-align:center;
+	}
+	.buttonRow {
+		width:100%;
+		text-align:center;
+	}
+	.blueButton {
+		font-family:courier-new;
+		font-size:8pt;
+		background-color:blue;
+		color:white;
+		width:80px;
+		border-radius:10px;
+		box-shadow:3px 3px 3px #8080FF;
+	}
+	.wideBlueButton {
+		font-family:courier-new;
+		font-size:8pt;
+		background-color:blue;
+		color:white;
+		width:120px;
+		border-radius:10px;
+		box-shadow:3px 3px 3px #8080FF;
+	}
+	.createChildThemeBox {
+		font-size:10pt;
+	}
+	.createChildThemeBox input[type=text] {
+		border-radius:10px;
+		font-size:10pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox textarea {
+		border-radius:10px;
+		font-size:10pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox select {
+		border-radius:10px;
+		font-size:10pt;
+		width:var(--default-createTheme-fieldWidth);
+	}
+	.createChildThemeBox label {
+		font-size:8pt;
+	}
+}
+/*
+ * The minimum sized device on the market, is the Apple Watch at 240px x 240px.
+ * This plugin will show as blank for anything smaller than 240px in the horizontal or vertical direction.
+ */
+@media (max-width:239px), (max-height:239px) {
+	.pas-grid-container {
+		display:none;
+	}
+	.createChildThemeBox {
+		display:none;
+	}
 }
 .generateScreenShot_general {
 	font-size:12pt;
@@ -181,75 +615,6 @@
 	display:inline-block;
 	line-height:25px;
 }
-.warningHeading, #errorMessageHeader {
-	font-size:18pt;
-	font-weight:bold;
-	font-variant:small-caps;
-	color:#500000;
-	text-align:center;
-	width:100%;
-	line-height:25px;
-	display:inline-block;
-	margin:10px 0px 0px 0px;
-}
-#fileLabel {
-	font-family:courier-new;
-	font-size:14pt;
-	font-variant:small-caps;
-	line-height:20px;
-	display:inline-block;
-	border:solid 1px #E0E0E0;
-	padding:6px;
-	margin-bottom:30px;
-}
-#fileDisplay {
-	font-family:courier-new;
-	font-size:14pt;
-	font-variant:normal;
-	line-height:20px;
-	padding-left:15px;
-	display:inline-block;
-}
-.emphasize {
-	font-weight:bold;
-	text-decoration:underline double;
-}
-.questionPrompt {
-	text-align:center;
-	width:100%;
-}
-.blueButton {
-	font-family:courier-new;
-	font-size:12pt;
-	background-color:blue;
-	color:white;
-	width:150px;
-	border-radius:15px;
-	box-shadow:3px 3px 3px #8080FF;
-}
-.wideBlueButton {
-	font-family:courier-new;
-	font-size:12pt;
-	background-color:blue;
-	color:white;
-	width:250px;
-	border-radius:15px;
-	box-shadow:3px 3px 3px #8080FF;
-}
-.pasChildTheme_boxHeader {
-	font-size:18pt;
-	font-weight:bold;
-	text-align:center;
-	width:100%;
-	display:inline;
-	visibility:visible;
-}
-.innerCellLeft {
-	text-align:left;
-	font-size:12pt;
-}
-
-
 .pctOptionHeading {
 	grid-column:1;
 	margin:0px 0px 2px 0px;
@@ -302,16 +667,6 @@ p.mID {
 	right:20px;
 	bottom:0px;
 }
-.pas_cth_directory {
-	font-style:italic;
-	font-size:14pt;
-	color:#990000;
-}
-.file {
-	width:10px;
-	font-size:12pt;
-	overflow:visible;
-}
 .clt, .clt ul, .clt li {
      position: relative;
 }
@@ -338,4 +693,58 @@ p.mID {
 }
 .clt ul > li:last-child::after {
     height: 8px;
+}
+// Font List on Options page.
+#imageDropDown {
+	width:470px;
+	height:50px;
+	overflow-x:hidden;
+	overflow-y:hidden;
+	display:inline;
+	visibility:visible;
+	border:solid 4pt blue;
+}
+#listDropDown {
+	width:470px;
+	height:300px;
+	overflow-x:hidden;
+	overflow-y:scroll;
+	border:solid 1px black;
+	display:none;
+	margin:0px;
+	padding:0px;
+}
+.imageSelectRow {
+	display:grid ! important;
+	grid-template-columns:auto auto auto;
+	width:470px;
+	border:solid 1pt black;
+	grid-gap:0px;
+	margin:0px;
+	padding:0px;
+}
+.isRowCol1 {
+	grid-column:1;
+	width:140px;
+	line-height:50px;
+	background-color:white;
+	text-align:center;
+	font-size:8pt;
+	height:50px;
+	overflow:hidden;
+	margin:0px 0px 0px 0px;
+	padding:0px;
+}
+.isRowCol2 {
+	grid-column:2;
+	width:300px;
+	margin:0px 0px 0px 0px;
+	padding:0px;
+}
+.isRowCol3 {
+	grid-column:3;
+	width:30px;
+	margin:0px 0px 0px 0px;
+	padding:0px;
+	background-color:white;
 }

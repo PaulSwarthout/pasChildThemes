@@ -9,7 +9,9 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		public $colorPicker;
 		public $fontSamples; // Array of sample font images, to be used in pas_cth_Options( );
 		public $fontList;
+		public $dataBlock;
 		public $libraryFunctions;
+		private $crlf;
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
@@ -21,6 +23,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$this->fontSampleImages	= [];
 //			$this->fontList			= $this->loadFonts( );
 			$this->libraryFunctions = $args['libraryFunctions'];
+			$this->crlf				= $this->libraryFunctions->crlf();
 		}
 		function __destruct( ) {
 			foreach ( $this->fontSampleImages as $img ) {
@@ -56,9 +59,10 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 
 		// pasChildThemes Dashboard Menu
 		function dashboard_menu( ) {
+			$capability = $this->libraryFunctions->DemoMode();
 			add_menu_page( 	'ChildThemesHelper',
 							'Child Themes Helper',
-							'manage_options',
+							$capability,
 							'manage_child_themes',
 							Array( $this, 'manage_child_themes' ),
 							"",
@@ -69,16 +73,16 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 				add_submenu_page( 	'manage_child_themes',
 									'Generate ScreenShot',
 									'Generate ScreenShot',
-									'manage_options',
+									$capability,
 									'genScreenShot',
 									Array( $this, 'generateScreenShot' )
 								 );
 			}
 			add_submenu_page( 'manage_child_themes',
-								'Options',
-								'Options',
-								'manage_options',
-								'Options',
+								'Screenshot Options',
+								'Screenshot Options',
+								$capability,
+								'ScreenshotOptions',
 								Array( $this, 'pas_cth_Options' )
 							 );
 		}
@@ -113,19 +117,18 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$defaultFont	= ( array_key_exists( 'defaultFont', $args ) ? $args['defaultFont'] : "['fontName'=>'Roboto Medium', 'fontFile-base'=>'Roboto-Medium']" );
 			$selectOptions	= ( array_key_exists( 'selectOptions', $args ) ? $args['selectOptions'] : "" );
 			$readonly		= ( array_key_exists( 'readonly', $args ) ? " READONLY " : "" );
+			$skipwrite		= ( array_key_exists( 'skipwrite', $args ) ? $args['skipwrite'] : false );
 			$ifColorPicker =
 				( array_key_exists( 'colorPicker', $args ) ? $args['colorPicker'] : false );
 
 			$dots = DOTS; // string of periods. Will overflow the div.
 			$optionValue = get_option( "pas_cth_$optionName", $defaultValue );
+			$color_picker_parameters = ( array_key_exists( 'cp_parameters', $args ) ? $args['cp_parameters'] : [] );
+
 
 			// {$crlf} is a carriage return, line feed. When WP_DEBUG == true, the HTML output will
 			// be made to be readable in the view source window. It helped with debugging.
-			if ( constant( 'WP_DEBUG' ) && $this->libraryFunctions->isWin( ) ) {
-				$crlf = "\r\n";
-			} else {
-				$crlf = "";
-			}
+			$crlf = $this->libraryFunctions->crlf();
 			if ( array_key_exists( 'type', $args ) ) {
 				switch ( strtolower( $args['type'] ) ) {
 					case "input":
@@ -141,6 +144,96 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 								"" )
 							. $readonly . " >";
 						break;
+					case "colorpicker":
+						$abbrev = $color_picker_parameters['abbreviation'];
+						$initial_color = $color_picker_parameters['initial_color'];
+						$heading = $color_picker_parameters['heading'];
+						$rgb = $this->libraryFunctions->getColors( $initial_color );
+
+						$formElement = <<< "COLORPICKER"
+							<input type='hidden' id='{$abbrev}_initial_color' value='{$initial_color}'>
+							<input type='hidden' id='{$abbrev}_heading' value='$heading'>
+							<div class='colorPickerHeader'>$heading</div>
+							<div class='colorPickerContainer'>
+
+								<div class='grid-item item1' id='{$abbrev}_rval_cell' style='background-color:{$rgb["redColor"]};'>
+									<span id='{$abbrev}_redName' class='colorName'>R</span>
+									<br>
+									<input id='{$abbrev}_rval' type='text' class='rval' value="{$rgb['red']}" onfocus='javascript:this.select();' onblur='javascript:setRed(this);'>
+								</div>
+
+								<div class='grid-item item2' id='{$abbrev}_gval_cell' style='background-color:{$rgb["greenColor"]};'>
+									<span id='{$abbrev}_greenName' class='colorName'>G</span>
+									<br>
+									<input id='{$abbrev}_gval' type='text' class='gval' value="{$rgb['green']}" onfocus='javascript:this.select();' onblur='javascript:setGreen(this);'>
+								</div>
+
+								<div class='grid-item item3' id='{$abbrev}_bval_cell' style='background-color:{$rgb["blueColor"]};'>
+									<span id='{$abbrev}_blueName' class='colorName'>B</span>
+									<br>
+									<input id='{$abbrev}_bval' type='text' class='bval' value="{$rgb['blue']}" onfocus='javascript:this.select();' onblur='javascript:setBlue(this);'>
+								</div>
+
+								<div class='grid-item item4' id='{$abbrev}_hexval_cell' style='background-color:{$initial_color};'>
+									<span id='{$abbrev}_hexName' class='colorName'>HexCode</span>
+									<br>
+									<input id='{$abbrev}_hexval' type='text' class='hexval' value='{$initial_color}' onfocus='javascript:this.select();' onblur='javascript:setHex(this);'>
+								</div>
+
+								<div class='grid-item item5' id='{$abbrev}_redSlider_cell'>
+									<input id='{$abbrev}_redSlider' class='slider-red' type='range' min='0' max='255' value='{$rgb['red']}' oninput='javascript:updateColorPicker("{$abbrev}");'>
+								</div>
+
+								<div class='grid-item item6' id='{$abbrev}_greenSlider_cell'>
+									<input id='{$abbrev}_greenSlider' class='slider-green' type='range' min='0' max='255' value='{$rgb['green']}' oninput='javascript:updateColorPicker("{$abbrev}");'>
+								</div>
+
+								<div class='grid-item item7' id='{$abbrev}_blueSlider_cell'>
+									<input id='{$abbrev}_blueSlider' class='slider-blue' type='range' min='0' max='255' value='{$rgb['blue']}' oninput='javascript:updateColorPicker("{$abbrev}");'>
+								</div>
+
+								<div class='grid-item item8' id='{$abbrev}_lightDark_buttons_cell'>
+									<input id='{$abbrev}_darkerBTN' class='darkerBTN' type='button' value='<<< darker' onclick='javascript:makeItDarker(this);'>
+									<input id='{$abbrev}_lighterBTN' class='lighterBTN' type='button' value='lighter >>>' onclick='javascript:makeItLighter(this);'>
+								</div>
+
+								<div class='grid-item item9' id='{$abbrev}_saveButton_cell' style='background-color:{$initial_color};'>
+									<span class='buttonBox'>
+										<input disabled data-abbr='{$abbrev}' id='{$abbrev}_saveButton' type='button' value='SAVE' class='saveButton' onclick='javascript:saveColor(this);'>
+										<input disabled id='{$abbrev}_resetButton' type='button' value='Reset' class='resetButton' onclick='javascript:resetColor(this);'>
+									</span>
+								</div>
+								<div class='grid-item item10' id='{$abbrev}_colorBlocks_cell'>
+COLORPICKER;
+						$webColors =
+							[
+								"white"		=>	"#FFFFFF",
+								"silver"	=>	"#C0C0C0",
+								"gray"		=>	"#808080",
+								"black"		=>	"#000000",
+								"red"		=>	"#FF0000",
+								"maroon"	=>	"#800000",
+								"yellow"	=>	"#FFFF00",
+								"olive"		=>	"#808000",
+								"lime"		=>	"#00FF00",
+								"green"		=>	"#008000",
+								"aqua"		=>	"#00FFFF",
+								"teal"		=>	"#008080",
+								"blue"		=>	"#0000FF",
+								"navy"		=>	"#000080",
+								"fuchsia"	=>	"#FF00FF",
+								"purple"	=>	"#800080"
+							];
+						foreach ($webColors as $color => $hexColorCode) {
+							$formElement .= "<span data-abbr='{$abbrev}' class='color_{$color}' onclick='javascript:setWebColor(this, \"{$hexColorCode}\");'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;";
+						}
+						$formElement .= "</div>"; // ends grid-item item10
+						$formElement .= "</div>"; // ends grid container
+
+						echo $formElement;
+						break;
+
+
 					case "imageselect":
 						$nofont = false;
 						if ( 0 === strlen( $defaultFont['fontName'] ) ) {
@@ -156,6 +249,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 // HereDocs String for the text-box portion of the drop-down-list box
 					$formElement = <<< "FONTTEXTBOX"
 					{$crlf}<!-- ******************************************* -->{$crlf}
+					<div class='colorPickerHeader'>$label</div>
 					<div id='imageDropDown' onclick='javascript:showDropDown( "listDropDown" );'>{$crlf}
 						<span class='imageSelectRow'>{$crlf}
 							<span class='isRowCol1' id='selectedFontName'>{$crlf}
@@ -203,6 +297,7 @@ FONTLISTBOX;
 						// These two lines MUST be outside the loop.
 						$formElement .= "{$crlf}</div><!-- end of class='listDropDown' -->{$crlf}" .
 										"{$crlf}<!-- ******************************************* -->{$crlf}";
+						echo $formElement;
 						break;
 				} // end of switch( ) statement
 			} else {
@@ -224,6 +319,9 @@ FONTLISTBOX;
 				</span>{$crlf}
 			</div>{$crlf}<!-- end of class='pct' -->{$crlf}
 OPTION;
+			if ($skipwrite) {
+				$outputString = "";
+			}
 
 			return ( $outputString );
 		}
@@ -268,32 +366,42 @@ OPTION;
 			echo "</p>";
 			echo $this->WriteOption(
 				[
-					'label'		=> 'Background Color: ',
-					'optionName'=> 'bcColor',
-					'default'=> get_option( 'pas_cth_bcColor', PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR ),
-					'colorPicker'=> true,
-					'type'		=> 'input',
-					'showColor' => true
-				] );
-
-			echo $this->WriteOption(
-				[
-					'label'		=> 'Text Color: ',
-					'optionName'=> 'fcColor',
-					'default'=> get_option( 'pas_cth_fcColor', PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR ),
-					'colorPicker'=> true,
-					'type'		=> 'input',
-					'showColor' => true
-				] );
-
-			echo $this->WriteOption(
-				[
 					'label'		 => 'Font: ',
 					'optionName' => 'font',
 					'defaultFont'=> get_option( 'pas_cth_font', unserialize( PAS_CTH_DEFAULT_FONT ) ),
 					'type'		 => 'imageselect',
+					'skipwrite'	 => true,
 					'selectOptions'	=> $this->loadAvailableFonts( ),
 				] );
+			echo $this->WriteOption(
+				[
+					'label'		=> 'Text Color: ',
+					'optionName'=> 'fcColor',
+					'default'	=> get_option( 'pas_cth_fcc', PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR ),
+					'type'		=> 'colorpicker',
+					'skipwrite' => true,
+					'cp_parameters' =>
+						[
+							'initial_color'	=> get_option('pas_cth_fcc', PAS_CTH_DEFAULT_SCREENSHOT_FCCOLOR ),
+							'heading'		=> 'Text Color: ',
+							'abbreviation'	=> 'fcc'
+						]
+				] );
+			echo $this->WriteOption(
+				[
+					'label'		=> 'Background Color: ',
+					'optionName'=> 'bcColor',
+					'default'	=> get_option( 'pas_cth_bcc', PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR ),
+					'type'		=> 'colorpicker',
+					'skipwrite' => true,
+					'cp_parameters' =>
+						[
+							'initial_color'	=> get_option('pas_cth_bcc', PAS_CTH_DEFAULT_SCREENSHOT_BCCOLOR ),
+							'heading'		=> 'Background Color: ',
+							'abbreviation'	=> 'bcc',
+						]
+				] );
+			echo "<div id='popupMessageBox'></div>";
 
 			// Dummy button. Options are saved onblur event for each option. This button simply
 			// forces an onblur event to be fired from the last option that had focus.
@@ -338,7 +446,8 @@ OPTION;
 			if ( $this->activeThemeInfo->templateStylesheet ) {
 				echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
 				echo "<p class='actionReminder'>";
-				echo "Click a file to <u>REMOVE</u> it from the child theme";
+				echo "Left Click a file to <u>REMOVE</u> it from the child theme.<br>";
+				echo "Right Click a file to <u>EDIT</u> it.";
 				echo "</p>";
 			}
 			echo "<p class='themeName'>" . $this->activeThemeInfo->childThemeName . "</p>";
@@ -353,26 +462,20 @@ OPTION;
 		// showActiveParentTheme( ) will display the list of files for the template theme
 		// in the right-hand pane.
 		function showActiveParentTheme( ) {
-			echo "<p class='pasChildTheme_HDR'>THEME TEMPLATE</p>";
-			echo "<p class='actionReminder'>Click a file to <u>COPY</u> it to the child theme</p>";
+			echo "<p class='pasChildTheme_HDR'>TEMPLATE THEME</p>";
+				echo "<p class='actionReminder'>";
+				echo "Left Click a file to <u>COPY</u> it to the child theme.<br>";
+				echo "Right Click a file to <u>EDIT</u> it.";
+				echo "</p>";
 			echo "<p class='themeName'>" . $this->activeThemeInfo->templateThemeName . "</p>";
 
 			$parentFolder = $this->activeThemeInfo->getTemplateFolder( );
 
-			echo "<div class='innerCellLeft'>";
+			echo "<div class='innerCellRight'>";
 			$this->listFolderFiles( $parentFolder, PAS_CTH_TEMPLATETHEME );
 			echo "</div>";
 		}
-		/*
-		 *	manage_child_themes is the main driver function. This function is called from
-		 * the Dashboard menu option 'Child Themes Helper'. This function either:
-		 *	1 ) Displays the file list for the child theme and the file list for the template theme or
-		 *	2 ) If the currently active theme is NOT a child theme, it displays the "form" to create a new
-		 *	 child theme.
-		 */
-		function manage_child_themes( ) {
-			if ( ! current_user_can( 'manage_options' ) ) { exit; }
-
+		function showCreateChildThemeForm() {
 			$select = "<label for='templateTheme'>"
 			 . "Template Theme ( defaults to currently active theme )"
 							. "<br><select name='templateTheme' id='templateTheme'>";
@@ -393,6 +496,78 @@ OPTION;
 			}
 			$select .= "</select>";
 
+			echo "<div class='createChildThemeBox'>";
+
+			echo "<p class='warningHeading'>Warning</p><br><br>";
+			echo "The current theme: '<i><b>" . $this->activeThemeInfo->childThemeName . "</i></b>'";
+			echo " is <u>not</u> a child theme.";
+			echo "<br><br>"; // replace with CSS in future release;
+			echo "Do you want to create a child theme?";
+			echo "<br><br>"; // replace with CSS in future release;
+			echo "Fill out the following form to create a child theme.<br>";
+			echo "The only required fields are the <i>Child Theme Name</i> and the <i>Template Theme Name</i>";
+			echo "<div class='createChildThemeBoxForm'>";
+			echo "<div class='createChildThemeBoxForm_HDR'>Create Child Theme</div>";
+			echo "<form>";
+			echo "<input type='hidden' name='themeRoot' value='" . $this->activeThemeInfo->childThemeRoot . "'>";
+			echo "<input type='hidden' name='action' value='createChildTheme'>";
+			echo "<input type='hidden' name='href' value='" . admin_url( "themes.php" ) . "'>";
+			echo "<label for='childThemeName'>";
+			echo "Child Theme Name:";
+			echo "<br>";
+			echo "<input type='text' name='childThemeName' id='childThemeName' value=''>";
+			echo "</label>";
+			echo "<br>";
+			echo $select . "<br>"; // displays a list of installed, active, non-child, themes
+			echo "<label for='ThemeURI'>";
+			echo "Theme URI<br>";
+			echo "<input type='text' name='themeURI' id='themeURI' value=''>";
+			echo "</label><br>";
+			echo "<label for='Description'>";
+			echo "Theme Description<br>";
+			echo "<textarea id='description' name='description'></textarea>";
+			echo "</label><br>";
+			echo "<label for='authorName'>";
+			echo "Author Name:<br>";
+			echo "<input type='text' id='authorName' name='authorName' value=''>";
+			echo "</label><br>";
+			echo "<label for='authorURI'>";
+			echo "Author URI:<br>";
+			echo "<input type='text' id='authorURI' name='authorURI' value=''>";
+			echo "</label><br>";
+			echo "<label for='version'>";
+			echo "Version:<br>";
+			echo "<input type='text' id='version' name='version' value='0.0.1' readonly>";
+			echo "</label><br>";
+
+			echo "<br>";
+			echo "<div class='buttonRow'>";
+			echo "<input type='button' ";
+			echo " value='Create Child Theme' ";
+			echo " class='blueButton' ";
+			echo " onclick='javascript:pas_cth_js_createChildTheme( this );'>";
+			echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+			echo "<input type='button' ";
+			echo " value='Reset' ";
+			echo " class='blueButton' ";
+			echo " onclick='javascript:this.form.reset();'>";
+			echo "</div>";
+
+			echo "</div>";
+			echo "</form>";
+			echo "</div>";
+		}
+		/*
+		 *	manage_child_themes is the main driver function. This function is called from
+		 * the Dashboard menu option 'Child Themes Helper'. This function either:
+		 *	1 ) Displays the file list for the child theme and the file list for the template theme or
+		 *	2 ) If the currently active theme is NOT a child theme, it displays the "form" to create a new
+		 *	 child theme.
+		 */
+		function manage_child_themes( ) {
+			$capability = $this->libraryFunctions->DemoMode();
+			if ( ! current_user_can( $capability ) ) { exit; }
+
 			if ( ! $this->activeThemeInfo->isChildTheme ) {
 				/* Current active theme is not a child theme.
 				 * Prompt to create a child theme.
@@ -401,78 +576,40 @@ OPTION;
 				 * We want to avoid refreshing the page so the
 				 * output from the wp_ajax_createChildTheme function will be displayed.
 				 */
-				echo "<div class='createChildThemeBox'>";
-				echo "<p class='warningHeading'>Warning</p><br><br>";
-				echo "The current theme <u>" . $this->activeThemeInfo->childThemeName . "</u>";
-				echo "is <u>not</u> a child theme.";
-				echo "<br><br>"; // replace with CSS in future release;
-				echo "Do you want to create a child theme?";
-				echo "<br><br>"; // replace with CSS in future release;
-				echo "<form>";
-				echo "<input type='hidden' name='themeRoot' value='" . $this->activeThemeInfo->childThemeRoot . "'>";
-				echo "<input type='hidden' name='action' value='createChildTheme'>";
-				echo "<input type='hidden' name='href' value='" . admin_url( "themes.php" ) . "'>";
-				echo "<label for='childThemeName'>";
-				echo "Child Theme Name:";
-				echo "<br>";
-				echo "<input type='text' name='childThemeName' id='childThemeName' value=''>";
-				echo "</label>";
-				echo "<br>";
-				echo $select . "<br>"; // displays a list of installed, active, non-child, themes
-				echo "<label for='ThemeURI'>";
-				echo "Theme URI<br>";
-				echo "<input type='text' name='themeURI' id='themeURI' value=''>";
-				echo "</label><br>";
-				echo "<label for='Description'>";
-				echo "Theme Description<br>";
-				echo "<textarea id='description' name='description'></textarea>";
-				echo "</label><br>";
-				echo "<label for='authorName'>";
-				echo "Author Name:<br>";
-				echo "<input type='text' id='authorName' name='authorName' value=''>";
-				echo "</label><br>";
-				echo "<label for='authorURI'>";
-				echo "Author URI:<br>";
-				echo "<input type='text' id='authorURI' name='authorURI' value=''>";
-				echo "</label><br>";
-				echo "<label for='version'>";
-				echo "Version:<br>";
-				echo "<input type='text' id='version' name='version' value='0.0.1' readonly>";
-				echo "</label><br>";
-
-				echo "<br>";
-				echo "<div class='questionPrompt'>";
-				echo "<input type='button' ";
-				echo " value='Create Child Theme' ";
-				echo " class='blueButton' ";
-				echo " onclick='javascript:pas_cth_js_createChildTheme( this );'>";
-				echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-				echo "<input type='button' ";
-				echo " value='Reset' ";
-				echo " class='blueButton' ";
-				echo " onclick='javascript:pas_cth_js_resetForm( this.form );'>";
-				echo "</div>";
-
-				echo "</div>";
-				echo "</form>";
+				$this->showCreateChildThemeForm();
 				return false;
 			}
 
+			$jsdata =
+				[
+					'childThemeRoot'	=>	$this->activeThemeInfo->childThemeRoot,
+					'templateThemeRoot' =>	$this->activeThemeInfo->templateThemeRoot,
+					'childStylesheet'	=>	$this->activeThemeInfo->childStylesheet,
+					'templateStylesheet'=>	$this->activeThemeInfo->templateStylesheet,
+				];
+			$jsdata = json_encode($jsdata);
+			echo "<div id='jsdata' style='display:none;' data-jsdata='$jsdata'></div>";
+
 			echo "<div class='pas-grid-container'>";
-			echo "<div class='pas-grid-item'>"; // Start grid item 1
+			echo "<div class='pas-grid-left-column'>";
+			echo "	<div class='childPrompt' id='childPrompt' onclick='javascript:showChild();'>CHILD</div>";
+			echo "	<div class='parentPrompt' id='parentPrompt' onclick='javascript:showParent();'>PARENT</div>";
+			echo "</div>";
+			echo "<div class='pas-grid-item-child' id='childGrid'>"; // Start grid item 1
 
 			// Shows file list in the left pane
 			$this->showActiveChildTheme( );
 
 			echo "</div>"; // end grid item 1
 
-			echo "<div class='pas-grid-item'>"; // start grid item 2
+			echo "<div class='pas-grid-item-parent' id='parentGrid'>"; // start grid item 2
 
 			// Shows file list in the right pane
 			$this->showActiveParentTheme( );
 
 			echo "</div>"; // end grid item 2
 			echo "</div>"; // end grid container
+			echo "<div id='hoverPrompt'></div>";
 		}
 
 
@@ -492,7 +629,8 @@ OPTION;
 		 * parameters.
 		 */
 		function stripRoot( $path, $themeType ) {
-			$sliceStart = $this->activeThemeInfo->getFolderCount( $themeType );
+			// Strip the stylesheet also (+1).
+			$sliceStart = $this->activeThemeInfo->getFolderCount( $themeType ) + 1;
 
 			$folderSegments = explode( PAS_CTH_SEPARATOR, $path );
 			$folderSegments = array_slice( $folderSegments, $sliceStart );
@@ -527,7 +665,7 @@ OPTION;
 			echo '<ul>';
 			foreach( $ffs as $ff ){
 				if ( is_dir( $dir . PAS_CTH_SEPARATOR . $ff ) ) {
-					echo "<li><p class='pas_cth_directory'>" . $ff . "</p>";
+					echo "<li><p class='pas_cth_directory'>" . $ff . "</p>" . $this->crlf;
 					if( is_dir( $dir.PAS_CTH_SEPARATOR.$ff ) ) {
 						$this->listFolderFiles( $dir.PAS_CTH_SEPARATOR.$ff, $themeType );
 					}
@@ -544,22 +682,26 @@ OPTION;
 					$jsdata = json_encode(
 											[
 											 'directory'=>$shortDir,
-											 'fileName'=>$ff,
+											 'file'=>$ff,
 											 'themeType'=>$themeType
 											]
 										 );
 					echo "<li>"
 						 . "<p class='file' "
 						 . " data-jsdata='" . esc_attr( $jsdata ) . "' "
-						 . " onclick='javascript:pas_cth_js_selectFile( this );'>";
-					echo "<nobr>$ff</nobr>";
-					echo "</p>";
+						 . " onclick='javascript:pas_cth_js_selectFile( this );' "
+						 . " oncontextmenu='javascript:pas_cth_js_noEditYet();return false;' "
+						 . " onmouseover='javascript:pas_cth_js_mouseOver( this );' "
+						 . " onmouseout='javascript:pas_cth_js_mouseOut( this );' "
+						 . ">" . $this->crlf;
+					echo $ff . $this->crlf;
+					echo "</p>" . $this->crlf;
 				}
-				echo "</li>";
+				echo "</li>" . $this->crlf;
 			}
-			echo '</ul>';
+			echo '</ul>' . $this->crlf;
 
-			echo "</div>";
+			echo "</div>" . $this->crlf;
 		}
 		function getFontSample( $fontFile, $fontName ) {
 			$imageSize = ['width'=>300, 'height'=>50];

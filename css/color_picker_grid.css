@@ -1,74 +1,149 @@
-#cpTop {
-	position:fixed;
-	left:180px;
-	top:50px;
-	box-shadow:10px 10px 45px #350000;
-	width:600px;
-}
-#cpOuter {
-	display:inline-grid;
-	grid-template-columns:auto auto auto;
-	padding:10px 0 10px 0;
-	overflow:hidden;
-}
-.col1, .col2, .col3 {
-	background:white;
-	display:inline-grid;
-	margin:0 0 0 10px;
-}
-#color_picker_container {
-	display:inline-grid;
-	grid-template-rows:auto auto auto;
-	color:black;
-	grid-gap:15px;
-	z-index:999999;
-	padding:0px;
-	margin:0px;
-}
-.row1, .row2, .row3 {
-	background:#FFFFFF;
+.buttonBox {
+	width:125px;
+	height:40px;
 	text-align:center;
-	display:inline-grid;
-	grid-template-columns:15% 20% auto;
-	padding:0px;
-	margin:0px;
+	line-height:75px;
+	vertical-align:bottom;
 }
-
-.intval_item {
+.saveButton, .resetButton {
+	background:#0000FF;
+	color:white;
+	font-family:monospace;
+	font-size:10pt;
+	font-weight:bold;
+	border:outset 3pt white;
+	width:50px;
+}
+.colorName {
+	font-weight:bold;
+	font-size:14pt;
+	font-family:monospace;
+}
+.colorPickerHeader {
+	font-family:arial;
+	font-size:14pt;
+	font-weight:bold;
+	font-variant:small-caps;
+	width:500px;
+	margin:25px 0 5px 0;
+}
+.colorPickerContainer {
+  display: grid;
+  background-color: #FFFFFF;
+  padding: 3px;
+  width:500px;
+  overflow:hidden;
+  border:outset 1pt black;
+}
+.grid-item {
+/*  background-color: rgba(255, 255, 255, 1); */
+  text-align: center;
+  padding: 5px;
+  font-size: 12pt;
+  border:solid 1pt rgba(0, 0, 0, .1);
+}
+.item1 {
+	grid-column:1;
+	grid-row:1;
+	border-right:solid 1pt white;
+}
+.item2 {
+	grid-column:2;
+	grid-row:1;
+	border-left:solid 1pt white;
+	border-right:solid 1pt white;
+}
+.item3 {
+	grid-column:3;
+	grid-row:1;
+	border-left:solid 1pt white;
+	border-right:solid 1pt white;
+	border-bottom:solid 1pt white;
+}
+.item4 {
+	grid-column:4;
+	grid-row:1;
+}
+.item5 {
+	grid-column:1 / span 2;
+	grid-row:2;
+	border-top:solid 1pt white;
+	border-bottom:solid 1pt white;
+}
+.item6 {
+	grid-column:1 / span 2;
+	grid-row:3;
+	border-top:solid 1pt white;
+	border-bottom:solid 1pt white;
+}
+.item7 {
+	grid-column:1 / span 2;
+	grid-row:4;
+	border-top:solid 1pt white;
+}
+.item8 {
+	grid-column:1 / span 4;
+	grid-row:5;
+	background-image:linear-gradient(to right,black, white);
+}
+.item9 {
+	grid-column:3 / span 2;
+	grid-row:2 / span 3;
+	background:#A0A0A0;
+	text-align:center;
+}
+.item10 {
+	grid-column:1 / span 4;
+	grid-row:6;
 	background:white;
-	padding:0px;
-	margin:0px;
+	width:100%;
 }
-.identifier_item {
-	background:white;
-	padding:0px;
-	margin:0px;
+.rval, .gval, .bval {
+	width:45px;
+	font-weight:bold;
+	text-align:center;
+}
+.hexval {
+	width:85px;
+	text-align:center;
+	font-weight:bold;
+}
+@media (min-width:781px) {
+	.rval, .gval, .bval, .hexval {
+		font-size:12pt;
+	}
+}
+@media (min-width:240px) and (max-width:780px) {
+	.rval, .gval, .bval, .hexval {
+		font-size:10pt;
+	}
+}
+@media (max-width:130px) {
+	.colorPickerContainer {
+		display:none;
+	}
+	.colorPickerHeader {
+		display:none;
+	}
 }
 
-.slider_item {
-	background:white;
-	padding:0px;
-	margin:0px;
-}
-#color_picker_container.input[type=range] {
-	width:100px;
-}
-
-.slidecontainer {
-    width: 100%; /* Width of the outside container */
-}
-
-/* The slider itself */
 .slider-red, .slider-green, .slider-blue {
     -webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
     width: 100%; /* Full-width */
-    height: 14px; /* Specified height */
-    background: #d9d9d9; /* Grey background */
+    height: 24px; /* Specified height */
     outline: none; /* Remove outline */
     opacity: 1; /* Set transparency (for mouse-over effects on hover) */
 }
-
+.slider-red {
+    background: #FF0000;
+}
+.slider-green {
+	background: #00FF00;
+}
+.slider-blue {
+	background: #0000FF;
+}
 /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
 .slider-red::-webkit-slider-thumb, .slider-green::-webkit-slider-thumb, .slider-blue::-webkit-slider-thumb {
     -webkit-appearance: none; /* Override default look */
@@ -78,13 +153,19 @@
     cursor: pointer; /* Cursor on hover */
 }
 .slider-red::-webkit-slider-thumb {
-    background: #FF0000; /* red background */
+    background: rgb(128, 0, 0); /* red background */
+	border:solid 1pt white;
+	border-radius:50px;
 }
 .slider-green::-webkit-slider-thumb {
-	background: #00FF00;
+	background: rgb(0, 128, 0);
+	border:solid 1pt white;
+	border-radius:50px;
 }
 .slider-blue::-webkit-slider-thumb {
-	background: #0000FF;
+	background: rgb(0, 0, 128);
+	border:solid 1pt white;
+	border-radius:50px;
 }
 .slider-red::-moz-range-thumb, .slider-green::-moz-range-thumb, .slider-blue::-moz-range-thumb {
     width: 25px; /* Set a specific slider handle width */
@@ -93,118 +174,99 @@
 }
 .slider-red::-moz-range-thumb {
     background: #FF0000; /* Red background */
+	border:solid 1pt white;
+	border-radius:50px;
 }
 .slider-green::-moz-range-thumb {
 	background: #00FF00;
+	border:solid 1pt white;
+	border-radius:50px;
 }
 .slider-blue::-moz-range-thumb {
 	background: #0000FF;
+	border:solid 1pt white;
+	border-radius:50px;
 }
-
-
-
-#colorPickerWindow {
-	position:fixed;
-	top:0;
-	left:180px;
+.slider-dark {
 	width:100%;
-	height:100%;
-	padding:10px 25px 15px 25px;
-	background-color:white;
-	border:solid 1pt black;
-	box-shadow:10px 20px 50px #C09090;
-	border-radius:25px;
-	font-size:10pt;
+	opacity:1;
+}
+.darkerBTN {
+	background:transparent;
+	float:left;
+	color:yellow;
+}
+.lighterBTN {
+	background:transparent;
+	float:right;
 	color:black;
-	display:inline;
-	visibility:visible;
-	overflow:hidden;
 }
-#exampleDIV {
-	width:100px;
-	background:white;
-}
-#colorText {
-	width:90px;
-	height:25px;
-	font-size:12pt;
-	font-weight:normal;
-	color:black;
-	background:white;
-	text-align:center;
-}
-.smallButton {
-	width:60px;
-	height:20px;
-	font-family:courier-new;
-	font-size:10pt;
-	color:white;
-	background:blue;
-	border-radius:5px;
-	box-shadow:3px 3px 5px #808080;
-}
-
-.dots {
-	width:100px;
-	white-space:nowrap;
-	font-size:12pt;
-}
-.nobr {
-	white-space:nowrap;
-}
-
-
-// Font List on Options page.
-#imageDropDown {
-	width:470px;
-	height:50px;
-	overflow-x:hidden;
-	overflow-y:hidden;
-	display:inline;
-	visibility:visible;
-	border:solid 4pt blue;
-}
-#listDropDown {
-	width:470px;
-	height:300px;
-	overflow-x:hidden;
-	overflow-y:scroll;
-	border:solid 1px black;
+#popupMessageBox {
 	display:none;
-	margin:0px;
-	padding:0px;
-}
-.imageSelectRow {
-	display:grid ! important;
-	grid-template-columns:auto auto auto;
-	width:470px;
-	border:solid 1pt black;
-	grid-gap:0px;
-	margin:0px;
-	padding:0px;
-}
-.isRowCol1 {
-	grid-column:1;
-	width:140px;
-	line-height:50px;
-	background-color:white;
+	border:dashed 1pt black;
+	background-color:rgba(200, 200, 200, .8);
+	width:150px;
+	height:30px;
+	line-height:30px;
 	text-align:center;
-	font-size:8pt;
-	height:50px;
-	overflow:hidden;
-	margin:0px 0px 0px 0px;
-	padding:0px;
+	vertical-align:middle;
+	font-family:arial;
+	font-size:12pt;
+	color:black;
 }
-.isRowCol2 {
-	grid-column:2;
-	width:300px;
-	margin:0px 0px 0px 0px;
-	padding:0px;
-}
-.isRowCol3 {
-	grid-column:3;
+.color_white, .color_silver, .color_gray, .color_black, .color_red, .color_maroon, .color_yellow,
+.color_olive, .color_lime, .color_green, .color_aqua, .color_teal, .color_blue, .color_navy,
+.color_fuchsia, .color_purple {
 	width:30px;
-	margin:0px 0px 0px 0px;
-	padding:0px;
+	height:20px;
+	border:solid 1pt black;
+	cursor:pointer;
+}
+.color_white {
 	background-color:white;
+}
+.color_silver {
+	background-color:#CECECE;
+}
+.color_gray {
+	background-color:#808080;
+}
+.color_black {
+	background-color:#000000;
+}
+.color_red {
+	background-color:#FF0000;
+}
+.color_maroon {
+	background-color:#800000;
+}
+.color_yellow {
+	background-color:#FFFF00;
+}
+.color_olive {
+	background-color:#808000;
+}
+.color_lime {
+	background-color:#00FF00;
+}
+.color_green {
+	background-color:#008000;
+}
+.color_aqua {
+	background-color:#00FFFF;
+}
+.color_teal {
+	background-color:#008080;
+}
+.color_blue {
+	background-color:#0000FF;
+}
+.color_navy {
+	background-color:#000080;
+}
+.color_fuchsia {
+	background-color:#FF00FF;
+}
+.color_purple {
+	background-color:#800080;
 }
