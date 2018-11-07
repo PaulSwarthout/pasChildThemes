@@ -59,6 +59,7 @@ $args = [
 if (defined("DEMO_USER") && defined("DEMO_CAPABILITY")) {
 	$pas_cth_demo = new class_pas_demo_mode(['pluginDirectory' => $pas_cth_pluginDirectory]);
 	$args['demo_args'] = $pas_cth_demo;
+	add_action('init', array($pas_cth_demo, 'no_profile_access'));
 }
 
 $pas_cth_colorPicker	= new pas_cth_colorPicker( $args );

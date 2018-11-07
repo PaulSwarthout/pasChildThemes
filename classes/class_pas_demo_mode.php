@@ -34,4 +34,14 @@ class class_pas_demo_mode {
 		}
 	}
 
+	function no_profile_access() {
+		$this->current_user = wp_get_current_user()->user_login;
+		if ($this->current_user == "demo") {
+			if (strpos ($_SERVER ['REQUEST_URI'] , 'wp-admin/profile.php' )){
+				wp_redirect(get_option('siteurl') . "/wp-admin");
+				exit;
+			}
+		}
+	}
+
 }
