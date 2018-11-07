@@ -30,6 +30,10 @@ require_once( dirname( __FILE__ ) . '/classes/class_colorPicker.php' );
 // Common Functions
 require_once( dirname( __FILE__ ) . '/classes/class_common_functions.php' );
 
+if (defined("DEMO_USER") && defined("DEMO_CAPABILITY")) {
+	require_once( dirname( __FILE__ ) . '/classes/class_pas_demo_mode.php' );
+}
+
 /* Go get the current theme information.
  * This is a wrapper for the wp_get_theme( ) function.
  * It loads the information that we'll need for our purposes and tosses everything else
@@ -38,8 +42,9 @@ require_once( dirname( __FILE__ ) . '/classes/class_common_functions.php' );
 $pas_cth_pluginDirectory =
 	[
 		'path' => plugin_dir_path( __FILE__ ),
-		'url' => plugin_dir_url  ( __FILE__ )
+		'url'  => plugin_dir_url  ( __FILE__ )
 	];
+
 $pas_cth_themeInfo = new pas_cth_activeThemeInfo( );
 $pas_cth_library	= new pas_cth_library_functions( ['pluginDirectory' => $pas_cth_pluginDirectory] );
 
@@ -48,19 +53,25 @@ $args = [
 			'pluginName'		=> 'Child Themes Helper',
 			'pluginFolder'		=> 'pasChildThemes',
 			'activeThemeInfo'	=> $pas_cth_themeInfo,
-			'libraryFunctions'	=> $pas_cth_library
+			'libraryFunctions'	=> $pas_cth_library,
 		];
+
+if (defined("DEMO_USER") && defined("DEMO_CAPABILITY")) {
+	$pas_cth_demo = new class_pas_demo_mode(['pluginDirectory' => $pas_cth_pluginDirectory]);
+	$args['demo_args'] = $pas_cth_demo;
+}
+
 $pas_cth_colorPicker	= new pas_cth_colorPicker( $args );
 $args['colorPicker']	= $pas_cth_colorPicker;
 
 $pas_cth_ChildThemesHelper	= new pas_cth_ChildThemesHelper( $args );
 $pas_cth_AJAXFunctions		= new pas_cth_AJAXFunctions( $args );
 
-add_action( 'admin_menu',				array( $pas_cth_ChildThemesHelper, 'dashboard_menu' ) );
-add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper, 'dashboard_styles' ) );
-add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper, 'dashboard_scripts' ) );
-add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker, 'color_picker_styles' ) );
-add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker, 'color_picker_scripts' ) );
+add_action( 'admin_menu',				array( $pas_cth_ChildThemesHelper,	'dashboard_menu' ) );
+add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper,	'dashboard_styles' ) );
+add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper,	'dashboard_scripts' ) );
+add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker,		'color_picker_styles' ) );
+add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker,		'color_picker_scripts' ) );
 
 add_action( 'init',		'pas_cth_startBuffering' );		// Response Buffering
 add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering

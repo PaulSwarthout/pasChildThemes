@@ -21,17 +21,17 @@
 }
 .colorPickerHeader {
 	font-family:arial;
-	font-size:14pt;
 	font-weight:bold;
 	font-variant:small-caps;
-	width:500px;
+	font-size:14pt;
 	margin:25px 0 5px 0;
+	overflow:;
 }
 .colorPickerContainer {
   display: grid;
+  grid-template-columns:20% 20% 20% 40%;
   background-color: #FFFFFF;
   padding: 3px;
-  width:500px;
   overflow:hidden;
   border:outset 1pt black;
 }
@@ -97,6 +97,7 @@
 	grid-row:6;
 	background:white;
 	width:100%;
+	text-align:left;
 }
 .rval, .gval, .bval {
 	width:45px;
@@ -108,25 +109,6 @@
 	text-align:center;
 	font-weight:bold;
 }
-@media (min-width:781px) {
-	.rval, .gval, .bval, .hexval {
-		font-size:12pt;
-	}
-}
-@media (min-width:240px) and (max-width:780px) {
-	.rval, .gval, .bval, .hexval {
-		font-size:10pt;
-	}
-}
-@media (max-width:130px) {
-	.colorPickerContainer {
-		display:none;
-	}
-	.colorPickerHeader {
-		display:none;
-	}
-}
-
 .slider-red, .slider-green, .slider-blue {
     -webkit-appearance: none;  /* Override default CSS styles */
     appearance: none;
@@ -217,56 +199,143 @@
 .color_white, .color_silver, .color_gray, .color_black, .color_red, .color_maroon, .color_yellow,
 .color_olive, .color_lime, .color_green, .color_aqua, .color_teal, .color_blue, .color_navy,
 .color_fuchsia, .color_purple {
-	width:30px;
-	height:20px;
 	border:solid 1pt black;
 	cursor:pointer;
+	overflow:hidden;
+}
+.color-grid {
+	display:inline-grid;
+	grid-template-columns:6% 6% 6% 6% 6% 6% 6% 6% 6% 6% 6% 6% 6% 6% 6% 6%;
+	grid-column-gap:4px;
+	grid-row-gap:0px;
+	padding:0px;
+	margin:0px;
+}
+.color-item {
+	width:22px;
+	height:25px;
 }
 .color_white {
-	background-color:white;
+	grid-column:1;
+	grid-row:1;
+	background-color:#FFFFFF;
 }
 .color_silver {
+	grid-column:2;
+	grid-row:1;
 	background-color:#CECECE;
 }
 .color_gray {
+	grid-column:3;
+	grid-row:1;
 	background-color:#808080;
 }
 .color_black {
+	grid-column:4;
+	grid-row:1;
 	background-color:#000000;
 }
 .color_red {
+	grid-column:5;
+	grid-row:1;
 	background-color:#FF0000;
 }
 .color_maroon {
+	grid-column:6;
+	grid-row:1;
 	background-color:#800000;
 }
 .color_yellow {
+	grid-column:7;
+	grid-row:1;
 	background-color:#FFFF00;
 }
 .color_olive {
+	grid-column:8;
+	grid-row:1;
 	background-color:#808000;
 }
 .color_lime {
+	grid-column:9;
+	grid-row:1;
 	background-color:#00FF00;
 }
 .color_green {
+	grid-column:10;
+	grid-row:1;
 	background-color:#008000;
 }
 .color_aqua {
+	grid-column:11;
+	grid-row:1;
 	background-color:#00FFFF;
 }
 .color_teal {
+	grid-column:12;
+	grid-row:1;
 	background-color:#008080;
 }
 .color_blue {
+	grid-column:13;
+	grid-row:1;
 	background-color:#0000FF;
 }
 .color_navy {
+	grid-column:14;
+	grid-row:1;
 	background-color:#000080;
 }
 .color_fuchsia {
+	grid-column:15;
+	grid-row:1;
 	background-color:#FF00FF;
 }
 .color_purple {
+	grid-column:16;
+	grid-row:1;
 	background-color:#800080;
+}
+@media (min-width:781px) {
+	.rval, .gval, .bval, .hexval {
+		font-size:12pt;
+	}
+}
+@media (min-width:240px) and (max-width:780px) {
+	.rval, .gval, .bval, .hexval {
+		font-size:10pt;
+	}
+}
+@media (max-width:499px) {
+	.colorPickerHeader {
+		width:100%;
+	}
+	.colorPickerContainer {
+	  width:100%;
+	}
+	.colorPickerContainer .rval, .colorPickerContainer .gval, .colorPickerContainer .bval {
+		width:30px;
+		font-size:8pt;
+		padding:0px;
+	}
+	.colorPickerContainer .hexval {
+		width:57px;
+		font-size:8pt;
+		padding:0px;
+	}
+}
+@media (min-width:500px) {
+	.colorPickerHeader {
+		width:500px;
+	}
+	.colorPickerContainer {
+		width:500px;
+	}
+}
+@media (max-width:239px) {
+	.colorPickerContainer {
+		display:none;
+	}
+	.colorPickerHeader {
+		display:none;
+	}
 }

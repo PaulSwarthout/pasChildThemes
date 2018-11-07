@@ -12,6 +12,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		public $dataBlock;
 		public $libraryFunctions;
 		private $crlf;
+		private $demo_mode;
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
@@ -24,6 +25,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 //			$this->fontList			= $this->loadFonts( );
 			$this->libraryFunctions = $args['libraryFunctions'];
 			$this->crlf				= $this->libraryFunctions->crlf();
+			$this->demo_mode		= (array_key_exists('demo_args', $args) ? $args['demo_args'] : null);
 		}
 		function __destruct( ) {
 			foreach ( $this->fontSampleImages as $img ) {
@@ -59,7 +61,11 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 
 		// pasChildThemes Dashboard Menu
 		function dashboard_menu( ) {
-			$capability = $this->libraryFunctions->DemoMode();
+			if ($this->demo_mode != null) {
+				$capability = $this->demo_mode->getDemoCap();
+			} else {
+				$capability = "manage_options";
+			}
 			add_menu_page( 	'ChildThemesHelper',
 							'Child Themes Helper',
 							$capability,
@@ -224,9 +230,11 @@ COLORPICKER;
 								"fuchsia"	=>	"#FF00FF",
 								"purple"	=>	"#800080"
 							];
+						$formElement .= "<div class='color-grid'>";
 						foreach ($webColors as $color => $hexColorCode) {
-							$formElement .= "<span data-abbr='{$abbrev}' class='color_{$color}' onclick='javascript:setWebColor(this, \"{$hexColorCode}\");'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;";
+							$formElement .= "<span data-abbr='{$abbrev}' class='color-item color_{$color}' onclick='javascript:setWebColor(this, \"{$hexColorCode}\");'>&nbsp;</span>&nbsp;";
 						}
+						$formElement .= "</div>"; // ends color-grid
 						$formElement .= "</div>"; // ends grid-item item10
 						$formElement .= "</div>"; // ends grid container
 
@@ -565,7 +573,11 @@ OPTION;
 		 *	 child theme.
 		 */
 		function manage_child_themes( ) {
-			$capability = $this->libraryFunctions->DemoMode();
+			if ($this->demo_mode != null) {
+				$capability = $this->demo_mode->getDemoCap();
+			} else {
+				$capability = "manage_options";
+			}
 			if ( ! current_user_can( $capability ) ) { exit; }
 
 			if ( ! $this->activeThemeInfo->isChildTheme ) {

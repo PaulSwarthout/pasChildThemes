@@ -7,16 +7,32 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			$this->pluginDirectory = ( array_key_exists( 'pluginDirectory', $args ) ? $args['pluginDirectory'] : null );
 		}
 
+		function isDefined($v, $default = false) {
+			if (defined($v)) {
+				return ['status' => true, 'result' => constant($v)];
+			} else {
+				return ['status' => false, 'result' => $default];
+			}
+		}
+
 		function DemoMode() {
 			$userlogin = wp_get_current_user()->user_login;
 			if (! defined("DEMO_MODE") ) {
 				return "manage_options";
 			} else {
-				if (defined("DEMO_MODE") && $userlogin == "demo") {
+				if (defined("DEMO_MODE") && strtolower($userlogin) == "demo") {
 					return constant("DEMO_MODE");
 				} else {
 					return "manage_options";
 				}
+			}
+		}
+		function demo_mode_no_profile_access() {
+			if (wp_get_current_user()->user_login !== "demo") return '';
+
+			if (strpos ($_SERVER ['REQUEST_URI'] , 'wp-admin/profile.php' )){
+				wp_redirect(get_option('siteurl') . "/wp-admin");
+				exit;
 			}
 		}
 
