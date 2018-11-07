@@ -478,17 +478,13 @@ function makeItDarker(element) {
 	var minColor = getMinColor(cv.redValue, cv.greenValue, cv.blueValue);
 	var adjustValue = 255 * 0.05; // 5%
 
-	if (Math.round(minColor - adjustValue) < 0) {
-		adjustValue = minColor;
-	}
-
-	cp.rval.value = parseInt(cp.rval.value, 10) - adjustValue;
+	cp.rval.value = (parseInt(cp.rval.value, 10) - adjustValue < 0 ? 0 : parseInt(cp.rval.value, 10) - adjustValue);
 	cp.redSlider.value = cp.rval.value;
 
-	cp.gval.value = parseInt(cp.gval.value, 10) - adjustValue;
+	cp.gval.value = (parseInt(cp.gval.value, 10) - adjustValue < 0 ? 0 : parseInt(cp.gval.value, 10) - adjustValue);
 	cp.greenSlider.value = cp.gval.value;
 
-	cp.bval.value = parseInt(cp.bval.value, 10) - adjustValue;
+	cp.bval.value = (parseInt(cp.bval.value, 10) - adjustValue < 0 ? 0 : parseInt(cp.bval.value, 10) - adjustValue);
 	cp.blueSlider.value = cp.bval.value;
 	updateColorPicker(abbr);
 }
@@ -501,17 +497,13 @@ function makeItLighter(element) {
 	var maxColor = getMaxColor(cv.redValue, cv.greenValue, cv.blueValue);
 	var adjustValue = 255 * 0.05; // 5%
 
-	if (Math.round(maxColor + adjustValue) > 255) {
-		adjustValue = (255 - maxColor);
-	}
-
-	cp.rval.value = parseInt(cp.rval.value, 10) + adjustValue;
+	cp.rval.value = (parseInt(cp.rval.value, 10) + adjustValue > 255 ? 255 : parseInt(cp.rval.value, 10) + adjustValue);
 	cp.redSlider.value = cp.rval.value;
 
-	cp.gval.value = parseInt(cp.gval.value, 10) + adjustValue;
+	cp.gval.value = (parseInt(cp.gval.value, 10) + adjustValue > 255 ? 255 : parseInt(cp.gval.value, 10) + adjustValue);
 	cp.greenSlider.value = cp.gval.value;
 
-	cp.bval.value = parseInt(cp.bval.value, 10) + adjustValue;
+	cp.bval.value = (parseInt(cp.bval.value, 10) + adjustValue > 255 ? 255 : parseInt(cp.bval.value, 10) + adjustValue);
 	cp.blueSlider.value = cp.bval.value;
 	updateColorPicker(abbr);
 }

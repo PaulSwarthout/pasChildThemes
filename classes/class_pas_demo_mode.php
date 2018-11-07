@@ -30,7 +30,7 @@ class class_pas_demo_mode {
 		if ($this->inDemoMode()) {
 			return $this->demo_capability;
 		} else {
-			return null;
+			return "manage_options";
 		}
 	}
 
