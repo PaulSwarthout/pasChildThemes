@@ -30,10 +30,6 @@ require_once( dirname( __FILE__ ) . '/classes/class_colorPicker.php' );
 // Common Functions
 require_once( dirname( __FILE__ ) . '/classes/class_common_functions.php' );
 
-if (defined("DEMO_USER") && defined("DEMO_CAPABILITY")) {
-	require_once( dirname( __FILE__ ) . '/classes/class_pas_demo_mode.php' );
-}
-
 /* Go get the current theme information.
  * This is a wrapper for the wp_get_theme( ) function.
  * It loads the information that we'll need for our purposes and tosses everything else
@@ -56,12 +52,6 @@ $args = [
 			'libraryFunctions'	=> $pas_cth_library,
 		];
 
-if (defined("DEMO_USER") && defined("DEMO_CAPABILITY")) {
-	$pas_cth_demo = new class_pas_demo_mode(['pluginDirectory' => $pas_cth_pluginDirectory]);
-	$args['demo_args'] = $pas_cth_demo;
-	add_action('init', array($pas_cth_demo, 'no_profile_access'));
-}
-
 $pas_cth_colorPicker	= new pas_cth_colorPicker( $args );
 $args['colorPicker']	= $pas_cth_colorPicker;
 
@@ -75,6 +65,9 @@ add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker,		'color_picker
 add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker,		'color_picker_scripts' ) );
 
 add_action( 'init',		'pas_cth_startBuffering' );		// Response Buffering
+if (defined("DEMO_CAPABILITY")) {
+	add_action( 'init',		'pas_cth_no_profile_access' );
+}
 add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
 
 /* AJAX PHP functions may be found in the 'classes/class_ajax_functions.php' file
@@ -156,3 +149,11 @@ function pas_cth_FlushBuffer( ){
 	ob_end_flush( );
 }
 
+function pas_cth_no_profile_access() {
+	if (strtolower(wp_get_current_user()->user_login) == strtolower("demo")) {
+		if (strpos ($_SERVER ['REQUEST_URI'] , 'wp-admin/profile.php' )){
+			wp_redirect(get_option('siteurl') . "/wp-admin");
+			exit;
+		}
+	}
+}

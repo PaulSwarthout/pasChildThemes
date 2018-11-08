@@ -38,7 +38,7 @@ if ( ! class_exists( 'pas_cth_ScreenShot' ) ) {
 			$rgb		= $this->libraryFunctions->getColors( $fcColor );
 			$text_color = imagecolorallocate( $img, $rgb['red'], $rgb['green'], $rgb['blue'] );
 
-			$fontData = get_option( 'pas_cth_font', PAS_CTH_DEFAULT_FONT );
+			$fontData = get_option( 'pas_cth_font', unserialize(PAS_CTH_DEFAULT_FONT) );
 			$font = $pluginDirectory['path'] . "assets/fonts/" . $fontData['fontFile-base'] . ".ttf";
 
 			// Define the strings to write out.

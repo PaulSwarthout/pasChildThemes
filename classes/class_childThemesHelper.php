@@ -61,8 +61,12 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 
 		// pasChildThemes Dashboard Menu
 		function dashboard_menu( ) {
-			if ($this->demo_mode != null) {
-				$capability = $this->demo_mode->getDemoCap();
+			$userlogin = "";
+			if (defined("DEMO_USER")) {
+				$userlogin = strtolower(constant("DEMO_USER"));
+			}
+			if ($userlogin == strtolower(wp_get_current_user()->user_login) && defined("DEMO_CAPABILITY")) {
+				$capability = constant("DEMO_CAPABILITY");
 			} else {
 				$capability = "manage_options";
 			}
@@ -572,9 +576,9 @@ OPTION;
 		 *	2 ) If the currently active theme is NOT a child theme, it displays the "form" to create a new
 		 *	 child theme.
 		 */
-		function manage_child_themes( ) {
-			if ($this->demo_mode != null) {
-				$capability = $this->demo_mode->getDemoCap();
+		function manage_child_themes() {
+			if (defined("DEMO_CAPABILITY")) {
+				$capability = constant("DEMO_CAPABILITY");
 			} else {
 				$capability = "manage_options";
 			}
