@@ -2,10 +2,10 @@
 Contributors: paulswarthout
 Author URI: http://www.paulswarthout.com/child-themes-helper
 Donate link: https://paypal.me/PaulSwarthout
-Tags: child themes helper, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
+Tags: child themes helper, child themes, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
 Requires at least: 4.7.0
 Tested up to: 4.9.8
-Stable tag: 1.1.3
+Stable tag: 1.2
 Requires PHP: 5.5.38
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -73,12 +73,28 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 
 == Frequently Asked Questions ==
 
+= What is next? =
+
+I am glad you asked.
+
+- The ability to directly edit a file will be available in version 1.3.
+- The ability to edit (through a form prompt) the different fields that define a child theme. Basically this will let your directly edit the style.css header without opening the file and editting it directly.
+- I'm considering a drag and drop feature for files, rather than just click on them for the added user feedback that it supports. For now, users of wide screens see a hovering prompt that tells them what they're about to do. But users of small screens, do see that. I think a drag and drop feature would help the users of smalls screens be more clear on what's about to happen.
+
+- A pro version that encompasses even more features like:
+	- The ability to copy multiple files and/or folders at once, instead of a single file at a time.
+	- The ability to make a modified non-child theme into a child theme of itself.
+	- Some kind of feature to make stylesheets more manageable. Something to help the relative newcomers understand what they're changing and why, and more importantly, what to change.
+
+= Where I can see the Child Themes Helper in action? =
+
+I am glad you asked. Starting with version 1.2, you can visit [my demo page](http://www.1acsi.com) and take it for a test drive. Create your own child theme. Copy files to the newly created child theme. Generate screenshots. Change the Screenshot options. In short, put it through its paces. And don't worry about screwing up the website. It's there for that purpose.
+
 = Why do the prompts sometimes disappear without making any changes? =
 
-You have to click precisely on the button. If you click anywhere else in the prompt, besides the buttons (near, but not on the button, for example), the prompt will disappear without doing anything.
-This was supposed to be a feature to prevent "stuck" prompts that couldn't be removed should an error occur.
-However, all such errors were fixed prior to releasing this plugin as version 1.0.
-This problem will be remedied in a future release and only the "dismiss" button in the lower right corner will cause the prompt to just vanish.
+Originally, I thought it would be nice to be able to close any prompt by just clicking on it. But as I started to use the plugin, myself, I discovered that, that feature, was more troublesome than useful. I was always clicking beside a button rather than right on it, and poof, the prompt would vanish. Argh!!!
+
+Effective with version 1.2, this problem has been resolved. You must now click on the provided buttons to close the prompts.
 
 = I generated a screenshot but it didn't change. Why not? =
 
@@ -86,11 +102,13 @@ You did nothing wrong. Your browser will cache the screenshot file to help your 
 
 = I generated a screenshot but all I see is the background color. What did I do wrong? =
 
-You did nothing wrong. Just generate the screenshot again and it should work fine. This is a nagging issue that happens when the chosen font doesn't exist in the assets/fonts folder. If you have deleted any fonts from that folder, or updated the Child Themes Helper to a newer version, the font that you chose (or defaulted to) on the Options page, may no longer exist. The first time you generate a screenshot, it cannot find the chosen font, so it resets it to the default font. The second time you generate a screenshot, it will use the default. Also, note the question above.
+Updated Answer: This issue has been fixed in version 1.2. Please update.
+
+Original Answer: You did nothing wrong. Just generate the screenshot again and it should work fine. This is a nagging issue that happens when the chosen font doesn't exist in the assets/fonts folder. If you have deleted any fonts from that folder, or updated the Child Themes Helper to a newer version, the font that you chose (or defaulted to) on the Options page, may no longer exist. The first time you generate a screenshot, it cannot find the chosen font, so it resets it to the default font. The second time you generate a screenshot, it will use the default. Also, note the question above.
 
 = What does the "Generate ScreenShot" option do? =
 
-The WordPress Themes page displays a graphic for each theme. A newly created child theme does not have a graphic. The Generate ScreenShot menu option creates a temporary graphic. Generally, developers will use a copy of a header image for their screenshot. But rather than leaving it blank until later, the Child Themes Helper plugin will create a temporary graphic which displays the child theme name, the parent theme name, a message indicating that the child theme was created using the Child Themes Helper and the Child Themes Helper's developer's web address. It is expected that the developer will want to replace this temporary graphic with their own custom graphic at a later time.
+The WordPress Themes page displays a graphic for each theme. A newly created child theme does not have a graphic. The Generate ScreenShot menu option creates a temporary graphic. Generally, developers will use a copy of a header image for their screenshot. But rather than leaving it blank until later, the Child Themes Helper plugin will create a temporary graphic which displays the child theme name, the parent theme name, a message indicating that the child theme was created using the Child Themes Helper and the Child Themes Helper's developer's web address. It is expected that the developer will want to replace this temporary graphic with their own custom graphic at a later time. Please check out [my demo page](http://www.1acsi.com) where you are welcome to take the Child Themes Helper plugin for a test drive.
 
 == Screenshots ==
 
@@ -100,6 +118,19 @@ is the name of your Child Theme. The page scrolls.
 For this example, the Child Theme was created as a child of the 'Twenty Sixteen' theme and it's name appears at the top. The page scrolls.
 
 == Changelog ==
+
+= 1.2 =
+- Updated the stylesheet to make the plugin responsive. This plugin should work nicely on whatever device you want to use it with. I even tested it with an old Samsung S II that I had laying around. Aside from some browser incompatibilities with such an old device -- I hadn't even turned it on in more than 2 years, let alone updated its software -- the Child Themes Helper plugin was usable at that resolution. Below, 240px wide or tall, (smallest device is the Apple Watch at 240px x 240px) it will hide itself.
+
+- Updated the Screenshot Options page. It works better now. Color options are faster and easier to play with. Somebody twist my arm and I'll make the color picker available as a plugin with an API interface for usage on the backend or a Gutenberg block for the front-end.
+
+- Introduced demo mode. Demo mode works with my plugin demonstration site: [http://www.1acsi.com](http://www.1acsi.com) where I let anybody and everybody log in with demo/Demo and test drive the Child Themes Helper plugin.
+
+- Changed the menu entry from 'Options' to 'Screenshot Options' to be more clear about what it is for. The primary functionality, to copy files to a child theme, does not have any options.
+
+- File copy functionality works much faster now. I changed the process flow to eliminate 2 AJAX calls in favor of local clientside processing. Also eliminated the need to pass huge amounts of data between the server and the client.
+
+- For devices less than 830px wide, which is most (if not all) smartphones in portrait mode and many smartphones in landscape mode, and even a few small-screened laptops, the Child Themes Helper's file copy functionality will now double-up as a single column and two black buttons on the left to switch between looking at the child theme's file listing and the parent theme's file listing.
 
 = 1.1.3 =
 - When creating a child theme, the path to the child theme stylesheet was wrong in functions.php. I used dirname( __FILE__ ) . "/style.css", but this created a server rooted path not a URL path to the child theme's stylesheet. This is now fixed.

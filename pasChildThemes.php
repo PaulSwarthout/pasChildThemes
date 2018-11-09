@@ -3,7 +3,7 @@
 	Plugin Name: Child Themes Helper
 	Plugin URI: http://www.paulswarthout.com/Child-Themes-Helper/
 	Description: ( 1 ) Copies files from the template theme to the child theme, perfectly duplicating the path structure. ( 2 ) Removes file from the child theme, and removes any empty folders that were made empty by the removal of the child theme file. ( 3 ) Creates new child themes from installed template themes.
-	Version: 1.1.3
+	Version: 1.2
 	Author: Paul A. Swarthout
 	Author URI: http://www.PaulSwarthout.com
 	License: GPL2
@@ -65,9 +65,59 @@ add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker,		'color_picker
 add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker,		'color_picker_scripts' ) );
 
 add_action( 'init',		'pas_cth_startBuffering' );		// Response Buffering
-if (defined("DEMO_CAPABILITY")) {
-	add_action( 'init',		'pas_cth_no_profile_access' );
-}
+/*
+ * DEMO_MODE:
+ * The Child Themes Helper plugin has a feature called DEMO MODE where it can be made to appear on a
+ * specific non-admin user's dashboard. There are 4 parts of this feature that must all be present
+ * to make this happen. All four parts require a person with access to the website's files and a
+ * user that has been assigned the 'manage_options' capability.
+ *
+ * [1]: Create a user.
+ * Any username will do. For my demo website (http://www.1acsi.com) I chose the user 'demo'.
+ *
+ * [2]: Create a new WordPress Role.
+ * Any role name will do. For my demo website, I used the 'User Roles & Capabilities' plugin to create
+ * the 'DEMO' role.
+ *
+ * [3]: Create a new WordPress Capability.
+ * Almost any capability will do. It must be a new capability that doesn't already exist among the
+ * WordPress built-in capabilities. For my demo website, I used the 'User Roles & Capabilities' plugin
+ * to create the 'DEMO' capability.
+ *
+ * [4]: Assign the necessary capabilities to your new role.
+ * Using the 'User Roles & Capabilities' plugin, I assigned the following capabilities to the 'DEMO' role.
+ *		'install_themes'		Probably not required to demonstrate Child Themes Helper, but certainly nice
+ *								for those users that would like to see how the Child Themes Helper works
+ *								with the theme they're using.
+ *
+ *		'switch_themes'			Required to activate the Child Theme that they used the Child Themes Helper to create.
+ *
+ *		'read'					Required to give the 'demo' user access to the dashboard.
+ *
+ *		'DEMO'					Or whatever capability you created.
+ *
+ * [5]: Define 2 constants in the 'wp_config.php' file.
+ *		define('DEMO_USER', 'demo') This should be the user login of the user you created in step 1, above.
+ *		define('DEMO_CAPABILITY', 'DEMO') This should be the capability that you created in step 3,
+ *        and assigned to the DEMO_USER in step 4.
+ *
+ * When a website visitor visits your website and logs in with the DEMO_USER, they will be directed to the
+ * website's admin dashboard. They will only see the Appearance menu item which will take them directly to the
+ * Themes page (no other submenu items are available), the Child Themes Helper menu item, Profile, and Dashboard,
+ * and nothing else.
+ *
+ * Any attempt to access the user profile will redirect them back to the dashboard.
+ *
+ * DEMO MODE can be completely disabled by:
+ * 1) Deleting the two defines (or commenting them out) for DEMO_USER and DEMO_CAPABILITY from the 'wp_config.php' file.
+ * 2) Disabling or deleting the DEMO_USER user.
+ *
+ * NOTE: If you just delete the two lines from the 'wp_config.php' file, a user logging in with the DEMO_USER
+ * will still be able to modify the website's themes. You MUST disable or delete the DEMO_USER.
+ *
+ */
+if (defined("DEMO_CAPABILITY")) { add_action( 'init',	'pas_cth_no_profile_access' ); }
+
 add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
 
 /* AJAX PHP functions may be found in the 'classes/class_ajax_functions.php' file

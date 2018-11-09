@@ -1,4 +1,4 @@
-# Child Themes Helper plugin Version 1.1.3
+# Child Themes Helper plugin Version 1.2
 The Child Themes Helper plugin was developed to solve a problem that I was struggling with: the copying of files from a template theme to a child theme. It was almost never easy.
 1. Copy the template theme file down to my local computer via FTP. That was easy enough.
 1. Create the matching directory structure in my child theme. That was a bit more time-consuming. Invariably I would create a folder wrong and wouldn't notice until I tried to see my changes. I would reload the page and it would look the same. I would spend a ton of wasted time trying to figure out why my changes did not show up. Then I'd see it. A typo in a folder name. A missed subfolder in the tree. Or some other bonehead error.
