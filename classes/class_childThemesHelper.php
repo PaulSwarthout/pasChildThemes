@@ -38,10 +38,6 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		function dashboard_styles( ) {
 			// Prevents browser from caching the stylesheet during development
 			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?u=" . rand( 0, 999999 ) . "&" : "" );
-			wp_enqueue_style(   'pasChildThemes_debug',
-								$this->pluginDirectory['url'] . 'css/debug.css' . $uniqStr,
-								false );
-
 			wp_enqueue_style( 	'pasChildThemes',
 								$this->pluginDirectory['url'] . "css/style.css" . $uniqStr,
 								false );
