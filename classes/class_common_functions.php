@@ -407,6 +407,51 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 				return "";
 			}
 		}
+		function hexDump($str) {
+			$blockArray = str_split($str, 4);
+			$loopCount = 0;
+			echo "<div style='font-family:monospace ! important;font-size:12pt ! important;' contenteditable='true'>";
 
+			while (count($blockArray) > 0) {
+				$loopCount++;
+				$arrayOfLines = array_splice($blockArray, 0, 8);
+				$char = '';
+
+				$outputLine = "<div id='hexDump' style='border:solid 1pt red;'>";
+
+				foreach ($arrayOfLines as $line) {
+					$arrayOfCharacters = str_split($line, 1);
+					$out = '';
+					for ($ndx = 0; $ndx < count($arrayOfCharacters); $ndx = $ndx + 4) {
+						$out .= $this->digits((string) dechex(ord($arrayOfCharacters[$ndx])), 2);
+						$char .= $arrayOfCharacters[$ndx];
+
+						$out .= $this->digits((string) dechex(ord($arrayOfCharacters[$ndx+1])), 2);
+						$char .= $arrayOfCharacters[$ndx+1];
+
+						$out .= $this->digits((string) dechex(ord($arrayOfCharacters[$ndx+2])), 2);
+						$char .= $arrayOfCharacters[$ndx+2];
+
+						$out .= $this->digits((string) dechex(ord($arrayOfCharacters[$ndx+3])), 2);
+						$char .= $arrayOfCharacters[$ndx+3];
+
+						$outputLine .= strtoupper($out) . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+					}
+				}
+				$char = preg_replace("[^\x01-\x19\x80-\xFF. ]", ".", $char);
+				$outputLine .= "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" . $char . "</div>";
+				echo $outputLine;
+				$outputLine = "";
+				$char = '';
+			}
+			echo "</div>";
+		}
+
+		function digits($v, $n) {
+			while (strlen($v) < $n) {
+				$v = "0" . $v;
+			}
+			return $v;
+		}
 	}
 }

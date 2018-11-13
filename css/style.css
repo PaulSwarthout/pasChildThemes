@@ -5,6 +5,7 @@
 	--default-file-font-size:18px;
 	--default-createTheme-field-background:#FFFFD8;
 	--default-createTheme-fieldWidth:95%;
+	--default-border:solid 1pt black;
 }
 .pas-grid-container {
   display: inline-grid;
@@ -19,6 +20,18 @@
   color:black;
   padding: 20px;
   text-align: left;
+}
+.pas-grid-item-child {
+	border-left:var(--default-border);
+	border-top:var(--default-border);
+	border-bottom:var(--default-border);
+	border-right:dashed 1pt rgba(200,200,200,0.5);
+}
+.pas-grid-item-parent {
+	border-top:var(--default-border);
+	border-right:var(--default-border);
+	border-bottom:var(--default-border);
+	border-left:dashed 1pt rgba(200,200,200,0.5);
 }
 .pas-grid-left-column {
   background-color:white;
@@ -748,4 +761,88 @@ p.mID {
 	margin:0px 0px 0px 0px;
 	padding:0px;
 	background-color:white;
+}
+#editFile {
+	background-color:white;
+	color:black;
+	font-size:12pt;
+	font-weight:normal;
+	font-family:monospace;
+	min-width:100%;
+	min-height:90% ! important;
+	white-space:pre;
+	display:none;
+}
+#editBox {
+	background-color:white;
+	color:black;
+	font-size:12pt;
+	font-weight:normal;
+	font-family:monospace;
+	width:100%;
+	height:100%;
+	overflow:scroll;
+	white-space:pre;
+}
+#ef_buttonRow {
+	width:100%;
+	height:40px;
+	color:white;
+}
+#ef_saveButton, #ef_closeButton, #ef_debug, #sp_saveButton, #sp_closeButton {
+	background-color:blue;
+	color:white;
+	font-size:12pt;
+	display:inline;
+}
+#ef_saveButton:disabled {
+	display:none;
+}
+#savePrompt {
+	width:100%;
+	text-align:center;
+	position:fixed;
+	left:50%;
+	top:50%;
+	width:300px;
+	height:100px;
+	margin-left:-150px;
+	margin-top:-50px;
+	background-color:white;
+	color:black;
+	border:solid 1pt black;
+	border-radius:20px;
+	box-shadow:20px 20px 20px darkgray;
+	padding:15px;
+	display:none;
+	font-size:12pt;
+	font-weight:bold;
+}
+#sp_saveButton, #sp_closeButton {
+	background-color:blue;
+	color:white;
+	font-size:12pt;
+	display:inline;
+	width:100px;
+	height:30px;
+	text-align:center;
+	border-radius:10px;
+	contentEditable:false;
+}
+#hexDump {
+	border:solid 1pt red;
+	background:#FFFFFF;
+	color:black;
+	font-size:12pt;
+	font-weight:normal;
+	font-family:monospace;
+	width:100%;
+}
+#ef_readonly_msg {
+	display:none;
+	color:red;
+	background-color:white;
+	font-size:12pt;
+	width:100px;
+	height:30px;
 }

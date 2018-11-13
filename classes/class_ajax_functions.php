@@ -377,5 +377,57 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 
 			update_option( 'pas_cth_font', [ 'fontName'=>$fontName, 'fontFile-base'=>$fontFile ] );
 		}
+
+		function editFile() {
+			$inputs =
+				[
+					'directory'	=> sanitize_text_field( $_POST['directory'] ),
+					'file'	=> sanitize_file_name( $_POST['file'] ),
+					'themeType' => sanitize_text_field( $_POST['themeType'] ),
+				];
+			switch (strtolower($inputs['themeType'])) {
+				case PAS_CTH_CHILDTHEME:
+					$file = $this->activeThemeInfo->childThemeRoot . PAS_CTH_SEPARATOR . $this->activeThemeInfo->childStylesheet . PAS_CTH_SEPARATOR . $inputs['directory'] . PAS_CTH_SEPARATOR . $inputs['file'];
+					$readOnly = 'false';
+					break;
+				case PAS_CTH_TEMPLATETHEME:
+					$file = $this->activeThemeInfo->templateThemeRoot . PAS_CTH_SEPARATOR . $this->activeThemeInfo->templateStylesheet . PAS_CTH_SEPARATOR . $inputs['directory'] . PAS_CTH_SEPARATOR . $inputs['file'];
+					$readOnly = 'true';
+					break;
+			}
+			$inputs['readOnlyFlag'] = $readOnly;
+
+			$fileContents = stripslashes(str_replace(">", "&gt;", str_replace("<", "&lt;", file_get_contents($file))));
+			echo "EDITFILEOUTPUT:{";
+			echo "ARGS<:>" . json_encode($inputs);
+			echo '+|++|+';
+			echo "EDITBOX<:>{$fileContents}";
+			echo "}";
+		}
+		function saveFile() {
+			$inputs =
+				[
+					'fileContents'	=> $_POST['fileContents'],
+					'directory'		=> sanitize_text_field( $_POST['directory'] ),
+					'file'			=> sanitize_file_name( $_POST['file'] ),
+					'themeType'		=> sanitize_text_field( $_POST['themeType'] ),
+				];
+
+			switch ($inputs['themeType']) {
+				case PAS_CTH_CHILDTHEME:
+					$file = $this->activeThemeInfo->childThemeRoot . PAS_CTH_SEPARATOR . $this->activeThemeInfo->childStylesheet . PAS_CTH_SEPARATOR . $inputs['directory'] . PAS_CTH_SEPARATOR . $inputs['file'];
+					break;
+				case PAS_CTH_TEMPLATETHEME:
+					$file = $this->activeThemeInfo->templateThemeRoot . PAS_CTH_SEPARATOR . $this->activeThemeInfo->templateStylesheet . PAS_CTH_SEPARATOR . $inputs['directory'] . PAS_CTH_SEPARATOR . $inputs['file'];
+					break;
+			}
+			$result = file_put_contents($file, stripslashes($_POST['fileContents']));
+			if ($result === false) {
+				echo "Failed to write file:<br>";
+				echo "FILE: $file<br>";
+				echo "Length of file: " . strlen($inputs['fileContents']);
+			} else {
+			}
+		}
 	}
 }

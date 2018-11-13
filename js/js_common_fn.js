@@ -20,6 +20,7 @@ if (document.getElementById("childGrid") != null && document.getElementById("par
 		var childGrid = document.getElementById("childGrid")
 		var parentGrid = document.getElementById("parentGrid")
 
+		// Clears inline styles
 		if (childGrid != null) {
 			childGrid.style = "";
 		}
@@ -28,24 +29,6 @@ if (document.getElementById("childGrid") != null && document.getElementById("par
 		}
 	}
 }
-/*
-if (window.location.href.toLowerCase().indexOf("screenshotoptions")	>= 0) {
-	var fn = null;
-	if (window.onload != null) {
-		fn = window.onload;
-	}
-	window.onload = function () {
-		updateColorPicker();
-		document.getElementById("bcc_cpOuter").style.display = "inline";
-		document.getElementById("fcc_cpOuter").style.display = "inline";
-
-
-		if (fn != null) {
-			window[fn]();
-		}
-	}
-}
-*/
 function getElementTree(element) {
 	if (element == null) {
 		return [];
@@ -147,6 +130,10 @@ function pas_cth_js_processResponse(response) {
 		abbr = abbr.left(abbr.length - 1);
 		pas_cth_js_popupMessage(abbr, "color saved");
 		document.getElementById("popupMessageBox").style.display = "inline";
+	} else if ("EDITFILEOUTPUT:{" == response.left("EDITFILEOUTPUT:{".length).toUpperCase()) {
+		response = response.right(response.length - "EDITFILEOUTPUT:{".length);
+		response = response.left(response.length - 1);
+		processEditFile(response);
 	} else if ("DEBUG:{" == response.left("DEBUG:{".length).toUpperCase()) {
 		actionBox = document.getElementById("actionBox");
 		if (actionBox != null && actionBox != undefined) {
@@ -170,7 +157,7 @@ function pas_cth_js_processResponse(response) {
 function pas_cth_js_showBox() {
 	return pas_cth_js_createBox("actionBox", "");
 }
-function pas_cth_js_createBox(id,className) {
+function pas_cth_js_createBox(id,className,parent = document.getElementsByTagName("body")[0], clickClose = false) {
 	var box = document.getElementById(id);
 	if (box != null && box != undefined) {
 		if (box.parentNode != null) {
@@ -183,15 +170,71 @@ function pas_cth_js_createBox(id,className) {
 	if (className.trim.length > 0) {
 		box.className = className;
 	}
-	theBody = document.getElementsByTagName("body")[0];
-	theBody.appendChild(box);
-/*
-	box.onclick= function () {
-		if (this.parentNode != null) {
-			this.parentNode.removeChild(this);
+
+	parent.appendChild(box);
+
+	if (clickClose) {
+		box.onclick= function () {
+			if (this.parentNode != null) {
+				this.parentNode.removeChild(this);
+			}
+			this.remove();
 		}
-		this.remove();
+	} else {
+		var dismissBTN = document.createElement("p")
+		dismissBTN.setAttribute("id", "dismisssBTN");
+		box.appendChild(dismissBTN);
+//		dismissBTN.onclick = function () { this.parentNode.removeChild(this); this.remove(); }
+		dismissBTN.innerHTML = "DISMISS";
+
+
+		box.oncontextmenu = function () {
+			box.style.width = "100%";
+			box.style.height = "100%";
+			box.style.position = "absolute";
+			box.style.left = "180px";
+			box.style.top  = "40px";
+			box.style.zIndex = 9999999;
+			box.style.overflow = "scroll";
+			box.style.marginTop = "0px";
+			box.style.marginLeft = "0px";
+			return false;
+		}
 	}
-*/
 	return box;
+}
+
+function findPos(obj) {
+	var curleft = curtop = 0;
+	if (obj.offsetParent) {
+		do {
+			curleft += obj.offsetLeft;
+			curtop += obj.offsetTop;
+		} while (obj = obj.offsetParent);
+	}
+	return {left:curleft ,top:curtop};
+}
+
+function pas_cth_js_addCloseButton(id, parent, text) {
+	var element = document.createElement("p");
+	element.setAttribute("id", id);
+	element.setAttribute("contentEditable", false);
+	parent.appendChild(element);
+	element.innerHTML = text;
+	element.onclick = function () {
+		var myParent = this.parentNode;
+		var myGrandParent = myParent.parentNode;
+
+		if (myGrandParent != null) {
+			myGrandParent.removeChild(myParent);
+			myParent.remove();
+		}
+	}
+}
+function getTopLeftPosition(obj = null) {
+	if (obj != null) {
+		return {top:obj.clientTop, left:obj.clientLeft};
+	} else {
+		return null;
+	}
 }

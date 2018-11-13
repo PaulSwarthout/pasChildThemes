@@ -53,6 +53,9 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			wp_enqueue_script( 'pas_cth_Script2',
 								$this->pluginDirectory['url'] . "js/js_common_fn.js" . $uniqStr,
 								false );
+			wp_enqueue_script( 'pas_cth_Script3',
+							   $this->pluginDirectory['url'] . "js/edit_file.js" . $uniqStr,
+							   false );
 		}
 
 		// pasChildThemes Dashboard Menu
@@ -602,7 +605,7 @@ OPTION;
 			$jsdata = json_encode($jsdata);
 			echo "<div id='jsdata' style='display:none;' data-jsdata='$jsdata'></div>";
 
-			echo "<div class='pas-grid-container'>";
+			echo "<div id='themeGrid' class='pas-grid-container'>";
 			echo "<div class='pas-grid-left-column'>";
 			echo "	<div class='childPrompt' id='childPrompt' onclick='javascript:showChild();'>CHILD</div>";
 			echo "	<div class='parentPrompt' id='parentPrompt' onclick='javascript:showParent();'>PARENT</div>";
@@ -619,9 +622,36 @@ OPTION;
 			// Shows file list in the right pane
 			$this->showActiveParentTheme( );
 
-			echo "</div>"; // end grid item 2
-			echo "</div>"; // end grid container
-			echo "<div id='hoverPrompt'></div>";
+			echo	"</div>"; // end grid item 2
+			echo	"</div>"; // end grid container
+			// HoverPrompt is used during mouseovers on devices wider than 829px;
+			// editFile is used when editting a file.
+			// Both will be sized and positioned dynamically with Javascript
+			echo	"<div id='hoverPrompt'></div>";
+
+			echo	"<div id='editFile'>"
+				.	"	<input type='hidden' id='directory' value=''>"
+				.	"	<input type='hidden' id='file'	value=''>"
+				.	"	<input type='hidden' id='themeType' value=''>"
+				.	"	<input type='hidden' id='readOnlyFlag' value='false'>"
+				.	"	<span id='ef_buttonRow'>"
+				.	"		<input type='button' value='Save File' disabled id='ef_saveButton' onclick='javascript:pas_cth_js_saveFile();'>"
+				.	"		<p id='ef_readonly_msg'>Template Theme Files are Read Only</p>"
+				.	"		&nbsp;&nbsp;&nbsp;"
+				.	"		<input type='button' value='Close File' id='ef_closeButton' onclick='javascript:closeEditFile();'>"
+				.	"		&nbsp;&nbsp;&nbsp;"
+				.	"		<input type='button' value='DEBUG' id='ef_debug' onclick='javascript:debug(this);'>"
+				.	"	</span>"
+				.	"	<div id='editBox' spellcheck='false' autocapitalize='false' autocorrect='false' role='textbox' contentEditable='true' oninput='javascript:editBoxChange(this);'>"
+				.	"	</div>"
+				.	"</div>";
+
+			echo	"<div id='savePrompt'>"
+				.	"File has changed.<br>Do you want to save it?<br><br>"
+				.	"	<input id='sp_saveButton' onclick='javascript:pas_cth_js_saveFile();' value='Save'>"
+				.	"	&nbsp;&nbsp;&nbsp;"
+				.	"	<input id='sp_closeButton' onclick='javascript:closeEditFile();' value='No Save'>"
+				.	"</div>";
 		}
 
 
@@ -702,7 +732,7 @@ OPTION;
 						 . "<p class='file' "
 						 . " data-jsdata='" . esc_attr( $jsdata ) . "' "
 						 . " onclick='javascript:pas_cth_js_selectFile( this );' "
-						 . " oncontextmenu='javascript:pas_cth_js_noEditYet();return false;' "
+						 . " oncontextmenu='javascript:pas_cth_js_editFile( this );return false;' "
 						 . " onmouseover='javascript:pas_cth_js_mouseOver( this );' "
 						 . " onmouseout='javascript:pas_cth_js_mouseOut( this );' "
 						 . ">" . $this->crlf;
