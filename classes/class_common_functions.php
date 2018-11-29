@@ -410,7 +410,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		function hexDump($str) {
 			$blockArray = str_split($str, 4);
 			$loopCount = 0;
-			echo "<div style='font-family:monospace ! important;font-size:12pt ! important;' contenteditable='true'>";
+			echo "<div style='font-family:monospace ! important;font-size:12pt ! important;'>";
 
 			while (count($blockArray) > 0) {
 				$loopCount++;

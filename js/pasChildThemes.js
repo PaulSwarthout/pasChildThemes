@@ -321,10 +321,6 @@ function pas_cth_js_cancelDeleteChild(element) {
 	}
 }
 
-function pas_cth_js_editFile(element) {
-	alert("Coming soon. This feature is not yet implemented.");
-}
-
 // Responds to an onblur event on the ScreenShot Options page.
 function pas_cth_js_SetOption(element) {
 	var xmlhttp = new XMLHttpRequest();

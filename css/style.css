@@ -769,11 +769,14 @@ p.mID {
 	font-weight:normal;
 	font-family:monospace;
 	min-width:100%;
-	min-height:90% ! important;
+	min-height:90%;
 	white-space:pre;
 	display:none;
+	overflow:hidden;
+	border-bottom:var(--default-border);
 }
 #editBox {
+	margin-top:40px;
 	background-color:white;
 	color:black;
 	font-size:12pt;
@@ -783,13 +786,14 @@ p.mID {
 	height:100%;
 	overflow:scroll;
 	white-space:pre;
+	border:var(--default-border);
 }
 #ef_buttonRow {
 	width:100%;
 	height:40px;
 	color:white;
 }
-#ef_saveButton, #ef_closeButton, #ef_debug, #sp_saveButton, #sp_closeButton {
+#ef_saveButton, #ef_closeButton, #sp_saveButton, #sp_closeButton, #ef_debug, #ef_modify {
 	background-color:blue;
 	color:white;
 	font-size:12pt;
@@ -797,6 +801,15 @@ p.mID {
 }
 #ef_saveButton:disabled {
 	display:none;
+}
+#ef_readonly_msg {
+	display:none;
+	color:red;
+	background-color:yellow;
+	font-size:12pt;
+	font-weight:bold;
+	width:100px;
+	height:30px;
 }
 #savePrompt {
 	width:100%;
@@ -827,22 +840,4 @@ p.mID {
 	height:30px;
 	text-align:center;
 	border-radius:10px;
-	contentEditable:false;
-}
-#hexDump {
-	border:solid 1pt red;
-	background:#FFFFFF;
-	color:black;
-	font-size:12pt;
-	font-weight:normal;
-	font-family:monospace;
-	width:100%;
-}
-#ef_readonly_msg {
-	display:none;
-	color:red;
-	background-color:white;
-	font-size:12pt;
-	width:100px;
-	height:30px;
 }

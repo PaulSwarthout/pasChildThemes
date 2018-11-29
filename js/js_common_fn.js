@@ -157,7 +157,7 @@ function pas_cth_js_processResponse(response) {
 function pas_cth_js_showBox() {
 	return pas_cth_js_createBox("actionBox", "");
 }
-function pas_cth_js_createBox(id,className,parent = document.getElementsByTagName("body")[0], clickClose = false) {
+function pas_cth_js_createBox(id, className, parent = document.getElementsByTagName("body")[0], clickClose = false) {
 	var box = document.getElementById(id);
 	if (box != null && box != undefined) {
 		if (box.parentNode != null) {
@@ -182,12 +182,19 @@ function pas_cth_js_createBox(id,className,parent = document.getElementsByTagNam
 		}
 	} else {
 		var dismissBTN = document.createElement("p")
-		dismissBTN.setAttribute("id", "dismisssBTN");
+		dismissBTN.setAttribute("id", "dismissBox");
 		box.appendChild(dismissBTN);
-//		dismissBTN.onclick = function () { this.parentNode.removeChild(this); this.remove(); }
 		dismissBTN.innerHTML = "DISMISS";
+		dismissBTN.onclick = function () {
+			var ab = document.getElementById("actionBox");
+			if (ab.parentNode != null) {
+				ab.parentNode.removeChild(ab);
+			}
+			ab.remove();
+		}
 
 
+/*
 		box.oncontextmenu = function () {
 			box.style.width = "100%";
 			box.style.height = "100%";
@@ -200,6 +207,7 @@ function pas_cth_js_createBox(id,className,parent = document.getElementsByTagNam
 			box.style.marginLeft = "0px";
 			return false;
 		}
+*/
 	}
 	return box;
 }
@@ -218,7 +226,7 @@ function findPos(obj) {
 function pas_cth_js_addCloseButton(id, parent, text) {
 	var element = document.createElement("p");
 	element.setAttribute("id", id);
-	element.setAttribute("contentEditable", false);
+//	element.setAttribute("contentEditable", false);
 	parent.appendChild(element);
 	element.innerHTML = text;
 	element.onclick = function () {
@@ -233,7 +241,7 @@ function pas_cth_js_addCloseButton(id, parent, text) {
 }
 function getTopLeftPosition(obj = null) {
 	if (obj != null) {
-		return {top:obj.clientTop, left:obj.clientLeft};
+		return {top:obj.clientTop, left:obj.clientLeft, width:obj.clientWidth, height:obj.clientHeight};
 	} else {
 		return null;
 	}

@@ -1,8 +1,33 @@
+function findElement(element) {
+	return (element == document.getElementById("currentFileExtension").value);
+}
+if (typeof String.prototype.toBold == "undefined") {
+	String.prototype.toBold = function () {
+		return "<span style='font-weight:bold;'>" + this + "</span>";
+	}
+}
 function pas_cth_js_editFile(element) {
 	var xmlhttp = new XMLHttpRequest();
 	var data = new FormData();
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
 	var box;
+
+	var variable = document.getElementById("currentFileExtension");
+	if (variable == null) {
+		variable = document.createElement("input");
+		variable.type = "hidden"
+		variable.setAttribute("id", "findIndexValue");
+		document.getElementsByTagName("body")[0].appendChild(variable);
+	}
+	variable.value = jsInput['extension'];
+
+	if (jsInput['allowedFileTypes'].findIndex(findElement) < 0) {
+		var msg = "<div style='text-align:center;width:100%;'><h2>FILE TYPE ERROR</h2><hr>You can only edit files of the following types:<br>" +
+			jsInput['allowedFileTypes'].toString().split(",").join("<br>").toBold() +
+			"<br>To add other file types, please visit the options page.</div>";
+		pas_cth_js_createBox("actionBox", "", document.getElementsByTagName("body")[0], true).innerHTML += msg;
+		return;
+	}
 
 	xmlhttp.open("POST", ajaxurl, true);
 
@@ -75,83 +100,103 @@ function restoreSelection(range) {
         }
     }
 }
+function pas_cth_js_editElements() {
+	this.editFile		= document.getElementById("editFile")
+	this.editBox		= document.getElementById("editBox")
+	this.wpbodyContent	= document.getElementById("wpbody-content")
+	this.parentPosition	= getTopLeftPosition(this.wpbodyContent);
+	this.efButtonRow	= document.getElementById("ef_buttonRow")
+	this.themeGrid		= document.getElementById("themeGrid");
+	this.efSaveButton	= document.getElementById("ef_saveButton");
+	this.efCloseButton	= document.getElementById("ef_closeButton");
+	this.spSaveButton	= document.getElementById("sp_saveButton");
+	this.spCloseButton	= document.getElementById("sp_closeButton");
+	this.savePrompt		= document.getElementById("savePrompt");
+
+	this.directoryINP	= document.getElementById("directory");
+	this.filenameINP	= document.getElementById("file")
+	this.themeTypeINP	= document.getElementById("themeType");
+	this.readOnlyFlag	= document.getElementById("readOnlyFlag");
+	this.readOnlyMsg	= document.getElementById("ef_readonly_msg");
+
+	this.windowHeight	= window.innerHeight;
+	this.windowWidth	= window.innerWidth;
+}
 
 function processEditFile(response) {
-	var editFile = document.getElementById("editFile")
-	var editBox = document.getElementById("editBox")
-	var wpbodyContent = document.getElementById("wpbody-content")
-	var parentPosition = getTopLeftPosition(wpbodyContent);
-	var efButtonRow = document.getElementById("ef_buttonRow")
-	var themeGrid = document.getElementById("themeGrid");
-	var saveButton = document.getElementById("ef_saveButton");
-	var closeButton = document.getElementById("ef_closeButton");
-
-	var directoryINP = document.getElementById("directory");
-	var filenameINP = document.getElementById("file")
-	var themeTypeINP = document.getElementById("themeType");
-	var readOnlyFlag = document.getElementById("readOnlyFlag");
-
+	var ee = new pas_cth_js_editElements();
 	var responseSections = parseOutput(response);
 	responseSections.ARGS = JSON.parse(responseSections.ARGS);
 
-	directoryINP.value = responseSections.ARGS['directory'];
-	filenameINP.value = responseSections.ARGS['file'];
-	themeTypeINP.value = responseSections.ARGS['themeType'];
-	readOnlyFlag.value = responseSections.ARGS['readOnlyFlag'];
+	ee.directoryINP.value = responseSections.ARGS['directory'];
+	ee.filenameINP.value = responseSections.ARGS['file'];
+	ee.themeTypeINP.value = responseSections.ARGS['themeType'];
+	ee.readOnlyFlag.value = responseSections.ARGS['readOnlyFlag'];
 
 
-	saveButton.disabled = true;
+	ee.efSaveButton.disabled = true;
 
-	editBox.innerHTML = responseSections.EDITBOX
-	editBox.style.position = "absolute";
-	editBox.style.left = "0px";
-	editBox.style.top  = "30px";
+	ee.editBox.innerHTML = responseSections.EDITBOX
+	ee.editBox.style.position = "absolute";
+	ee.editBox.style.left = "0px";
+	ee.editBox.style.top  = "30px";
+//	ee.wpbodyContent.style.height = (ee.windowHeight * 0.7) + "px";
 
-	if (readOnlyFlag.value.toLowerCase() == "true") {
-		editBox.contentEditable = false;
-		document.getElementById("ef_readonly_msg").style.display = "inline";
+	enableContent(ee);
+
+	if (ee.readOnlyFlag.value.toLowerCase() == "true") {
+		ee.readOnlyMsg.style.display = "inline";
 	} else {
-		editBox.contentEditable = true;
-		document.getElementById("ef_readonly_msg").style.display = "none";
+		ee.readOnlyMsg.style.display = "none";
 	}
 
-	editFile.style.position = "absolute";
-	editFile.style.left = parentPosition.left + "px";
-	editFile.style.top = parentPosition.top + "px";
+	ee.editFile.style.position = "absolute";
+	ee.editFile.style.left = ee.parentPosition.left + "px";
+	ee.editFile.style.top = ee.parentPosition.top + "px";
 
-	editBox.onkeydown = function () { captureKeystrokes(this) }
+	ee.editBox.onkeydown = function () { captureKeystrokes(this) }
 
-	editFile.style.display = "inline-grid";
-	themeGrid.style.display = "none";
+	ee.editFile.style.display = "inline-grid";
+	ee.themeGrid.style.display = "none";
 
 }
-function closeEditFile() {
-	var editBox		= document.getElementById("editBox");
-	var editFile	= document.getElementById("editFile");
-	var themeGrid	= document.getElementById("themeGrid");
-	var saveButton	= document.getElementById("ef_saveButton");
-	var prompt		= document.getElementById("savePrompt");
+function enableContent(elements) {
+	elements.editBox.contentEditable		= true;
 
-	if ( ! saveButton.disabled) {
-		prompt.style.cssText = "display:inline;"
+	elements.efButtonRow.contentEditable	= false;
+	elements.efSaveButton.contentEditable	= false;
+	elements.efCloseButton.contentEditable	= false;
+
+	elements.savePrompt.contentEditable		= false;
+	elements.spSaveButton.contentEditable	= false;
+	elements.spCloseButton.contentEditable	= false;
+}
+
+function pas_cth_js_closeEditFile() {
+	var ee = new pas_cth_js_editElements();
+
+	if ( ! ee.efSaveButton.disabled) {
+		ee.savePrompt.style.cssText = "display:inline;"
+		ee.efSaveButton.disabled = true;
 	} else {
-		themeGrid.style.display = "inline-grid";
-		editFile.style.display = "none";
-		editBox.innerHTML = "";
+		ee.themeGrid.style.display = "inline-grid";
+		ee.editFile.style.display = "none";
+		ee.editBox.innerHTML = "";
+		ee.savePrompt.style.display = "none";
 	}
 }
 function pas_cth_js_closeFile() {
-	var savePrompt = document.getElementById("savePrompt");
-	var saveButton = document.getElementById("ef_saveButton");
+	var ee = new pas_cth_js_editElements();
 
-	saveButton.disabled = true;
-	savePrompt.style.display = "none";
-	closeEditFile();
+	ee.efSaveButton.disabled = true;
+	ee.savePrompt.style.display = "none";
+	pas_cth_js_closeEditFile();
 
 }
 function editBoxChange(element) {
-	var saveButton = document.getElementById("ef_saveButton");
-	saveButton.disabled = false;
+	if (document.getElementById("themeType").value.toLowerCase() == "child") {
+		document.getElementById("ef_saveButton").disabled = false;
+	}
 }
 function captureKeystrokes(element) {
 	if (event.keyCode == 9) {
@@ -160,34 +205,30 @@ function captureKeystrokes(element) {
 	}
 }
 function debug(element) {
-	var wpbodyContent = document.getElementById("wpbody-content");
-	var elementList = wpbodyContent.getElementsByTagName("*")
-
+	var ee = new pas_cth_js_editElements();
 	debugger;
 }
 function pas_cth_js_saveFile() {
+	var ee = new pas_cth_js_editElements();
 
 	var xmlhttp = new XMLHttpRequest();
 	var data = new FormData();
-	var saveButton	= document.getElementById("ef_saveButton");
+	var fileContents = "";
 
 	xmlhttp.open("POST", ajaxurl, true);
 
-	var editBox = document.getElementById("editBox")
-	var directoryINP = document.getElementById("directory");
-	var fileINP		 = document.getElementById("file")
-	var themeTypeINP = document.getElementById("themeType")
-
-	var fileContents = editBox.innerHTML.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+	fileContents = ee.editBox.innerHTML.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 
 	data.append("fileContents", fileContents);
-	data.append("file", fileINP.value);
-	data.append("directory", directoryINP.value);
-	data.append("themeType", themeTypeINP.value);
-	data.append("action", "saveFile");
+	data.append("file",			ee.filenameINP.value);
+	data.append("directory",	ee.directoryINP.value);
+	data.append("themeType",	ee.themeTypeINP.value);
+	data.append("action",		"saveFile");
 
-	saveButton.disabled = true;
-	closeEditFile();
+	ee.efSaveButton.disabled = true; // last possible chance to disable the button.
+
+	pas_cth_js_closeEditFile(); // Closing only clears the div and hides it. Not destroyed.
+
 	xmlhttp.onreadystatechange = function () {
 		if (4 == xmlhttp.readyState) {
 			var response = (xmlhttp.responseText.length >= 1 ?
@@ -226,4 +267,9 @@ function parseOutput(response) {
 
 	return obj;
 
+}
+function modify() {
+	var ee = new pas_cth_js_editElements();
+
+	ee.efSaveButton.disabled = false;
 }
