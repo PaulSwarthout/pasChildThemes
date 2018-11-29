@@ -7,6 +7,13 @@
 	--default-createTheme-fieldWidth:95%;
 	--default-border:solid 1pt black;
 }
+/*
+ ***************************************
+ *                                     *
+ * Child Themes Helper main page       *
+ *                                     *
+ ***************************************
+*/
 .pas-grid-container {
   display: inline-grid;
   background-color:rgba(255,255,225, 1);
@@ -606,6 +613,47 @@ p.pas_cth_directory {
 		display:none;
 	}
 }
+/*
+ ***************************************
+ *                                     *
+ *  File Listing styles main page      *
+ *                                     *
+ ***************************************
+*/
+.clt, .clt ul, .clt li {
+     position: relative;
+}
+.clt ul {
+    list-style: none;
+    padding-left: 32px;
+}
+.clt li::before, .clt li::after {
+    content: "";
+    position: absolute;
+    left: -12px;
+}
+.clt li::before {
+    border-top: 1px solid #000;
+    top: 9px;
+    width: 8px;
+    height: 0;
+}
+.clt li::after {
+    border-left: 1px solid #000;
+    height: 100%;
+    width: 0px;
+    top: 2px;
+}
+.clt ul > li:last-child::after {
+    height: 8px;
+}
+/*
+ ***************************************
+ *                                     *
+ *  Generate Screen Shot Options page  *
+ *                                     *
+ ***************************************
+*/
 .generateScreenShot_general {
 	font-size:12pt;
 	font-weight:normal;
@@ -681,34 +729,13 @@ p.mID {
 	right:20px;
 	bottom:0px;
 }
-.clt, .clt ul, .clt li {
-     position: relative;
-}
-.clt ul {
-    list-style: none;
-    padding-left: 32px;
-}
-.clt li::before, .clt li::after {
-    content: "";
-    position: absolute;
-    left: -12px;
-}
-.clt li::before {
-    border-top: 1px solid #000;
-    top: 9px;
-    width: 8px;
-    height: 0;
-}
-.clt li::after {
-    border-left: 1px solid #000;
-    height: 100%;
-    width: 0px;
-    top: 2px;
-}
-.clt ul > li:last-child::after {
-    height: 8px;
-}
-// Font List on Options page.
+/*
+ ***************************************
+ *                                     *
+ *  Font List Screen shot options page *
+ *                                     *
+ ***************************************
+ */
 #imageDropDown {
 	width:470px;
 	height:50px;
@@ -762,6 +789,13 @@ p.mID {
 	padding:0px;
 	background-color:white;
 }
+/*
+ ***************************************
+ *                                     *
+ *  File Edit styles                   *
+ *                                     *
+ ***************************************
+ */
 #editFile {
 	background-color:white;
 	color:black;
