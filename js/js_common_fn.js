@@ -211,7 +211,7 @@ function pas_cth_js_createBox(id, className, parent = document.getElementsByTagN
 	}
 	return box;
 }
-
+/*
 function findPos(obj) {
 	var curleft = curtop = 0;
 	if (obj.offsetParent) {
@@ -222,7 +222,10 @@ function findPos(obj) {
 	}
 	return {left:curleft ,top:curtop};
 }
-
+*/
+function getPosition(element) {
+	return element.getBoundingClientRect();
+}
 function pas_cth_js_addCloseButton(id, parent, text) {
 	var element = document.createElement("p");
 	element.setAttribute("id", id);

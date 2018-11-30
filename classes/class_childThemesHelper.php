@@ -41,7 +41,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			wp_enqueue_style( 	'pasChildThemes',
 								$this->pluginDirectory['url'] . "css/style.css" . $uniqStr,
 								false );
-			if (defined('WP_DEBUG') && constant('WP_DEBUG')) {
+			if (defined('WP_DEBUG') && constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES") {
 				wp_enqueue_style(	'pasChildThemes3',
 									$this->pluginDirectory['url'] . 'css/hexdump.css' . $uniqStr,
 									false );
@@ -61,7 +61,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			wp_enqueue_script( 'pas_cth_Script3',
 							   $this->pluginDirectory['url'] . "js/edit_file.js" . $uniqStr,
 							   false );
-			if (defined('WP_DEBUG') && constant('WP_DEBUG')) {
+			if (defined('WP_DEBUG') && constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES") {
 				wp_enqueue_script( 'pas_cth_Script4',
 								   $this->pluginDirectory['url'] . 'js/hexdump.js' . $uniqStr,
 								   false );
@@ -468,7 +468,7 @@ OPTION;
 				echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
 				echo "<p class='actionReminder'>";
 				echo "Left Click a file to <u>REMOVE</u> it from the child theme.<br>";
-				echo "Right Click a file to <u>EDIT</u> it.";
+				echo "Right Click or long press a file to <u>EDIT</u> it.";
 				echo "</p>";
 			}
 			echo "<p class='themeName'>" . $this->activeThemeInfo->childThemeName . "</p>";
@@ -486,7 +486,7 @@ OPTION;
 			echo "<p class='pasChildTheme_HDR'>TEMPLATE THEME</p>";
 				echo "<p class='actionReminder'>";
 				echo "Left Click a file to <u>COPY</u> it to the child theme.<br>";
-				echo "Right Click a file to <u>EDIT</u> it.";
+				echo "Right Click or long press a file to <u>EDIT</u> it.";
 				echo "</p>";
 			echo "<p class='themeName'>" . $this->activeThemeInfo->templateThemeName . "</p>";
 
@@ -615,6 +615,8 @@ OPTION;
 			$jsdata = json_encode($jsdata);
 			echo "<div id='jsdata' style='display:none;' data-jsdata='$jsdata'></div>";
 
+			echo "<div id='pas_cth_content'>";
+
 			echo "<div id='themeGrid' class='pas-grid-container'>";
 			echo "<div class='pas-grid-left-column'>";
 			echo "	<div class='childPrompt' id='childPrompt' onclick='javascript:showChild();'>CHILD</div>";
@@ -645,18 +647,17 @@ OPTION;
 				.	"	<input type='hidden' id='themeType' value=''>"
 				.	"	<input type='hidden' id='readOnlyFlag' value='false'>"
 				.	"	<input type='hidden' id='currentFileExtension' value=''>"
-				.	"	<span id='ef_buttonRow'>"
-				.	"		<input type='button' value='Save File' disabled id='ef_saveButton' onclick='javascript:pas_cth_js_saveFile();'>"
-				.	"		<p id='ef_readonly_msg'>Template Theme Files are Read Only! Any Changes will be LOST!</p>"
-				.	"		&nbsp;&nbsp;&nbsp;"
-				.	"		<input type='button' value='Close File' id='ef_closeButton' onclick='javascript:pas_cth_js_closeEditFile();'>"
-				.	"		&nbsp;&nbsp;&nbsp;"
-				.	(constant('WP_DEBUG') ? "<input type='button' value='DEBUG' id='ef_debug' onclick='javascript:debug(this);'>" : "")
-				.	(constant('WP_DEBUG') ? "<input type='button' value='HEXDUMP' id='ef_hexdump' onclick='javascript:pas_cth_js_hexdump();'>" : "")
-				.	"	</span>"
+				.	"<input type='button' value='Save File' disabled id='ef_saveButton' onclick='javascript:pas_cth_js_saveFile();'>"
+				.	"<p id='ef_readonly_msg'>File is READ ONLY. Changes WILL NOT BE SAVED.</p>"
+				.	"<p id='ef_filename'>FILENAME</p>"
+				.	"<input type='button' value='Close File' id='ef_closeButton' onclick='javascript:pas_cth_js_closeEditFile();'>"
+				.	(constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='DEBUG' id='ef_debug_button' onclick='javascript:debug(this);'>" : "")
+				.	(constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='HEXDUMP' id='ef_hexdump_button' onclick='javascript:pas_cth_js_hexdump();'>" : "")
 				.	"	<div id='editBox' data-gramm='false' spellcheck='false' autocapitalize='false' autocorrect='false' role='textbox' oninput='javascript:editBoxChange(this);'>"
 				.	"	</div>"
 				.	"</div>";
+
+			echo "</div>"; // end of <div id='pas_cth_content'>
 
 			echo	"<div id='savePrompt'>"
 				.	"File has changed.<br>Do you want to save it?<br><br>"
@@ -739,7 +740,7 @@ OPTION;
 											 'file'=>$ff,
 											 'themeType'=>$themeType,
 											 'extension'=>pathinfo( $dir.PAS_CTH_SEPARATOR.$ff )['extension'],
-											 'allowedFileTypes'=>get_option('pas_cth_edit_allowedFileTypes', ['php', 'js', 'css']),
+											 'allowedFileTypes'=>get_option('pas_cth_edit_allowedFileTypes', ['php', 'js', 'css', 'txt']),
 											]
 										 );
 					echo "<li>"

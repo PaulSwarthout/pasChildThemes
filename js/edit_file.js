@@ -105,7 +105,8 @@ function pas_cth_js_editElements() {
 	this.editBox		= document.getElementById("editBox")
 	this.wpbodyContent	= document.getElementById("wpbody-content")
 	this.parentPosition	= getTopLeftPosition(this.wpbodyContent);
-	this.efButtonRow	= document.getElementById("ef_buttonRow")
+//	this.efButtonRow	= document.getElementById("ef_buttonRow")
+	this.filenameDisplay= document.getElementById("ef_filename");
 	this.themeGrid		= document.getElementById("themeGrid");
 	this.efSaveButton	= document.getElementById("ef_saveButton");
 	this.efCloseButton	= document.getElementById("ef_closeButton");
@@ -121,8 +122,19 @@ function pas_cth_js_editElements() {
 
 	this.windowHeight	= window.innerHeight;
 	this.windowWidth	= window.innerWidth;
-}
 
+	this.adminmenu		= document.getElementById("adminmenu");
+	this.adminbar		= document.getElementById("wpadminbar");
+	this.wpcontent		= document.getElementById("wpcontent");
+}
+if (typeof Element.prototype.alignWith == "undefined") {
+	Element.prototype.alignWith = function (objectToAlignWith) {
+		var pos = getPosition(objectToAlignWith);
+		this.style.position = "absolute";
+		this.style.left = pos.left;
+		this.style.top = pos.top;
+	}
+}
 function processEditFile(response) {
 	var ee = new pas_cth_js_editElements();
 	var responseSections = parseOutput(response);
@@ -132,14 +144,12 @@ function processEditFile(response) {
 	ee.filenameINP.value = responseSections.ARGS['file'];
 	ee.themeTypeINP.value = responseSections.ARGS['themeType'];
 	ee.readOnlyFlag.value = responseSections.ARGS['readOnlyFlag'];
-
+	ee.filenameDisplay.innerHTML = "FILE: " + responseSections.ARGS['directory'] + "/" + responseSections.ARGS['file'];
 
 	ee.efSaveButton.disabled = true;
 
 	ee.editBox.innerHTML = responseSections.EDITBOX
-	ee.editBox.style.position = "absolute";
-	ee.editBox.style.left = "0px";
-	ee.editBox.style.top  = "30px";
+
 //	ee.wpbodyContent.style.height = (ee.windowHeight * 0.7) + "px";
 
 	enableContent(ee);
@@ -150,20 +160,26 @@ function processEditFile(response) {
 		ee.readOnlyMsg.style.display = "none";
 	}
 
-	ee.editFile.style.position = "absolute";
-	ee.editFile.style.left = ee.parentPosition.left + "px";
-	ee.editFile.style.top = ee.parentPosition.top + "px";
+	document.getElementsByTagName("body")[0].appendChild(ee.editFile);
+
+	ee.editFile.alignWith(ee.themeGrid);
+
+
+	ee.editBox.onresize  = function () {
+		var ee = new pas_cth_js_editElements();
+		ee.editFile.alignWith(ee.themeGrid);
+	}
 
 	ee.editBox.onkeydown = function () { captureKeystrokes(this) }
 
-	ee.editFile.style.display = "inline-grid";
+	ee.editFile.style.display = "grid";
 	ee.themeGrid.style.display = "none";
 
 }
 function enableContent(elements) {
 	elements.editBox.contentEditable		= true;
 
-	elements.efButtonRow.contentEditable	= false;
+//	elements.efButtonRow.contentEditable	= false;
 	elements.efSaveButton.contentEditable	= false;
 	elements.efCloseButton.contentEditable	= false;
 
