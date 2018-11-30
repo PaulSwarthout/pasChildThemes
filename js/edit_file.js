@@ -60,6 +60,31 @@ function pas_cth_js_editFile(element) {
 	}
 	xmlhttp.send(data)
 }
+function captureKeystrokes(element) {
+debugger
+	switch (event.keyCode) {
+		case 9:
+			event.preventDefault();
+			insertTextAtCursor(String.fromCharCode(event.keyCode));
+			break;
+		case 10:
+		case 13:
+			event.preventDefault();
+			insertTextAtCursor(String.fromCharCode(10));
+			break;
+
+	}
+}
+function clearSelection() {
+	var sel = window.getSelection ? window.getSelection() : document.selection;
+	if (sel) {
+		if (sel.removeAllRanges) {
+			sel.removeAllRanges();
+		} else if (sel.empty) {
+			sel.empty();
+		}
+	}
+}
 function insertTextAtCursor(text) {
     var sel, range, html;
 	var cursorPosition = saveSelection();
@@ -72,10 +97,14 @@ function insertTextAtCursor(text) {
             range.deleteContents();
 			restoreSelection(cursorPosition);
 			range.insertNode( document.createTextNode(text) );
+			range.collapse();
         }
 	} else if (document.selection && document.selection.createRange) {
         document.selection.createRange().text = text;
+		document.selection.collapse();
     }
+
+
 }
 function saveSelection() {
     if (window.getSelection) {
@@ -212,12 +241,6 @@ function pas_cth_js_closeFile() {
 function editBoxChange(element) {
 	if (document.getElementById("themeType").value.toLowerCase() == "child") {
 		document.getElementById("ef_saveButton").disabled = false;
-	}
-}
-function captureKeystrokes(element) {
-	if (event.keyCode == 9) {
-		event.preventDefault();
-		insertTextAtCursor(String.fromCharCode(9));
 	}
 }
 function debug(element) {
