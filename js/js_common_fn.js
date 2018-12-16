@@ -224,7 +224,9 @@ function findPos(obj) {
 }
 */
 function getPosition(element) {
-	return element.getBoundingClientRect();
+	var rect = element.getBoundingClientRect();
+
+	return {left : rect.left, top: rect.top, width : Math.abs(rect.right - rect.left), height : Math.abs(rect.bottom - rect.top) };
 }
 function pas_cth_js_addCloseButton(id, parent, text) {
 	var element = document.createElement("p");
@@ -244,7 +246,7 @@ function pas_cth_js_addCloseButton(id, parent, text) {
 }
 function getTopLeftPosition(obj = null) {
 	if (obj != null) {
-		return {top:obj.clientTop, left:obj.clientLeft, width:obj.clientWidth, height:obj.clientHeight};
+		return getPosition(obj);
 	} else {
 		return null;
 	}

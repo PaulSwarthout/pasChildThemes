@@ -65,6 +65,10 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 				wp_enqueue_script( 'pas_cth_Script4',
 								   $this->pluginDirectory['url'] . 'js/hexdump.js' . $uniqStr,
 								   false );
+				if (defined('WP_DEBUG') && constant('WP_DEBUG')) {
+					$obj = ['WP_DEBUG' => "ENABLED"];
+					wp_localize_script( 'pas_cth_Script4', 'pas_cth_debugMode', $obj );
+				}
 			}
 		}
 
@@ -653,7 +657,7 @@ OPTION;
 				.	"<input type='button' value='Close File' id='ef_closeButton' onclick='javascript:pas_cth_js_closeEditFile();'>"
 				.	(constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='DEBUG' id='ef_debug_button' onclick='javascript:debug(this);'>" : "")
 				.	(constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='HEXDUMP' id='ef_hexdump_button' onclick='javascript:pas_cth_js_hexdump();'>" : "")
-				.	"	<div id='editBox' data-gramm='false' spellcheck='false' autocapitalize='false' autocorrect='false' role='textbox' oninput='javascript:editBoxChange(this);'>"
+				.	"	<div id='editBox' data-gramm='false' spellcheck='false' autocapitalize='false' autocorrect='false' role='textbox' oninput='javascript:editBoxChange();'>"
 				.	"	</div>"
 				.	"</div>";
 

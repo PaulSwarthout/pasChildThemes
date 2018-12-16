@@ -19,7 +19,7 @@
 	height:100%;
 }
 #themegrid {
-	height:97%;
+	height:95%;
 	overflow:scroll;
 }
 .pas-grid-container {
@@ -613,7 +613,7 @@ p.pas_cth_directory {
  * The minimum sized device on the market, is the Apple Watch at 240px x 240px.
  * This plugin will show as blank for anything smaller than 240px in the horizontal or vertical direction.
  */
-@media (max-width:239px), (max-height:239px) {
+@media (max-width:239px) and (max-height:239px) {
 	.pas-grid-container {
 		display:none;
 	}
@@ -805,14 +805,10 @@ p.mID {
  ***************************************
  */
 #editFile {
-	margin-top:25px;
 	background-color:rgb(255, 255, 255);
 	color:black;
-	font-size:12pt;
 	font-weight:normal;
 	font-family:monospace;
-	min-width:90%;
-	height:100%;
 	white-space:pre;
 	display: none;
 	grid-template-columns:25% 25% 25% 25%;
@@ -820,6 +816,10 @@ p.mID {
 	grid-column-gap:10px;
 	overflow:hidden;
 	border:var(--default-border);
+	position:fixed;
+	box-shadow:15px 15px 15px darkgray;
+	border-radius:15px;
+	padding:10px;
 }
 #editFile p {
 	margin:0px;
@@ -844,7 +844,6 @@ p.mID {
 #ef_saveButton, #ef_closeButton, #sp_saveButton, #sp_closeButton, #ef_debug_button, #ef_modify, #ef_hexdump_button {
 	background-color:blue;
 	color:white;
-	font-size:12pt;
 	width:100%;
 }
 #ef_saveButton:disabled {
@@ -869,13 +868,12 @@ p.mID {
 	grid-column:1 / span 4;
 }
 #editBox {
-	border:solid 1pt black;
 	background-color:white;
 	color:black;
 	font-size:12pt;
 	font-weight:normal;
 	font-family:monospace;
-	overflow-x:hidden;
+	overflow-x:scroll;
 	overflow-y:scroll;
 	white-space:pre;
 	margin-top:10px;
@@ -912,4 +910,49 @@ p.mID {
 	text-align:center;
 	border-radius:10px;
 }
-@media (max-width:
+@media (min-height:700px) and (min-width:1100px) {
+	#editFile {
+		width:900px;
+		height:700px;
+		margin-left:-450px;
+		margin-top:-350px;
+		font-size:12pt;
+		left:50%;
+		top:50%;
+	}
+	#ef_saveButton, #ef_closeButton, #sp_saveButton, #sp_closeButton, #ef_debug_button, #ef_modify, #ef_hexdump_button {
+		font-size:12pt;
+	}
+}
+@media (max-height:699px), (max-width:1099px) {
+	#editFile {
+		width:98%;
+		height:90%;
+		margin-left:-49%;
+		margin-top:-5%;
+		font-size:10pt;
+		left:50%;
+		top:10%;
+	}
+	#ef_saveButton, #ef_closeButton, #sp_saveButton, #sp_closeButton, #ef_debug_button, #ef_modify, #ef_hexdump_button {
+		font-size:10pt;
+	}
+}
+/* css trick to remember, might want to use this in the future to provide line numbers while editing.
+
+pre
+{
+    counter-reset: thecodenumbering;
+}
+
+code
+{
+    counter-increment: thecodenumbering;
+}
+code:before
+{
+    padding-right:5px;
+    content: counter(thecodenumbering);
+}
+
+*/

@@ -111,6 +111,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			$inputs =[
 						'directory'	=> sanitize_text_field( $_POST['directory'] ),
 						'file'		=> sanitize_file_name(	$_POST['file'] ),
+						'action'	=> 'copyFile',
 					 ];
 
 			$childThemeFile	=	$this->activeThemeInfo->childThemeRoot .
@@ -132,13 +133,13 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			foreach ( $_POST as $key => $value ) {
 				$args[$key] = $inputs[$key];
 			}
-			$args['action'] = 'copyFile';
+//			$args['action'] = 'copyFile';
 
-			/* If file doesn't exist. Copy it. We're done.
-			 * If the file does exist, and the child theme file and the template theme file
-			 * are already identical. We're done. No need to copy it.
-			 * If the file does exist, and the files are not identical,
-			 * prompt the user to overwrite.
+			/*
+			 * File does not exist in the child theme.			Copy it.
+			 * File EXISTS in both child and parent themes.
+			 *		Files are identical.						Nothing to do.
+			 *		Files are not identical.					Prompt the user before overwriting the existing child file.
 			 */
 			if ( ! file_exists( $childThemeFile ) ) {
 				$this->copyFile( $args );
@@ -151,7 +152,8 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			} else {
 				/*
 				 * The file already exists in the child theme and the files are NOT identical.
-				 * Prompt the user to overwrite.
+				 * Prompt the user to allow overwrite.
+				 * Return the prompt to the AJAX call that got us here.
 				 */
 				$JSData = json_encode( $args );
 
@@ -330,6 +332,23 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			$stylesheetURL .= PAS_CTH_SEPARATOR . $childThemeStylesheet . PAS_CTH_SEPARATOR . "style.css";
 
 			$functionsFile = fopen( $childThemePath . PAS_CTH_SEPARATOR . "functions.php", "w" );
+
+			$functionsFileOutput = '<?PHP ' . $newlineChar;
+			$functionsFileOutput .= <<< "FUNCTIONSFILEOUTPUT"
+add_action('wp_enqueue_scripts', '{$childThemeStylesheet}_theme_styles' );
+
+function {$childThemeStylesheet}_theme_styles() {
+	wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css' );
+	wp_enqueue_style( '{$childThemeStylesheet}-style', WP_CONTENT_URL . '/themes/{$childThemeStylesheet}/style.css' );
+}
+
+FUNCTIONSFILEOUTPUT;
+			fwrite( $functionsFile, $functionsFileOutput);
+			fclose( $functionsFile );
+
+
+
+/*
 			fwrite( $functionsFile, "<" . "?" . "PHP" . $newlineChar );
 			fwrite( $functionsFile, "add_action( 'wp_enqueue_scripts', '" . $childThemeStylesheet . "_theme_styles' );" . $newlineChar );
 			fwrite( $functionsFile, "function " .
@@ -345,7 +364,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			fwrite( $functionsFile, "}" . $newlineChar );
 			fwrite( $functionsFile, "?>" );
 			fclose( $functionsFile );
-
+*/
 			// Handshake with the Javascript AJAX call that got us here.
 			// When "SUCCESS:url" is returned, Javascript will redirect to the url.
 			echo "SUCCESS:" . esc_url_raw( $_POST['href'] );

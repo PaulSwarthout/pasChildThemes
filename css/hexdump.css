@@ -18,6 +18,14 @@
 	box-shadow:10px 10px 10px lightgray;
 	overflow:scroll;
 }
+#hexDump .newline {
+	color:red;
+	background-color:red;
+}
+#hexDump .tab {
+	color:blue;
+	background-color:blue;
+}
 #hexGrid {
 	display:inline-grid;
 	column-gap:50px;

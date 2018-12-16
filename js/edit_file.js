@@ -1,33 +1,93 @@
-function findElement(element) {
-	return (element == document.getElementById("currentFileExtension").value);
-}
 if (typeof String.prototype.toBold == "undefined") {
 	String.prototype.toBold = function () {
 		return "<span style='font-weight:bold;'>" + this + "</span>";
 	}
 }
+if (typeof Element.prototype.setAttributes == "undefined") {
+	Element.prototype.setAttributes = function (strListOfAttributes) {
+		var ndx, nameValuePair;
+		var key, attr;
+		var attributes = strListOfAttributes.split(";");
+
+		for (ndx = 0; ndx < attributes.length; ndx++) {
+			nameValuePair = attributes[ndx].split("=");
+			this.setAttribute(nameValuePair[0], nameValuePair[1]);
+		}
+	}
+}
+/*
+ * pas_cth_debugMode is created by a wp_localized_script call in dashboard_scripts()
+ * in classes/class_childThemesHelper.php.
+ * If pas_cth_debugMode exists, then WP_DEBUG is defined as true in wp_config.php.
+ */
+function inDebugMode() {
+	var rtn = false;
+	if (typeof pas_cth_debugMode !== "undefined") {
+		rtn = true;
+	}
+	return rtn;
+}
+/*
+ * Get a pointer to all of the DOM elements used by the edit file functionality.
+ */
+function pas_cth_js_editElements() {
+	this.editFile		= document.getElementById("editFile")
+	this.editBox		= document.getElementById("editBox")
+	this.wpbodyContent	= document.getElementById("wpbody-content")
+	this.parentPosition	= getTopLeftPosition(this.wpbodyContent);
+	this.filenameDisplay= document.getElementById("ef_filename");
+	this.themeGrid		= document.getElementById("themeGrid");
+	this.efSaveButton	= document.getElementById("ef_saveButton");
+	this.efCloseButton	= document.getElementById("ef_closeButton");
+	this.spSaveButton	= document.getElementById("sp_saveButton");
+	this.spCloseButton	= document.getElementById("sp_closeButton");
+	this.savePrompt		= document.getElementById("savePrompt");
+
+	this.directoryINP	= document.getElementById("directory");
+	this.filenameINP	= document.getElementById("file")
+	this.themeTypeINP	= document.getElementById("themeType");
+	this.readOnlyFlag	= document.getElementById("readOnlyFlag");
+	this.readOnlyMsg	= document.getElementById("ef_readonly_msg");
+
+	this.windowHeight	= window.innerHeight;
+	this.windowWidth	= window.innerWidth;
+
+	this.adminmenu		= document.getElementById("adminmenu");
+	this.adminbar		= document.getElementById("wpadminbar");
+	this.wpcontent		= document.getElementById("wpcontent");
+	this.wpbody_content = document.getElementById("wpbody-content");
+
+	this.currentFileExtension = document.getElementById("currentFileExtension");
+	if (this.currentFileExtension == null) {
+		this.currentFileExtension = document.createElement("input");
+		this.currentFileExtension.setAttributes("type=hidden;id=currentFileExtension");
+		document.getElementsByTagName("body")[0].appendChild(this.currentFileExtension);
+	}
+}
+function pas_cth_js_findElement(element) {
+	return (element == document.getElementById("currentFileExtension").value);
+}
 function pas_cth_js_editFile(element) {
 	var xmlhttp = new XMLHttpRequest();
 	var data = new FormData();
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
-	var box;
+	var ee = new pas_cth_js_editElements();
 
-	var variable = document.getElementById("currentFileExtension");
-	if (variable == null) {
-		variable = document.createElement("input");
-		variable.type = "hidden"
-		variable.setAttribute("id", "findIndexValue");
-		document.getElementsByTagName("body")[0].appendChild(variable);
-	}
-	variable.value = jsInput['extension'];
-
-	if (jsInput['allowedFileTypes'].findIndex(findElement) < 0) {
+/*
+ * Verify that the selected file is a type that we can edit. If it's not, then return.
+ */
+	ee.currentFileExtension.value = jsInput['extension'];
+	if (jsInput['allowedFileTypes'].findIndex(pas_cth_js_findElement) < 0) {
 		var msg = "<div style='text-align:center;width:100%;'><h2>FILE TYPE ERROR</h2><hr>You can only edit files of the following types:<br>" +
 			jsInput['allowedFileTypes'].toString().split(",").join("<br>").toBold() +
 			"<br>To add other file types, please visit the options page.</div>";
 		pas_cth_js_createBox("actionBox", "", document.getElementsByTagName("body")[0], true).innerHTML += msg;
 		return;
 	}
+/*
+ * Make an AJAX call to retrieve the file contents from the web server.
+ * The themeType indicates whether the file is read-only or writeable.
+ */
 
 	xmlhttp.open("POST", ajaxurl, true);
 
@@ -47,6 +107,10 @@ function pas_cth_js_editFile(element) {
 					if (response.length <= 0) {
 						location.reload();
 					} else {
+						/*
+						 * Function pas_cth_js_processResponse is in the js_common_fn.js file
+						 * which then passes control back to the processEditFile() in this file.
+						 */
 						pas_cth_js_processResponse(response);
 					}
 					break;
@@ -61,18 +125,28 @@ function pas_cth_js_editFile(element) {
 	xmlhttp.send(data)
 }
 function captureKeystrokes(element) {
-debugger
 	switch (event.keyCode) {
 		case 9:
 			event.preventDefault();
 			insertTextAtCursor(String.fromCharCode(event.keyCode));
+			editBoxChange();
 			break;
 		case 10:
 		case 13:
 			event.preventDefault();
 			insertTextAtCursor(String.fromCharCode(10));
+			editBoxChange();
 			break;
-
+		case 90: // CAP Z
+			if (event.ctrlKey) { // CTRL-Z (undo) // doesn't currently work in all cases. Need to rewrite the edit handling to use execCommand.
+			}
+			break;
+		case 16: // left shift
+		case 8:  // backspace
+		case 17: // left CTRL
+			break;
+		default:
+			break;
 	}
 }
 function clearSelection() {
@@ -129,41 +203,6 @@ function restoreSelection(range) {
         }
     }
 }
-function pas_cth_js_editElements() {
-	this.editFile		= document.getElementById("editFile")
-	this.editBox		= document.getElementById("editBox")
-	this.wpbodyContent	= document.getElementById("wpbody-content")
-	this.parentPosition	= getTopLeftPosition(this.wpbodyContent);
-//	this.efButtonRow	= document.getElementById("ef_buttonRow")
-	this.filenameDisplay= document.getElementById("ef_filename");
-	this.themeGrid		= document.getElementById("themeGrid");
-	this.efSaveButton	= document.getElementById("ef_saveButton");
-	this.efCloseButton	= document.getElementById("ef_closeButton");
-	this.spSaveButton	= document.getElementById("sp_saveButton");
-	this.spCloseButton	= document.getElementById("sp_closeButton");
-	this.savePrompt		= document.getElementById("savePrompt");
-
-	this.directoryINP	= document.getElementById("directory");
-	this.filenameINP	= document.getElementById("file")
-	this.themeTypeINP	= document.getElementById("themeType");
-	this.readOnlyFlag	= document.getElementById("readOnlyFlag");
-	this.readOnlyMsg	= document.getElementById("ef_readonly_msg");
-
-	this.windowHeight	= window.innerHeight;
-	this.windowWidth	= window.innerWidth;
-
-	this.adminmenu		= document.getElementById("adminmenu");
-	this.adminbar		= document.getElementById("wpadminbar");
-	this.wpcontent		= document.getElementById("wpcontent");
-}
-if (typeof Element.prototype.alignWith == "undefined") {
-	Element.prototype.alignWith = function (objectToAlignWith) {
-		var pos = getPosition(objectToAlignWith);
-		this.style.position = "absolute";
-		this.style.left = pos.left;
-		this.style.top = pos.top;
-	}
-}
 function processEditFile(response) {
 	var ee = new pas_cth_js_editElements();
 	var responseSections = parseOutput(response);
@@ -178,7 +217,11 @@ function processEditFile(response) {
 	ee.efSaveButton.disabled = true;
 
 	ee.editBox.innerHTML = responseSections.EDITBOX
-
+/*
+	if (ee.editFile.parentNode != null && ee.editFile.parentNode != document.getElementsByTagName("body")[0]) {
+		document.getElementsByTagName("body")[0].appendChild(ee.editFile);
+	}
+*/
 //	ee.wpbodyContent.style.height = (ee.windowHeight * 0.7) + "px";
 
 	enableContent(ee);
@@ -189,20 +232,10 @@ function processEditFile(response) {
 		ee.readOnlyMsg.style.display = "none";
 	}
 
-	document.getElementsByTagName("body")[0].appendChild(ee.editFile);
-
-	ee.editFile.alignWith(ee.themeGrid);
-
-
-	ee.editBox.onresize  = function () {
-		var ee = new pas_cth_js_editElements();
-		ee.editFile.alignWith(ee.themeGrid);
-	}
-
 	ee.editBox.onkeydown = function () { captureKeystrokes(this) }
 
 	ee.editFile.style.display = "grid";
-	ee.themeGrid.style.display = "none";
+//	ee.themeGrid.style.display = "none";
 
 }
 function enableContent(elements) {
@@ -224,7 +257,7 @@ function pas_cth_js_closeEditFile() {
 		ee.savePrompt.style.cssText = "display:inline;"
 		ee.efSaveButton.disabled = true;
 	} else {
-		ee.themeGrid.style.display = "inline-grid";
+//		ee.themeGrid.style.display = "inline-grid";
 		ee.editFile.style.display = "none";
 		ee.editBox.innerHTML = "";
 		ee.savePrompt.style.display = "none";
@@ -238,7 +271,7 @@ function pas_cth_js_closeFile() {
 	pas_cth_js_closeEditFile();
 
 }
-function editBoxChange(element) {
+function editBoxChange() {
 	if (document.getElementById("themeType").value.toLowerCase() == "child") {
 		document.getElementById("ef_saveButton").disabled = false;
 	}
@@ -256,7 +289,7 @@ function pas_cth_js_saveFile() {
 
 	xmlhttp.open("POST", ajaxurl, true);
 
-	fileContents = ee.editBox.innerHTML.replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+	fileContents = ee.editBox.innerText; // .replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 
 	data.append("fileContents", fileContents);
 	data.append("file",			ee.filenameINP.value);

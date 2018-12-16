@@ -139,7 +139,6 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		*/
 		function killChildFile( $args ) {
 			$activeThemeInfo = $args['activeThemeInfo'];
-			$themeStyle		 = $args['stylesheet'];		 // Stylesheet - theme's folder name
 			$directory		 = $args['directory'];			 // Path within the theme
 			$childFile		 = $args['file']; // Which file are we deleting.
 

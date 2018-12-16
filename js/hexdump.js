@@ -1,3 +1,28 @@
+if (typeof Array.prototype.highlightSpecial == "undefined") {
+	Array.prototype.highlightSpecial = function () {
+		return this
+			.map(
+				function (element, index) {
+					var str = element.split("")
+						.map(
+							function (ch) {
+								var charCode = ch.charCodeAt(0);
+								switch (charCode) {
+									case 1:
+										return "[~font class='newline'~].[~/font~]";
+										break;
+									case 2:
+										return "[~font class='tab'~].[~/font~]";
+										break;
+									default:
+										return ch;
+										break;
+								}
+							} ).join("");
+					return str;
+				} );
+	}
+}
 if (typeof String.prototype.toASCII == "undefined") {
 	String.prototype.toASCII = function () {
 		var str = this.split("")
@@ -19,6 +44,11 @@ if (typeof Array.prototype.toHex == "undefined") {
 		return arr;
 	}
 }
+if (typeof String.prototype.toHex == "undefined") {
+	String.prototype.toHex = function () {
+		return this.split("").toHex().join(" ");
+	}
+}
 if (typeof String.prototype.toHTML == "undefined") {
 	String.prototype.toHTML = function () {
 		return this.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -35,7 +65,7 @@ if (typeof Array.prototype.toHTML == "undefined") {
 }
 if (typeof String.prototype.filterNotVisible == "undefined") {
 	String.prototype.filterNotVisible = function (replacementCharacter = "") {
-		return this.replace(/[^ -~]/g, replacementCharacter);
+		return this.replace(/[^ -~\x0A\x09]/g, replacementCharacter).replace(/\x0A/g, String.fromCharCode(1)).replace(/\x09/g, String.fromCharCode(2)).replace(/\x20/g, "_");
 	}
 }
 if (typeof String.prototype.splice == "undefined") {
@@ -81,16 +111,17 @@ function dim(self, elementID) {
 	self.style.color = "black";
 	self.style.backgroundColor = "white";
 }
+
 function pas_cth_js_hexdump() {
 	var ee = new pas_cth_js_editElements();
 	var str = ee.editBox.innerText.toASCII();
 
 	var strArray	= str.split("");
-	var dispString	= str.filterNotVisible(".").replace(/ /g, "_");
 	var hexArray	= strArray.toHex();
+	var hexChunks	= hexArray.join("").match(/.{1,8}/g).setIDs();
 
-	var outputChunks	= dispString.match(/.{1,4}/g).mouseover();
-	var hexChunks		= hexArray.join("").match(/.{1,8}/g).setIDs();
+	var dispString		= str.filterNotVisible(".")
+	var outputChunks	= dispString.match(/.{1,4}/g).highlightSpecial().mouseover();
 
 	var div = document.createElement("div");
 	var closeBTN = document.createElement("span");
