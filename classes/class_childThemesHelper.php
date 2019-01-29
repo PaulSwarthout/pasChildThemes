@@ -744,7 +744,7 @@ OPTION;
 											 'file'=>$ff,
 											 'themeType'=>$themeType,
 											 'extension'=>pathinfo( $dir.PAS_CTH_SEPARATOR.$ff )['extension'],
-											 'allowedFileTypes'=>get_option('pas_cth_edit_allowedFileTypes', ['php', 'js', 'css', 'txt']),
+											 'allowedFileTypes'=>get_option('pas_cth_edit_allowedFileTypes', ['php', 'js', 'css', 'txt', 'svg']),
 											]
 										 );
 					echo "<li>"
