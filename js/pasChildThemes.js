@@ -423,3 +423,22 @@ function debugTip(action, msg) {
 			break;
 	}
 }
+function pas_cth_validateField(element) {
+	if (element.value.trim().length == 0) {
+		return;
+	}
+	if (element.pattern.trim().length == 0) {
+		return;
+	}
+	var re = new RegExp(element.pattern);
+	var box;
+	var boxID = "actionBox";
+	var parent = document.getElementsByTagName("body")[0];
+	var onclickFunction = true;
+	var className = "";
+
+	if (! re.test(element.value)) {
+		box = pas_cth_js_createBox(boxID, className, parent, onclickFunction);
+		box.innerHTML = element.getAttribute("data-message") + "<br><br>Click on this messagebox to close it";
+	}
+}

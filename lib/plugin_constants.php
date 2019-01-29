@@ -15,6 +15,8 @@ define( 'PAS_CTH_PLUGINNAME', '...created by Child Themes Helper...' );
 
 define( 'DOTS', '...............................................................................' );
 
+update_option('pas_cth_edit_allowedFileTypes', get_option('pas_cth_edit_allowedFileTypes', ['php', 'js', 'css', 'txt']));
+
 /*
  * As has been the case for many years, Windows uses the folder delimiter of a backslash.
  * Unix, Linux, and most of the rest of the world, uses a forward slash character as a folder

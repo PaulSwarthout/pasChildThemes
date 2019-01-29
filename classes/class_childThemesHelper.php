@@ -523,64 +523,68 @@ OPTION;
 
 			echo "<div class='createChildThemeBox'>";
 
-			echo "<p class='warningHeading'>Warning</p><br><br>";
-			echo "The current theme: '<i><b>" . $this->activeThemeInfo->childThemeName . "</i></b>'";
-			echo " is <u>not</u> a child theme.";
-			echo "<br><br>"; // replace with CSS in future release;
-			echo "Do you want to create a child theme?";
-			echo "<br><br>"; // replace with CSS in future release;
-			echo "Fill out the following form to create a child theme.<br>";
-			echo "The only required fields are the <i>Child Theme Name</i> and the <i>Template Theme Name</i>";
-			echo "<div class='createChildThemeBoxForm'>";
-			echo "<div class='createChildThemeBoxForm_HDR'>Create Child Theme</div>";
-			echo "<form>";
-			echo "<input type='hidden' name='themeRoot' value='" . $this->activeThemeInfo->childThemeRoot . "'>";
-			echo "<input type='hidden' name='action' value='createChildTheme'>";
-			echo "<input type='hidden' name='href' value='" . admin_url( "themes.php" ) . "'>";
-			echo "<label for='childThemeName'>";
-			echo "Child Theme Name:";
-			echo "<br>";
-			echo "<input type='text' name='childThemeName' id='childThemeName' value=''>";
-			echo "</label>";
-			echo "<br>";
-			echo $select . "<br>"; // displays a list of installed, active, non-child, themes
-			echo "<label for='ThemeURI'>";
-			echo "Theme URI<br>";
-			echo "<input type='text' name='themeURI' id='themeURI' value=''>";
-			echo "</label><br>";
-			echo "<label for='Description'>";
-			echo "Theme Description<br>";
-			echo "<textarea id='description' name='description'></textarea>";
-			echo "</label><br>";
-			echo "<label for='authorName'>";
-			echo "Author Name:<br>";
-			echo "<input type='text' id='authorName' name='authorName' value=''>";
-			echo "</label><br>";
-			echo "<label for='authorURI'>";
-			echo "Author URI:<br>";
-			echo "<input type='text' id='authorURI' name='authorURI' value=''>";
-			echo "</label><br>";
-			echo "<label for='version'>";
-			echo "Version:<br>";
-			echo "<input type='text' id='version' name='version' value='0.0.1' readonly>";
-			echo "</label><br>";
+			$adminThemes = admin_url("themes.php");
 
-			echo "<br>";
-			echo "<div class='buttonRow'>";
-			echo "<input type='button' ";
-			echo " value='Create Child Theme' ";
-			echo " class='blueButton' ";
-			echo " onclick='javascript:pas_cth_js_createChildTheme( this );'>";
-			echo "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-			echo "<input type='button' ";
-			echo " value='Reset' ";
-			echo " class='blueButton' ";
-			echo " onclick='javascript:this.form.reset();'>";
-			echo "</div>";
+			$createChildTheme = <<< "CREATECHILDTHEME"
 
-			echo "</div>";
-			echo "</form>";
-			echo "</div>";
+<p class='warningHeading'>Warning</p><br><br>
+	The current theme: '<i><b>{$this->activeThemeInfo->childThemeName}</i></b>' is <u>not</u> a child theme.
+	<br><br>
+	Do you want to create a child theme?
+	<br><br>
+	Fill out the following form to create a child theme.<br>
+	The only required fields are the <i>Child Theme Name</i> and the <i>Template Theme Name</i>
+	<div class='createChildThemeBoxForm'>
+		<div class='createChildThemeBoxForm_HDR'>Create Child Theme</div>
+			<form>
+				<input type='hidden' name='themeRoot' value='{$this->activeThemeInfo->childThemeRoot}'>
+				<input type='hidden' name='action' value='createChildTheme'>
+				<input type='hidden' name='href' value='{$adminThemes}'>
+				<label for='childThemeName'>
+					Child Theme Name:
+					<br>
+					<input type='text' name='childThemeName' id='childThemeName' value='' required pattern='^[a-zA-Z][a-zA-Z0-9\-\ ]+' data-message='Child Theme Names must begin with a letter' onblur='javascript:pas_cth_validateField(this);'>
+				</label>
+			<br>
+			{$select}<br> <!-- displays list of non-child installed themes -->
+			<label for='ThemeURI'>
+			Theme URI<br>
+			<input type='text' name='themeURI' id='themeURI' value='' pattern='^[a-zA-Z]{4,5}\://[a-zA-Z0-9:/\-\.\&\=\?]+$' data-message='Invalid URI' onblur='javascript:pas_cth_validateField(this);'>
+			</label><br>
+			<label for='Description'>
+			Theme Description<br>
+			<textarea required id='description' name='description' pattern='^[a-zA-Z0-9\.:;?#\%,\(\)/ ]+$' data-message='You may use letters, numbers, and special characters that you would normally use in writing, only. No HTML or other scripts are allowed here.' onblur='javascript:pas_cth_validateField(this);'></textarea>
+			</label><br>
+			<label for='authorName'>
+			Author Name:<br>
+			<input type='text' id='authorName' name='authorName' value='' pattern='^[a-zA-Z \.]+$' data-message='upper or lower case, spaces, or periods, only.' onblur='javascript:pas_cth_validateField(this);'>
+			</label><br>
+			<label for='authorURI'>
+			Author URI:<br>
+			<input type='text' id='authorURI' name='authorURI' value=''  pattern='^[a-zA-Z]{4,5}\://[a-zA-Z0-9:/\-\.\&\=\?]+$' data-message='Invalid URI' onblur='javascript:pas_cth_validateField(this);'>
+			</label><br>
+			<input type='hidden' id='version' name='version' value='0.0.1' readonly>
+			<br>
+
+			<div class='buttonRow'>
+				<input type='button'
+					value='Create Child Theme'
+					class='blueButton'
+					onclick='javascript:pas_cth_js_createChildTheme( this );'
+				>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				<input type='button'
+					value='Reset'
+					class='blueButton'
+					onclick='javascript:this.form.reset();'
+				>
+			</div>
+			<br>
+		</div>
+		</form>
+	</div>
+CREATECHILDTHEME;
+			echo $createChildTheme;
 		}
 		/*
 		 *	manage_child_themes is the main driver function. This function is called from
@@ -744,7 +748,7 @@ OPTION;
 											 'file'=>$ff,
 											 'themeType'=>$themeType,
 											 'extension'=>pathinfo( $dir.PAS_CTH_SEPARATOR.$ff )['extension'],
-											 'allowedFileTypes'=>get_option('pas_cth_edit_allowedFileTypes', ['php', 'js', 'css', 'txt', 'svg']),
+											 'allowedFileTypes'=>get_option('pas_cth_edit_allowedFileTypes'),
 											]
 										 );
 					echo "<li>"
