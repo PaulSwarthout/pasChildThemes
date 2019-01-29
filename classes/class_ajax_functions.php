@@ -40,7 +40,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			// Posted from Javascript AJAX call
 			$inputs = [
 						'directory'	=> sanitize_text_field( $_POST['directory'] ),
-						'file'		=> sanitize_file_name( $_POST['file'] )
+						'file'		=> $this->MyFilenameSanitize( $_POST['file'] )
 					];
 
 			$childThemeFile	= $this->activeThemeInfo->childThemeRoot	. PAS_CTH_SEPARATOR
@@ -110,7 +110,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		function verifyCopyFile( ) {
 			$inputs =[
 						'directory'	=> sanitize_text_field( $_POST['directory'] ),
-						'file'		=> sanitize_file_name(	$_POST['file'] ),
+						'file'		=> $this->MyFilenameSanitize( $_POST['file'] ),
 						'action'	=> 'copyFile',
 					 ];
 
@@ -175,6 +175,93 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 			}
 		}
 		/*
+		 * The MyFilenameSanitize() is identical to sanitize_file_name except for a single change.
+		 * The WordPress core function 'sanitize_file_name' strips leading underscores in file names.
+		 * FILE NAMES ARE ALLOWED TO HAVE LEADING UNDERSCORES.
+		 * The TwentyNineteen theme, released with WordPress 5.0 demonstrates this.
+		 * Because the Child Themes Helper plugin copies files from the template or parent theme to the child theme,
+		 * and themes like TwentyNineteen have files with leading underscores, the Child Themes Helper plugin
+		 * cannot use a sanitize function that strips leading underscores from file names.
+		 *
+		 * The line below:
+		 *    $filename = trim( $filename, '.-_' );
+		 * was changed to:
+		 *    $filename = trim( $filename, '.-' );
+		 * Otherwise the MyFilenameSanitize() function is line-for-line identical to the sanitize_file_name() function
+		 * as it appears in the /wp-includes/formatting.php file, as of WordPress 5.0.3.
+		 */
+		function MyFilenameSanitize($filename) {
+			$filename_raw = $filename;
+			$special_chars = array("?", "[", "]", "/", "\\", "=", "<", ">", ":", ";", ",", "'", "\"", "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}", "%", "+", chr(0));
+			/**
+			 * Filters the list of characters to remove from a filename.
+			 *
+			 * @since 2.8.0
+			 *
+			 * @param array  $special_chars Characters to remove.
+			 * @param string $filename_raw  Filename as it was passed into sanitize_file_name().
+			 */
+			$special_chars = apply_filters( 'sanitize_file_name_chars', $special_chars, $filename_raw );
+			$filename = preg_replace( "#\x{00a0}#siu", ' ', $filename );
+			$filename = str_replace( $special_chars, '', $filename );
+			$filename = str_replace( array( '%20', '+' ), '-', $filename );
+			$filename = preg_replace( '/[\r\n\t -]+/', '-', $filename );
+			$filename = trim( $filename, '.-' );
+
+			if ( false === strpos( $filename, '.' ) ) {
+				$mime_types = wp_get_mime_types();
+				$filetype = wp_check_filetype( 'test.' . $filename, $mime_types );
+				if ( $filetype['ext'] === $filename ) {
+					$filename = 'unnamed-file.' . $filetype['ext'];
+				}
+			}
+
+			// Split the filename into a base and extension[s]
+			$parts = explode('.', $filename);
+
+			// Return if only one extension
+			if ( count( $parts ) <= 2 ) {
+				/**
+				 * Filters a sanitized filename string.
+				 *
+				 * @since 2.8.0
+				 *
+				 * @param string $filename     Sanitized filename.
+				 * @param string $filename_raw The filename prior to sanitization.
+				 */
+				return apply_filters( 'sanitize_file_name', $filename, $filename_raw );
+			}
+
+			// Process multiple extensions
+			$filename = array_shift($parts);
+			$extension = array_pop($parts);
+			$mimes = get_allowed_mime_types();
+
+			/*
+			 * Loop over any intermediate extensions. Postfix them with a trailing underscore
+			 * if they are a 2 - 5 character long alpha string not in the extension whitelist.
+			 */
+			foreach ( (array) $parts as $part) {
+				$filename .= '.' . $part;
+
+				if ( preg_match("/^[a-zA-Z]{2,5}\d?$/", $part) ) {
+					$allowed = false;
+					foreach ( $mimes as $ext_preg => $mime_match ) {
+						$ext_preg = '!^(' . $ext_preg . ')$!i';
+						if ( preg_match( $ext_preg, $part ) ) {
+							$allowed = true;
+							break;
+						}
+					}
+					if ( !$allowed )
+						$filename .= '_';
+				}
+			}
+			$filename .= '.' . $extension;
+			/** This filter is documented in wp-includes/formatting.php */
+			return apply_filters('sanitize_file_name', $filename, $filename_raw);
+		}
+		/*
 		 * pas_cth_copyFile( )
 		 * is called from the Javascript function overwriteFile( ) in 'js/pasChildThemes.js' AND
 		 * from pas_cth_verifyCopyFile( ) when the child theme file does not exist.
@@ -188,15 +275,15 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 				$childStylesheet	= $this->activeThemeInfo->childStylesheet;
 				$templateThemeRoot	= $this->activeThemeInfo->templateThemeRoot;
 				$templateStylesheet = $this->activeThemeInfo->templateStylesheet;
-				$directory			= $args['directory'];
-				$fileToCopy			= $args['file'];
+				$directory			= sanitize_text_field($args['directory']);
+				$fileToCopy			= $this->MyFilenameSanitize($args['file']);
 			} else {
 				$childThemeRoot		= $this->activeThemeInfo->childThemeRoot;
 				$childStylesheet	= $this->activeThemeInfo->childStylesheet;
 				$templateThemeRoot	= $this->activeThemeInfo->templateThemeRoot;
 				$templateStylesheet = $this->activeThemeInfo->templateStylesheet;
 				$directory			= sanitize_text_field( $_POST['directory'] );
-				$fileToCopy			= sanitize_file_name( $_POST['file'] );
+				$fileToCopy			= $this->MyFilenameSanitize( $_POST['file'] );
 			}
 
 			$dir = $childThemeRoot . PAS_CTH_SEPARATOR . $childStylesheet . PAS_CTH_SEPARATOR;
