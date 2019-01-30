@@ -49,6 +49,8 @@ function pas_cth_js_editElements() {
 	this.readOnlyFlag	= document.getElementById("readOnlyFlag");
 	this.readOnlyMsg	= document.getElementById("ef_readonly_msg");
 
+	this.shield			= document.getElementById("shield");
+
 	this.windowHeight	= window.innerHeight;
 	this.windowWidth	= window.innerWidth;
 
@@ -234,6 +236,7 @@ function processEditFile(response) {
 
 	ee.editBox.onkeydown = function () { captureKeystrokes(this) }
 
+	ee.shield.style.display = "inline";
 	ee.editFile.style.display = "grid";
 //	ee.themeGrid.style.display = "none";
 
@@ -259,6 +262,7 @@ function pas_cth_js_closeEditFile() {
 	} else {
 //		ee.themeGrid.style.display = "inline-grid";
 		ee.editFile.style.display = "none";
+		ee.shield.style.display = "none";
 		ee.editBox.innerHTML = "";
 		ee.savePrompt.style.display = "none";
 	}

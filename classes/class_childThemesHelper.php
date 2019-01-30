@@ -649,30 +649,37 @@ CREATECHILDTHEME;
 			// Both will be sized and positioned dynamically with Javascript
 			echo	"<div id='hoverPrompt'></div>";
 
-			echo	"<div id='editFile' data-gramm='false' >"
-				.	"	<input type='hidden' id='directory' value=''>"
-				.	"	<input type='hidden' id='file'	value=''>"
-				.	"	<input type='hidden' id='themeType' value=''>"
-				.	"	<input type='hidden' id='readOnlyFlag' value='false'>"
-				.	"	<input type='hidden' id='currentFileExtension' value=''>"
-				.	"<input type='button' value='Save File' disabled id='ef_saveButton' onclick='javascript:pas_cth_js_saveFile();'>"
-				.	"<p id='ef_readonly_msg'>File is READ ONLY. Changes WILL NOT BE SAVED.</p>"
-				.	"<p id='ef_filename'>FILENAME</p>"
-				.	"<input type='button' value='Close File' id='ef_closeButton' onclick='javascript:pas_cth_js_closeEditFile();'>"
-				.	(constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='DEBUG' id='ef_debug_button' onclick='javascript:debug(this);'>" : "")
-				.	(constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='HEXDUMP' id='ef_hexdump_button' onclick='javascript:pas_cth_js_hexdump();'>" : "")
-				.	"	<div id='editBox' data-gramm='false' spellcheck='false' autocapitalize='false' autocorrect='false' role='textbox' oninput='javascript:editBoxChange();'>"
-				.	"	</div>"
-				.	"</div>";
+			$debugBTN	= (constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='DEBUG' id='ef_debug_button' onclick='javascript:debug(this);'>" : "");
+			$hexdumpBTN	= (constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='HEXDUMP' id='ef_hexdump_button' onclick='javascript:pas_cth_js_hexdump();'>" : "");
 
-			echo "</div>"; // end of <div id='pas_cth_content'>
+			$editFileOutput = <<< "EDITFILE"
 
-			echo	"<div id='savePrompt'>"
-				.	"File has changed.<br>Do you want to save it?<br><br>"
-				.	"	<input id='sp_saveButton' type='button' onclick='javascript:pas_cth_js_saveFile();' value='Save'>"
-				.	"	&nbsp;&nbsp;&nbsp;"
-				.	"	<input id='sp_closeButton' type='button' onclick='javascript:pas_cth_js_closeEditFile();' value='No Save'>"
-				.	"</div>";
+				<div id='shield'>
+					<div id='editFile' data-gramm='false' >
+						<input type='hidden' id='directory' value=''>
+						<input type='hidden' id='file'	value=''>
+						<input type='hidden' id='themeType' value=''>
+						<input type='hidden' id='readOnlyFlag' value='false'>
+						<input type='hidden' id='currentFileExtension' value=''>
+						<input type='button' value='Save File' disabled id='ef_saveButton' onclick='javascript:pas_cth_js_saveFile();'>
+						<p id='ef_readonly_msg'>Template Theme files are READ ONLY. Changes WILL NOT BE SAVED.</p>
+						<p id='ef_filename'>FILENAME</p>
+						<input type='button' value='Close File' id='ef_closeButton' onclick='javascript:pas_cth_js_closeEditFile();'>
+						{$debugBTN}
+						{$hexdumpBTN}
+						<div id='editBox' data-gramm='false' spellcheck='false' autocapitalize='false' autocorrect='false' role='textbox' oninput='javascript:editBoxChange();'>
+						</div>
+					</div>
+				</div>
+				<div id='savePrompt'>
+					File has changed.<br>Do you want to save it?<br><br>
+					<input id='sp_saveButton' type='button' onclick='javascript:pas_cth_js_saveFile();' value='Save'>
+					&nbsp;&nbsp;&nbsp;
+					<input id='sp_closeButton' type='button' onclick='javascript:pas_cth_js_closeEditFile();' value='No Save'>
+				</div>
+EDITFILE;
+
+			echo $editFileOutput;
 		}
 
 

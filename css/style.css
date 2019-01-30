@@ -821,27 +821,40 @@ p.mID {
 	border-radius:15px;
 	padding:10px;
 }
+#shield {
+	position:fixed;
+	top:0px;
+	left:0px;
+	width:100%;
+	height:100%;
+	visibility:visible;
+	display:none;
+	background-color:rgba(255, 255, 255, .8);
+	color:black;
+	z-index:99999;
+}
+#ef_readonly_msg	{ grid-column:1 / span 4;	grid-row:1; }
+
+#ef_filename		{ grid-column:1 / span 4;	grid-row:2; }
+
+#ef_closeButton		{ grid-column:1;			grid-row:3; }
+#ef_saveButton		{ grid-column:2;			grid-row:3; }
+#ef_debug_button	{ grid-column:3;			grid-row:3; }
+#ef_hexdump_button	{ grid-column:4;			grid-row:3; }
+
+#editBox			{ grid-column:1 / span 4;	grid-row:4; }
+
 #editFile p {
 	margin:0px;
 	padding:0px;
 }
-#ef_saveButton {
-	grid-column:2;
-	grid-row:3;
-}
-#ef_closeButton {
-	grid-column:1;
-	grid-row:3;
-}
+#ef_saveButton,
+#ef_closeButton,
+#sp_saveButton,
+#sp_closeButton,
+#ef_debug_button,
+#ef_modify,
 #ef_hexdump_button {
-	grid-column:4;
-	grid-row:3;
-}
-#ef_debug_button {
-	grid-column:3;
-	grid-row:3;
-}
-#ef_saveButton, #ef_closeButton, #sp_saveButton, #sp_closeButton, #ef_debug_button, #ef_modify, #ef_hexdump_button {
 	background-color:blue;
 	color:white;
 	width:100%;
@@ -854,8 +867,6 @@ p.mID {
 	color:black;
 	font-size:14pt;
 	font-weight:bold;
-	grid-row:2;
-	grid-column:1 / span 4;
 }
 #ef_readonly_msg {
 	display:none;
@@ -864,8 +875,6 @@ p.mID {
 	font-size:12pt;
 	font-weight:bold;
 	width:100%;
-	grid-row:1;
-	grid-column:1 / span 4;
 }
 #editBox {
 	background-color:white;
@@ -877,8 +886,6 @@ p.mID {
 	overflow-y:scroll;
 	white-space:pre;
 	margin-top:10px;
-	grid-row:4;
-	grid-column:1 / span 4;
 }
 #savePrompt {
 	width:100%;
