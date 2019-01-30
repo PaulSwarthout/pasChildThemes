@@ -4,18 +4,21 @@ Author URI: http://www.paulswarthout.com/child-themes-helper
 Donate link: https://paypal.me/PaulSwarthout
 Tags: child themes helper, child themes, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
 Requires at least: 4.7.0
-Tested up to: 5.0.1
-Stable tag: 1.3
-Requires PHP: 5.5.38
+Tested up to: 5.0.3
+Stable tag: 1.3.2
+Requires PHP: 5.6.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Copies parent theme files to a child theme while maintaining the correct folder/subfolder structure in the child theme as in the parent theme.
+Copies parent theme files to a child theme while maintaining the correct folder/subfolder structure in the child theme as in the parent theme, and more....
 
 == Description ==
 
 1. **Copy files from Parent Theme to Child Theme**
 	The primary purpose of the Child Themes Helper plugin is to copy files from a parent theme (also called the template theme) to a child theme. The folder path in the parent theme is duplicated in the child theme during the copy.
+
+1. **Edit Child Theme Files**
+	Starting with the Child Themes Helper version 1.3, you can now edit your child theme files and save the changes. You can also "edit" your parent theme files, but they are marked read-only and you will not be able to save any changes that you make.
 
 1. **Remove files from the Child Theme**
 	The Child Themes Helper plugin will also remove any files that you no longer want in the child theme. Any folders that are made empty by the removal of a file or folder, will also be removed.
@@ -42,16 +45,23 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 		In a future release, there will be a lock feature on the options page to prevent accidental overwrites of the screenshot file. Also, in a future release, there will be the ability to select an existing graphic and crop it as necessary, instead of generating one.
 
 	- *Child Themes Helper access*
-		The Child Themes Helper is accessed from the WordPress dashboard under the heading "Child Themes Helper". It is located immediately below the *Appearance* Dashboard menu item.
+		The Child Themes Helper is accessed from the WordPress dashboard under the heading "Child Themes Helper". The menu item may be found immediately below the *Appearance* Dashboard menu item.
 
 	- *Platform Support*
 		The Child Themes Helper plugin has been tested with both WordPress running on a Windows server and with WordPress running on a Linux server. Development is done on a Windows platform. If you find any compatibility issues with Linux, please let me know.
 	
-	- *Child Themes Helper plugin code*
-		The GitHub repository for this plugin can be found [here](https://github.com/PaulSwarthout/pasChildThemes).
+	- *Child Themes Helper on GitHub*
+		The GitHub repository for this plugin can be found [here](https://github.com/PaulSwarthout/pasChildThemes). Stable versions are usually found on the WordPress SVN repository. Intermediate versions are often found on GitHub.
 
 	- *Development versions*
-		Versions 1\.1\.3 and 1\.0 are available for download and install.
+		Versions 1\.2, 1\.1\.3 and 1\.0 are available for download and install.
+
+	- *Known Bug*
+		Although the Child Themes Helper plugin is mostly responsive, the Edit File functionality doesn't work very well on small screens. But does anybody actually modify themes on smartphones and tablets? (Please say 'No').
+
+	- *Future Thoughts*
+		When I created this plugin, I created it for how I worked -- on a development website on a development server. As such, all of the functionality of this plugin shines when the child theme is the Active theme. Recently, I discovered that, that might not be an accurate statement for everybody else. So, the next release -- version 1.4 -- will let the Child Themes Helper work on any child theme, whether it's active or not.
+
 
 == Installation ==
 
@@ -77,8 +87,9 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 
 I am glad you asked.
 
-- The ability to directly edit a file will be available in version 1.3.
-- The ability to edit (through a form prompt) the different fields that define a child theme. Basically this will let your directly edit the style.css header without opening the file and editting it directly.
+- The ability to directly edit a file will be available in version 1.3 -- DONE. Added to this release.
+- The ability to edit and modify your child theme WITHOUT it being the active theme.
+- The ability to edit (through a form prompt) the different fields that define a child theme. Basically this will let you directly edit the style.css header without opening the file and editing it directly.
 - I'm considering a drag and drop feature for files, rather than just click on them for the added user feedback that it supports. For now, users of wide screens see a hovering prompt that tells them what they're about to do. But users of small screens, do see that. I think a drag and drop feature would help the users of smalls screens be more clear on what's about to happen.
 
 - A pro version that encompasses even more features like:
@@ -100,15 +111,13 @@ Effective with version 1.2, this problem has been resolved. You must now click o
 
 You did nothing wrong. Your browser will cache the screenshot file to help your website to load more quickly. The solution is to clear your browser's image cache. [Here's a good article](https://kb.iu.edu/d/ahic) that I found that gives great directions on how to accomplish that.
 
-= I generated a screenshot but all I see is the background color. What did I do wrong? =
-
-Updated Answer: This issue has been fixed in version 1.2. Please update.
-
-Original Answer: You did nothing wrong. Just generate the screenshot again and it should work fine. This is a nagging issue that happens when the chosen font doesn't exist in the assets/fonts folder. If you have deleted any fonts from that folder, or updated the Child Themes Helper to a newer version, the font that you chose (or defaulted to) on the Options page, may no longer exist. The first time you generate a screenshot, it cannot find the chosen font, so it resets it to the default font. The second time you generate a screenshot, it will use the default. Also, note the question above.
-
 = What does the "Generate ScreenShot" option do? =
 
 The WordPress Themes page displays a graphic for each theme. A newly created child theme does not have a graphic. The Generate ScreenShot menu option creates a temporary graphic. Generally, developers will use a copy of a header image for their screenshot. But rather than leaving it blank until later, the Child Themes Helper plugin will create a temporary graphic which displays the child theme name, the parent theme name, a message indicating that the child theme was created using the Child Themes Helper and the Child Themes Helper's developer's web address. It is expected that the developer will want to replace this temporary graphic with their own custom graphic at a later time. Please check out [my demo page](http://www.1acsi.com) where you are welcome to take the Child Themes Helper plugin for a test drive.
+
+= Why create a screenshot? I'm just going to delete it later anyway. =
+
+I hate the fact that nothing appears as a graphic in a newly created child theme. It just bugs me. So I thought I'd do something about it. But most of all, it was a learning experience. I got to learn about CSS grids, and the GD graphics library, and handling fonts.
 
 == Screenshots ==
 
@@ -118,6 +127,18 @@ is the name of your Child Theme. The page scrolls.
 For this example, the Child Theme was created as a child of the 'Twenty Sixteen' theme and it's name appears at the top. The page scrolls.
 
 == Changelog ==
+
+= 1.3.2 =
+- Tested with WP 5.0.3.
+
+- Added the ability to edit files in the child theme or the parent theme. You have the ability to save any changes that you make to the child theme, but the parent theme files are read-only. You can, of course, click on the parent theme file to copy it to the child theme, and then right click on the file to edit it, make your changes, and save those changes in the child theme file.
+
+- Fixed a bug where you could create a child theme whose name didn't start with a letter, and then crash it when you tried to set it active..
+
+- Fixed a bug where files whose names started with an underscore couldn't be copied. The problem is caused by the WordPress core function sanitize_file_name() which strips (trims) periods, dashes, and underscores from the beginning of a filename. The solution was to create a new function to sanitize file names that didn't strip the underscores. I kept the functionality that strips leading periods and dashes. I tripped on this bug when testing a newly created child theme of TwentyNineteen, which has filenames that begin with an underscore.
+
+= 1.2 =
+- Tested with WP 5.0 RC1.
 
 = 1.2 =
 - Updated the stylesheet to make the plugin responsive. This plugin should work nicely on whatever device you want to use it with. I even tested it with an old Samsung S II that I had laying around. Aside from some browser incompatibilities with such an old device -- I hadn't even turned it on in more than 2 years, let alone updated its software -- the Child Themes Helper plugin was usable at that resolution. Below, 240px wide or tall, (smallest device is the Apple Watch at 240px x 240px) it will hide itself.

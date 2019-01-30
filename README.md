@@ -1,4 +1,4 @@
-# Child Themes Helper plugin Version 1.3
+# Child Themes Helper plugin Version 1.3.2
 The Child Themes Helper plugin was developed to solve a problem that I was struggling with: the copying of files from a template theme to a child theme. It was almost never easy.
 1. Copy the template theme file down to my local computer via FTP. That was easy enough.
 1. Create the matching directory structure in my child theme. That was a bit more time-consuming. Invariably I would create a folder wrong and wouldn't notice until I tried to see my changes. I would reload the page and it would look the same. I would spend a ton of wasted time trying to figure out why my changes did not show up. Then I'd see it. A typo in a folder name. A missed subfolder in the tree. Or some other bonehead error.
@@ -17,6 +17,9 @@ But wait. Isn't that an awful lot of unchecked power? Yes it is. Before a file i
 Further, the Child Theme Helper plugin refuses any and all requests to overwrite or remove the style.css and/or the functions.php file. I don't want to be blamed because you destroyed your active theme and thus your website because you used the Child Theme Helper plugin to destroy your theme. So, you cannot delete or overwrite your style.css or functions.php files. If you really must do that, I suggest that you use your favorite FTP client.
 
 The Child Theme Helper plugin only manipulates the child theme files. The template theme is never touched. A new feature that is currently planned, but not yet implemented, is the ability to edit the files for a quick peek or a quick modification. Once that feature has been completed, the developer will be able to open the template theme files, but they will not be able to save any modifications. Only changes to the child theme files may be saved.
+
+## Edit Child Themes Files
+Starting with version 1.3.2, you can edit child theme files directly, and save your changes. You can open parent theme files in an editor, but parent theme files are read-only. If you make changes to a parent theme file, you will not be able to save theme.
 
 ## Create a New Child Theme
 The Child Theme Helper plugin was intended for one purpose: to copy files to the child theme. But what should it do when the currently active theme isn't a child theme? My first thought was to disable it somehow. But then I thought, why not give the developer the opportunity to create a new child theme.
