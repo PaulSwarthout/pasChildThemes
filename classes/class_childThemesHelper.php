@@ -46,6 +46,9 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 									$this->pluginDirectory['url'] . 'css/hexdump.css' . $uniqStr,
 									false );
 			}
+			wp_enqueue_style(	'pasChildThemes2',
+								$this->pluginDirectory['url'] . 'css/menu_page.css' . $uniqStr,
+								false );
 		}
 
 		// Load the pasChildThemes Javascript script file
@@ -71,9 +74,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 				}
 			}
 		}
-
-		// pasChildThemes Dashboard Menu
-		function dashboard_menu( ) {
+		function isDemo() {
 			$userlogin = "";
 			if (defined("DEMO_USER")) {
 				$userlogin = strtolower(constant("DEMO_USER"));
@@ -83,9 +84,16 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			} else {
 				$capability = "manage_options";
 			}
+			return $capability;
+		}
+
+		// pasChildThemes Dashboard Menu
+		function dashboard_menu( ) {
+			$cap = $this->isDemo();
+
 			add_menu_page( 	'ChildThemesHelper',
 							'Child Themes Helper',
-							$capability,
+							$cap,
 							'manage_child_themes',
 							Array( $this, 'manage_child_themes' ),
 							"",
@@ -96,7 +104,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 				add_submenu_page( 	'manage_child_themes',
 									'Generate ScreenShot',
 									'Generate ScreenShot',
-									$capability,
+									$cap,
 									'genScreenShot',
 									Array( $this, 'generateScreenShot' )
 								 );
@@ -104,10 +112,48 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			add_submenu_page( 'manage_child_themes',
 								'Screenshot Options',
 								'Screenshot Options',
-								$capability,
+								$cap,
 								'ScreenshotOptions',
 								Array( $this, 'pas_cth_Options' )
 							 );
+			add_submenu_page( 'manage_child_themes',
+							  'Menu Page',
+							  'Menu Page',
+							  $cap,
+							  'menuPage',
+							  Array( $this, 'pas_cth_menuPage' )
+							);
+		}
+		function pas_cth_menuPage() {
+			$menuPage = <<< "MENUPAGE"
+				<div id='CTH-MENU'>
+					<span class='buttonCELL' id='createChildTheme'><input type='button' value='create child theme'></span>
+					<p class='descrCELL' id='createChildThemeDesc'>
+						Click here to create a new child theme.
+					</p>
+
+					<span class='buttonCELL' id='copyFiles'><input type='button' value='copy files'></span>
+					<p class='descrCELL' id='copyFilesDesc'>
+						Click here to copy files from the parent theme to the child theme, or remove files from the child theme.
+					</p>
+
+					<span class='buttonCELL' id='editFiles'><input type='button' value='edit theme files'></span>
+					<p class='descrCELL' id='editFilesDesc'>
+						Click here to edit theme files.
+					</p>
+
+					<span class='buttonCELL' id='genScrnShot'><input type='button' value='generate screenshot'></span>
+					<p class='descrCELL' id='genScrnShotDesc'>
+						Click here to generate a child theme screenshot for the themes page.
+					</p>
+
+					<span class='buttonCELL' id='options'><input type='button' value='options'></span>
+					<p class='descrCELL' id='optionsDesc'>
+						Click here to modify the plugin options.
+					</p>
+				</div>
+MENUPAGE;
+			echo $menuPage;
 		}
 		// WriteOption( ) displays an option on the pasChildThemes options page.
 		function loadAvailableFonts( ) {

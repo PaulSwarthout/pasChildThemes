@@ -1,0 +1,46 @@
+/* menu_page.css */
+
+#CTH-MENU {
+	display:grid;
+	grid-template-columns:25% 75%;
+	grid-template-rows:40px 40px 40px 40px 40px;
+	grid-row-gap:10px;
+	border:solid 1pt black;
+	border-radius:10px;
+	width:70%;
+	background-color:#E0E0FF;
+	margin-top:40px;
+	padding:10px;
+}
+
+#CTH-MENU .buttonCELL {
+	text-align:center;
+	line-height:40px;
+	color:black;
+	height:40px;
+	margin:0px;
+	padding:0px;
+}
+#CTH-MENU .descrCELL {
+	text-align:left;
+	line-height:40px;
+	height:40px;
+	color:black;
+	margin:0px;
+	padding:0px;
+}
+.buttonCELL input[type=button] {
+	width:200px;
+	height:30px;
+	border-radius:10px;
+	background:#0000FF;
+	color:white;
+}
+.buttonCELL input[type=button]:hover {
+	background:white;
+	color:#0000FF;
+	font-weight:bold;
+}
+
+#CTH-MENU .buttonCELL	#createChildTheme		{ grid-column:1;	grid-row:1; }
+#CTH-MENU .descrCELL	#createChildThemeDesc	{ grid-column:2;	grid-row:1; }
