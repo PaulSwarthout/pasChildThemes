@@ -1,0 +1,54 @@
+/* Style the tab */
+#child-themes-helper-page {
+	display:hidden;
+}
+.tab {
+  overflow: hidden;
+  border: none;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border:none;
+  box-shadow:5px 5px 5px darkgray;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  margin-right:4px;
+  transition: 0.2s;
+  border:solid 1pt black;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+  box-shadow:none;
+  border-left:solid 1pt black;
+  border-top:solid 1pt black;
+  border-right:solid 1pt black;
+  border-bottom:solid 1pt #ccc;
+}
+
+/* Style the tab content */
+#tabPage .tabcontent {
+	padding: 6px 50px;
+	border: none;
+	border-top: none;
+	background-color:#ccc;
+	height:calc(100% - 32px);
+	overflow-y:scroll;
+}
+.tab_inactive {
+	display: none;
+}
+.tab_active {
+	display: block;
+}

@@ -15,6 +15,41 @@ window.onmousemove = function (e) {
 	mousePosition.x = e.clientX;
 	mousePosition.y = e.clientY;
 }
+
+function pas_cth_js_AJAXCall(action, dataBlock = [], callback = null, error_callback = null) {
+	var xmlhttp = new XMLHttpRequest();
+	var data	= new FormData();
+
+	data.append("action", action);
+
+	if (dataBlock != null) {
+		Object.keys(dataBlock).forEach(function(key) {
+			if (key != "action") {
+				data.append(key, dataBlock[key]);
+			}
+		});
+	}
+	xmlhttp.open("POST", ajaxurl, true);
+	xmlhttp.onreadystatechange = function () {
+		if (4 == xmlhttp.readyState) {
+			// The next line strips the admin_ajax.php 1 byte response from the beginning of the response.
+			// Usually, admin_ajax.php returns a zero. This strips that.
+			var response = (xmlhttp.responseText.length >= 1 ? xmlhttp.responseText.left(xmlhttp.responseText.length - 1) : "");
+			if (xmlhttp.status == 200) {
+				if (callback != null) {
+					callback(response);
+				}
+			} else {
+				if (error_callback != null) {
+					error_callback(xmlhttp.statusText, response);
+				} else {
+					alert("AJAX Error:\n\n" + xmlhttp.statusText + "\n\n" + response);
+				}
+			}
+		}
+	}
+	xmlhttp.send(data);
+}
 if (document.getElementById("childGrid") != null && document.getElementById("parentGrid") != null) {
 	window.onresize = function (e) {
 		var childGrid = document.getElementById("childGrid")

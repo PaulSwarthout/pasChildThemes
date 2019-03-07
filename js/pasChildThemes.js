@@ -442,3 +442,12 @@ function pas_cth_validateField(element) {
 		box.innerHTML = element.getAttribute("data-message") + "<br><br>Click on this messagebox to close it";
 	}
 }
+function pas_cth_js_launch(btn) {
+	var ajaxAction = btn.getAttribute("data-ajax")
+	var FN = function (response) {
+		if (response.length > 0) {
+
+		}
+	}
+	pas_cth_js_AJAXCall(ajaxAction);
+}

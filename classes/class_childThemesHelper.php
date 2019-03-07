@@ -37,7 +37,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		// Load the pasChildThemes CSS style.css file
 		function dashboard_styles( ) {
 			// Prevents browser from caching the stylesheet during development
-			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?u=" . rand( 0, 999999 ) . "&" : "" );
+			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?cacheBuster=" . time() . "&" : "" );
 			wp_enqueue_style( 	'pasChildThemes',
 								$this->pluginDirectory['url'] . "css/style.css" . $uniqStr,
 								false );
@@ -49,21 +49,34 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			wp_enqueue_style(	'pasChildThemes2',
 								$this->pluginDirectory['url'] . 'css/menu_page.css' . $uniqStr,
 								false );
+			wp_enqueue_style(	'pasChildThemes4',
+								$this->pluginDirectory['url'] . 'css/tabs.css' . $uniqStr,
+								false );
 		}
 
 		// Load the pasChildThemes Javascript script file
 		function dashboard_scripts( ) {
 			// Prevents browser from caching the stylesheet during development
-			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?u=" . rand( 0, 999999 ) . "&" : "" );
-			wp_enqueue_script( 'pas_cth_Script',
-								$this->pluginDirectory['url'] . "js/pasChildThemes.js" . $uniqStr,
-								false );
-			wp_enqueue_script( 'pas_cth_Script2',
-								$this->pluginDirectory['url'] . "js/js_common_fn.js" . $uniqStr,
-								false );
-			wp_enqueue_script( 'pas_cth_Script3',
-							   $this->pluginDirectory['url'] . "js/edit_file.js" . $uniqStr,
-							   false );
+			$cacheBuster = ( constant( 'WP_DEBUG' ) ? "?cacheBuster=" . time() . "&" : "" );
+			$scripts =
+				[
+					[ 'script' => 'pasChildThemes.js',	'topLoad'	=> true,	'debugOnly'	=> false],
+					[ 'script' => 'js_common_fn.js',	'topLoad'	=> true,	'debugOnly'	=> false ],
+					[ 'script' => 'edit_file.js',		'topLoad'	=> true,	'debugOnly'	=> false ],
+					[ 'script' => 'tabs.js',			'topLoad'	=> false,	'debugOnly'	=> false ],
+					[ 'script' => 'hexdump.js',			'topLoad'	=> true,	'debugOnly' => true, ],
+				];
+			for ($ndx = 0; $ndx < count($scripts); $ndx++) {
+				if ($scripts[$ndx]['topLoad']) {
+					wp_enqueue_script ("pas_cth_script_{$ndx}",
+									   $this->pluginDirectory['url'] . "js/{$scripts[$ndx]['script']}{$cacheBuster}",
+									   false );
+				} else {
+					wp_register_script("pas_cth_script_{$ndx}", "{$this->pluginDirectory['url']}js/{$scripts[$ndx]['script']}{$cacheBuster}", '', '5.1', true);
+					wp_enqueue_script("pas_cth_script_{$ndx}");
+				}
+			}
+/*
 			if (defined('WP_DEBUG') && constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES") {
 				wp_enqueue_script( 'pas_cth_Script4',
 								   $this->pluginDirectory['url'] . 'js/hexdump.js' . $uniqStr,
@@ -73,6 +86,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 					wp_localize_script( 'pas_cth_Script4', 'pas_cth_debugMode', $obj );
 				}
 			}
+*/
 		}
 		function isDemo() {
 			$userlogin = "";
@@ -95,59 +109,111 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 							'Child Themes Helper',
 							$cap,
 							'manage_child_themes',
-							Array( $this, 'manage_child_themes' ),
+							Array( $this, 'pas_cth_tabPage' ),
 							"",
 							61 // appears just below the Appearances menu.
 						 );
-			// Prevent overwriting the template theme's screenshot.png file.
-			if ( $this->activeThemeInfo->isChildTheme ) {
-				add_submenu_page( 	'manage_child_themes',
-									'Generate ScreenShot',
-									'Generate ScreenShot',
-									$cap,
-									'genScreenShot',
-									Array( $this, 'generateScreenShot' )
-								 );
-			}
-			add_submenu_page( 'manage_child_themes',
-								'Screenshot Options',
-								'Screenshot Options',
-								$cap,
-								'ScreenshotOptions',
-								Array( $this, 'pas_cth_Options' )
-							 );
-			add_submenu_page( 'manage_child_themes',
-							  'Menu Page',
-							  'Menu Page',
-							  $cap,
-							  'menuPage',
-							  Array( $this, 'pas_cth_menuPage' )
-							);
 		}
+		function pas_cth_tabPage() {
+			$crlf = $this->crlf;
+			$tabInfo =
+				[
+					[
+						'title'		=>	'Create Child Theme',	
+						'slug'		=>	'create-child-theme',
+						'content'	=>	'Create new child theme.',
+						'default'	=>	false,
+					],
+					[
+						'title'		=>	'Copy Theme Files',
+						'slug'		=>	'copy-theme-files',
+						'content'	=> 'Copy files from the template theme to the child theme.',
+						'default'	=> true,
+					],
+					[
+						'title'		=>	'Edit Child Theme',
+						'slug'		=>	'edit-child-theme',
+						'content'	=>	'Edit the child theme files.',
+						'default'	=>	false,
+					],
+					[
+						'title'		=>	'Screenshot',
+						'slug'		=>	'screenshot',
+						'content'	=>	'Screenshot options and generation.',
+						'default'	=>	false,
+					],
+					[
+						'title'		=>	'Options',				
+						'slug'		=>	'options', 
+						'content'	=>	'Child Themes Helper options.',
+						'default'	=>	false,
+					],
+				];
+			echo "<div class='tab'>{$crlf}";
+			foreach ($tabInfo	as $tab) {
+				echo "<button class='tablinks' data-tab='{$tab['slug']}' onclick='openCTHTab(this, event);' " . ($tab['default'] ? " id='defaultOpen' " : "") . ">{$tab['title']}</button>{$crlf}";
+			}
+			echo "</div>{$crlf}";
+
+			echo "<div id='tabPage'>";
+
+			foreach ($tabInfo as $tab) {
+				echo "<div data-tab='{$tab['slug']}' class='tabcontent tab_inactive'>\r\n";
+
+				switch ($tab['slug']) {
+					case "create-child-theme":
+						$this->showCreateChildThemeForm();
+						break;
+
+					case "copy-theme-files":
+						// Copy Theme Files
+						$this->manage_child_themes("COPY");
+						break;
+
+					case "edit-child-theme":
+						$this->manage_child_themes("EDIT");
+						break;
+					
+					case "screenshot":
+						$this->pas_cth_Options();
+						break;
+					
+					default:
+						echo "	<h3>{$tab['title']}</h3>\r\n";
+						echo "	<p>{$tab['content']}</p>\r\n";
+						break;
+				}
+
+				echo "</div>\r\n\r\n";
+			}
+			echo "</div>"; // tabPage
+			echo "<div id='child-themes-helper-page'></div>";
+		}
+/*
 		function pas_cth_menuPage() {
 			$menuPage = <<< "MENUPAGE"
 				<div id='CTH-MENU'>
-					<span class='buttonCELL' id='createChildTheme'><input type='button' value='create child theme'></span>
+					<span class='buttonCELL' id='createChildTheme'><input type='button' value='create child theme' data-ajax='create-child-theme' onclick='javascript:pas_cth_js_launch(this);'></span>
 					<p class='descrCELL' id='createChildThemeDesc'>
 						Click here to create a new child theme.
 					</p>
 
-					<span class='buttonCELL' id='copyFiles'><input type='button' value='copy files'></span>
+					<span class='buttonCELL' id='copyFiles'><input type='button' value='copy files' data-ajax='copy-files' onclick='javascript:pas_cth_js_launch(this);'></span>
 					<p class='descrCELL' id='copyFilesDesc'>
 						Click here to copy files from the parent theme to the child theme, or remove files from the child theme.
 					</p>
 
-					<span class='buttonCELL' id='editFiles'><input type='button' value='edit theme files'></span>
+					<span class='buttonCELL' id='editFiles'><input type='button' value='edit theme files' data-ajax='edit-theme-files' onclick='javascript:pas_cth_js_launch(this);'></span>
 					<p class='descrCELL' id='editFilesDesc'>
 						Click here to edit theme files.
 					</p>
 
-					<span class='buttonCELL' id='genScrnShot'><input type='button' value='generate screenshot'></span>
+					<span class='buttonCELL' id='genScrnShot'><input type='button' value='generate screenshot' data-ajax='generate-screenshot' onclick='javascript:pas_cth_js_launch(this);'></span>
 					<p class='descrCELL' id='genScrnShotDesc'>
 						Click here to generate a child theme screenshot for the themes page.
 					</p>
 
-					<span class='buttonCELL' id='options'><input type='button' value='options'></span>
+					<span class='buttonCELL' id='options'><input type='button' value='options' data-ajax='options' onclick='javascript:pas_cth_js_launch(this);'></span>
 					<p class='descrCELL' id='optionsDesc'>
 						Click here to modify the plugin options.
 					</p>
@@ -155,6 +221,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 MENUPAGE;
 			echo $menuPage;
 		}
+*/
 		// WriteOption( ) displays an option on the pasChildThemes options page.
 		function loadAvailableFonts( ) {
 			$fonts = [];
@@ -430,6 +497,7 @@ OPTION;
 
 		// pasChildThemes' Options page.
 		function pas_cth_Options( ) {
+//			echo "<div id='screenShotOptions'>";
 			echo "<h1>Screen Shot Options</h1>";
 			echo "<p id='notice'>";
 			echo "If you make changes here and your screenshot.png doesn't change when you ";
@@ -472,6 +540,7 @@ OPTION;
 							'abbreviation'	=> 'bcc',
 						]
 				] );
+//			echo "</div>";
 			echo "<div id='popupMessageBox'></div>";
 
 			// Dummy button. Options are saved onblur event for each option. This button simply
@@ -572,12 +641,6 @@ OPTION;
 			$adminThemes = admin_url("themes.php");
 
 			$createChildTheme = <<< "CREATECHILDTHEME"
-
-<p class='warningHeading'>Warning</p><br><br>
-	The current theme: '<i><b>{$this->activeThemeInfo->childThemeName}</i></b>' is <u>not</u> a child theme.
-	<br><br>
-	Do you want to create a child theme?
-	<br><br>
 	Fill out the following form to create a child theme.<br>
 	The only required fields are the <i>Child Theme Name</i> and the <i>Template Theme Name</i>
 	<div class='createChildThemeBoxForm'>
@@ -639,7 +702,7 @@ CREATECHILDTHEME;
 		 *	2 ) If the currently active theme is NOT a child theme, it displays the "form" to create a new
 		 *	 child theme.
 		 */
-		function manage_child_themes() {
+		function manage_child_themes($action = "COPY") {
 			if (defined("DEMO_CAPABILITY")) {
 				$capability = constant("DEMO_CAPABILITY");
 			} else {
@@ -690,6 +753,7 @@ CREATECHILDTHEME;
 
 			echo	"</div>"; // end grid item 2
 			echo	"</div>"; // end grid container
+			echo	"</div>"; // end pas_cth_content;
 			// HoverPrompt is used during mouseovers on devices wider than 829px;
 			// editFile is used when editting a file.
 			// Both will be sized and positioned dynamically with Javascript

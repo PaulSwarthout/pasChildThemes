@@ -375,13 +375,13 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			return get_option( 'pas_cth_fontList', [] );
 		}
 
-		public function setDelimiters($path, $delimiter = PAS_CTH_SEPARATOR) {
+		function setDelimiters($path, $delimiter = PAS_CTH_SEPARATOR) {
 			$path = str_replace( "\\", "|+|", $path );
 			$path = str_replace( "/", "|+|", $path );
 			$path = str_replace( "|+|", $delimiter, $path );
 			return $path;
 		}
-		public function dirUp($path, $levels = 1) {
+		function dirUp($path, $levels = 1) {
 			$delimiter = PAS_CTH_SEPARATOR;
 			$folders = explode($delimiter, $path);
 			for ($ndx = 0; $ndx < $levels; $ndx++) {
@@ -395,7 +395,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		 * to the end of (php) echo commands such that when debugging, the view-source html code is more readable.
 		 * It is preferrable to only call this function once, so store it in a local variable.
 		 */
-		public function crlf() {
+		function crlf() {
 			if (constant('WP_DEBUG')) {
 				if ($this->isWin()) {
 					return "\r\n";
