@@ -69,7 +69,8 @@ function pas_cth_js_editElements() {
 function pas_cth_js_findElement(element) {
 	return (element == document.getElementById("currentFileExtension").value);
 }
-function pas_cth_js_editFile(element) {
+function pas_cth_js_editFile(event) {
+	var element = document.getElementById(event.srcElement.dataset.elementid);
 	var xmlhttp = new XMLHttpRequest();
 	var data = new FormData();
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));

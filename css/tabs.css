@@ -52,3 +52,43 @@
 .tab_active {
 	display: block;
 }
+#popupMenu {
+	position:fixed;
+	color:black;
+	background-color:white;
+	border:solid 1pt black;
+	border-radius:10px;
+	box-shadow:5px 5px 5px darkgray;
+	font-size:10pt;
+	font-weight:bold;
+	width:250px;
+	padding:5px;
+}
+.popupLinks {
+	text-decoration:none;
+	color:black;
+}
+.popupLinks:hover {
+	background-color:black;
+	color:white;
+}
+#menuFileName {
+	font-size:12pt;
+	border-bottom:ridge 1pt;
+	width:100%;
+	color:black;
+	background-color:#D0D0D0;
+	margin:0px;
+	padding:0px;
+}
+.menuP {
+	width:100%;
+	border-bottom:inset 1pt;
+	background-color:transparent;
+	margin:0px;
+	padding:0px;
+}
+.menuP:hover {
+	color:white;
+	background-color:black;
+}

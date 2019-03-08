@@ -65,6 +65,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 					[ 'script' => 'edit_file.js',		'topLoad'	=> true,	'debugOnly'	=> false ],
 					[ 'script' => 'tabs.js',			'topLoad'	=> false,	'debugOnly'	=> false ],
 					[ 'script' => 'hexdump.js',			'topLoad'	=> true,	'debugOnly' => true, ],
+					[ 'script' => 'menu.js',			'topLoad'	=> true,	'debugOnly'	=> false,],
 				];
 			for ($ndx = 0; $ndx < count($scripts); $ndx++) {
 				if ($scripts[$ndx]['topLoad']) {
@@ -125,16 +126,10 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						'default'	=>	false,
 					],
 					[
-						'title'		=>	'Copy Theme Files',
+						'title'		=>	'Copy/Edit Theme Files',
 						'slug'		=>	'copy-theme-files',
-						'content'	=> 'Copy files from the template theme to the child theme.',
+						'content'	=> 'Copy or edit files from the template theme to the child theme.',
 						'default'	=> true,
-					],
-					[
-						'title'		=>	'Edit Child Theme',
-						'slug'		=>	'edit-child-theme',
-						'content'	=>	'Edit the child theme files.',
-						'default'	=>	false,
 					],
 					[
 						'title'		=>	'Screenshot',
@@ -871,11 +866,14 @@ EDITFILE;
 					echo "<li>"
 						 . "<p class='file' "
 						 . " data-jsdata='" . esc_attr( $jsdata ) . "' "
-						 . " onclick='javascript:pas_cth_js_selectFile( this );' "
-						 . " oncontextmenu='javascript:pas_cth_js_editFile( this );return false;' "
-						 . " onmouseover='javascript:pas_cth_js_mouseOver( this );' "
-						 . " onmouseout='javascript:pas_cth_js_mouseOut( this );' "
-						 . ">" . $this->crlf;
+						 . " oncontextmenu='javascript:pas_cth_js_openMenu( this );' >";
+/*
+ *						 . " onclick='javascript:pas_cth_js_selectFile( this );' "
+ *						 . " oncontextmenu='javascript:pas_cth_js_editFile( this );return false;' "
+ *						 . " onmouseover='javascript:pas_cth_js_mouseOver( this );' "
+ *						 . " onmouseout='javascript:pas_cth_js_mouseOut( this );' "
+ *						 . ">" . $this->crlf;
+*/
 					echo $ff . $this->crlf;
 					echo "</p>" . $this->crlf;
 				}

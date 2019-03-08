@@ -11,11 +11,10 @@ if(typeof String.prototype.left == "undefined")
 
 var mousePosition = {x:0, y:0, element:null};
 
-window.onmousemove = function (e) {
+window.addEventListener("mousemove", function (e) {
 	mousePosition.x = e.clientX;
 	mousePosition.y = e.clientY;
-}
-
+});
 function pas_cth_js_AJAXCall(action, dataBlock = [], callback = null, error_callback = null) {
 	var xmlhttp = new XMLHttpRequest();
 	var data	= new FormData();

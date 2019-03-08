@@ -154,6 +154,7 @@
 p.file {
 	line-height:15px;
 	margin:5px;
+	cursor:pointer;
 }
 p.pas_cth_directory {
 	line-height:15px;

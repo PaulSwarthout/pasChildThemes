@@ -7,18 +7,8 @@
 
 /* pas_cth_js_selectFile() called from an onclick event in ListFolderFiles() in /pasChildThemes.php
  */
-function pas_cth_js_noEditYet() {
-	var box = pas_cth_js_showBox();
-	var msg = "<p class='warningHeading'>Not Yet Implemented</p><br><br>" +
-			  "The ability to directly edit a file has not been created yet. " +
-			  "We anticipate that feature will be available in version 1.3.x.<br><br>" +
-			  "Click anywhere in this message to close it.";
-	box.onclick = function () {
-		kill(this);
-	}
-	box.innerHTML = msg;
-}
-function pas_cth_js_selectFile(element) {
+function pas_cth_js_selectFile(event) {
+	var element = document.getElementById(event.srcElement.dataset.elementid);
 	var xmlhttp = new XMLHttpRequest();
 	var data = new FormData();
 	var jsInput;
