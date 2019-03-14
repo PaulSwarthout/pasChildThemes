@@ -25,7 +25,7 @@ class pas_cth_themes {
 			if ($object->parent()) {
 				$childObject =
 					[
-						'themeName'				=>	$key,
+						'themeName'				=>	$object->name,
 						'stylesheet'			=>	$object->get_stylesheet(),
 						'stylesheet_directory'	=>	$this->fixFileDelimiters($object->get_stylesheet_directory()),
 						'template'				=>	$object->get_template(),
