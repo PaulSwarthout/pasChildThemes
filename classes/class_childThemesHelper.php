@@ -22,7 +22,6 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$this->allThemes		= $this->enumerateThemes( );
 			$this->colorPicker		= $args['colorPicker'];
 			$this->fontSampleImages	= [];
-//			$this->fontList			= $this->loadFonts( );
 			$this->libraryFunctions = $args['libraryFunctions'];
 			$this->crlf				= $this->libraryFunctions->crlf();
 			$this->demo_mode		= (array_key_exists('demo_args', $args) ? $args['demo_args'] : null);
@@ -77,17 +76,6 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 					wp_enqueue_script("pas_cth_script_{$ndx}");
 				}
 			}
-/*
-			if (defined('WP_DEBUG') && constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES") {
-				wp_enqueue_script( 'pas_cth_Script4',
-								   $this->pluginDirectory['url'] . 'js/hexdump.js' . $uniqStr,
-								   false );
-				if (defined('WP_DEBUG') && constant('WP_DEBUG')) {
-					$obj = ['WP_DEBUG' => "ENABLED"];
-					wp_localize_script( 'pas_cth_Script4', 'pas_cth_debugMode', $obj );
-				}
-			}
-*/
 		}
 		function isDemo() {
 			$userlogin = "";
@@ -116,6 +104,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						 );
 		}
 		function pas_cth_tabPage() {
+			global $pas_cth_allThemes;
 			$crlf = $this->crlf;
 			$tabInfo =
 				[
@@ -142,6 +131,12 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						'slug'		=>	'options', 
 						'content'	=>	'Child Themes Helper options.',
 						'default'	=>	false,
+					],
+					[
+						'title'		=>	'Theme Data',
+						'slug'		=>	'theme-data',
+						'content'	=>	"<div style='background-color:white;font-size:12pt;font-weight:bold;'><pre>" . print_r($pas_cth_allThemes->allThemes, true) . "</pre></div>",
+						'default'	=> false,
 					],
 				];
 			echo "<div class='tab'>{$crlf}";
@@ -184,40 +179,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			echo "</div>"; // tabPage
 			echo "<div id='child-themes-helper-page'></div>";
 		}
-/*
-		function pas_cth_menuPage() {
-			$menuPage = <<< "MENUPAGE"
-				<div id='CTH-MENU'>
-					<span class='buttonCELL' id='createChildTheme'><input type='button' value='create child theme' data-ajax='create-child-theme' onclick='javascript:pas_cth_js_launch(this);'></span>
-					<p class='descrCELL' id='createChildThemeDesc'>
-						Click here to create a new child theme.
-					</p>
 
-					<span class='buttonCELL' id='copyFiles'><input type='button' value='copy files' data-ajax='copy-files' onclick='javascript:pas_cth_js_launch(this);'></span>
-					<p class='descrCELL' id='copyFilesDesc'>
-						Click here to copy files from the parent theme to the child theme, or remove files from the child theme.
-					</p>
-
-					<span class='buttonCELL' id='editFiles'><input type='button' value='edit theme files' data-ajax='edit-theme-files' onclick='javascript:pas_cth_js_launch(this);'></span>
-					<p class='descrCELL' id='editFilesDesc'>
-						Click here to edit theme files.
-					</p>
-
-					<span class='buttonCELL' id='genScrnShot'><input type='button' value='generate screenshot' data-ajax='generate-screenshot' onclick='javascript:pas_cth_js_launch(this);'></span>
-					<p class='descrCELL' id='genScrnShotDesc'>
-						Click here to generate a child theme screenshot for the themes page.
-					</p>
-
-					<span class='buttonCELL' id='options'><input type='button' value='options' data-ajax='options' onclick='javascript:pas_cth_js_launch(this);'></span>
-					<p class='descrCELL' id='optionsDesc'>
-						Click here to modify the plugin options.
-					</p>
-				</div>
-MENUPAGE;
-			echo $menuPage;
-		}
-*/
-		// WriteOption( ) displays an option on the pasChildThemes options page.
 		function loadAvailableFonts( ) {
 			$fonts = [];
 			$fonts_folder = $this->pluginDirectory['path'] . "assets/fonts";

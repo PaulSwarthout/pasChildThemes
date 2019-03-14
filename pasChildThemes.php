@@ -29,6 +29,7 @@ require_once( dirname( __FILE__ ) . '/classes/class_fontMeta.php' );
 require_once( dirname( __FILE__ ) . '/classes/class_colorPicker.php' );
 // Common Functions
 require_once( dirname( __FILE__ ) . '/classes/class_common_functions.php' );
+require_once( dirname( __FILE__ ) . '/classes/class-themes.php' );
 
 /* Go get the current theme information.
  * This is a wrapper for the wp_get_theme( ) function.
@@ -51,6 +52,7 @@ $args = [
 			'activeThemeInfo'	=> $pas_cth_themeInfo,
 			'libraryFunctions'	=> $pas_cth_library,
 		];
+$pas_cth_allThemes = new pas_cth_themes($args);
 
 $pas_cth_colorPicker	= new pas_cth_colorPicker( $args );
 $args['colorPicker']	= $pas_cth_colorPicker;
