@@ -15,30 +15,35 @@ class pas_cth_activeThemeInfo {
 	// isChildTheme is true if the currently active theme is a child theme, false otherwise.
 	public $isChildTheme;
 
-	function __construct( ) {
-		$this->currentActiveTheme = wp_get_theme( );
-
-		$this->childThemeName	= $this->currentActiveTheme->get( "Name" );
-		$this->childStylesheet	= $this->currentActiveTheme->get_stylesheet( );
-		$this->childThemeRoot	=
-			$this->fixDelimiters( $this->currentActiveTheme->get_theme_root( ) );
-		$this->subfolderCountChildThemeRoot =
-			count( explode( PAS_CTH_SEPARATOR, $this->childThemeRoot ) );
-		$this->templateTheme = $this->currentActiveTheme->parent( );
-
-		if ( $this->templateTheme ) {
-			$this->templateThemeName	= $this->templateTheme->get( "Name" );
-			$this->templateStylesheet	= $this->templateTheme->get_stylesheet( );
-			$this->templateThemeRoot	=
-				$this->fixDelimiters( $this->templateTheme->get_theme_root( ) );
-			$this->subfolderCountTemplateThemeRoot =
-				count( explode( PAS_CTH_SEPARATOR, $this->templateThemeRoot ) );
-
-			// Current theme is a child theme
-			$this->isChildTheme = true;
+	function __construct() {
+		$selectedChildTheme = get_option("pas_cth_active_theme", false);
+		$activeTheme = ($selectedChildTheme !== false ? wp_get_theme($selectedChildTheme) : false);
+		if ($activeTheme === false) {
+			throw new Exception('Active Theme Not Defined');
 		} else {
-			// Current theme is NOT a child theme
-			$this->isChildTheme = false;
+			$this->currentActiveTheme = $activeTheme;
+			$this->childThemeName	= $this->currentActiveTheme->get( "Name" );
+			$this->childStylesheet	= $this->currentActiveTheme->get_stylesheet( );
+			$this->childThemeRoot	=
+				$this->fixDelimiters( $this->currentActiveTheme->get_theme_root( ) );
+			$this->subfolderCountChildThemeRoot =
+				count( explode( PAS_CTH_SEPARATOR, $this->childThemeRoot ) );
+			$this->templateTheme = $this->currentActiveTheme->parent( );
+
+			if ( $this->templateTheme ) {
+				$this->templateThemeName	= $this->templateTheme->get( "Name" );
+				$this->templateStylesheet	= $this->templateTheme->get_stylesheet( );
+				$this->templateThemeRoot	=
+					$this->fixDelimiters( $this->templateTheme->get_theme_root( ) );
+				$this->subfolderCountTemplateThemeRoot =
+					count( explode( PAS_CTH_SEPARATOR, $this->templateThemeRoot ) );
+
+				// Current theme is a child theme
+				$this->isChildTheme = true;
+			} else {
+				// Current theme is NOT a child theme
+				$this->isChildTheme = false;
+			}
 		}
 	}
 	/* Could have used "preg_replace", but couldn't find a search parameter that wouldn't trip

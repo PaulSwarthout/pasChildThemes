@@ -1,61 +1,103 @@
 <?PHP
-class pas_cth_theme {
-	private $wp_object;
-
-	function __construct($object) {
-		$this->wp_object = $object;
-	}
-}
 class pas_cth_themes {
-	private $plugin_directory;
-	public $allThemes;
-	private $childThemes;
-	private $templateThemes;
+	private $pluginDirectory;
+	public	$childParentThemesList;
+	public	$listChildThemes;
+	public	$listTempateThemes;
+	public	$pas_cth_active_theme;
+	public $WP_Active_Theme;
 
 	function __construct($args) {
-		$this->plugin_directory = (array_key_exists('plugin_directory', $args) ? $args['plugin_directory'] : ['url' => '', 'path' => '']);
+		$this->pluginDirectory = (array_key_exists('pluginDirectory', $args) ? $args['pluginDirectory'] : ['url' => '', 'path' => '']);
 
-		$this->allThemes = wp_get_themes();
-		$activeTheme = wp_get_theme()->get_stylesheet();
+		$allThemes			= wp_get_themes(); // plural
+		$this->WP_Active_Theme	= wp_get_theme()->name;
 
-		$themeList = [];
-		$childThemeNames = [];
+		$this->pas_cth_active_theme = get_option("pas_cth_active_theme", false);
 
-		foreach ($this->allThemes as $key => $object) {
-			if ($object->parent()) {
+		$this->listChildThemes		= [];
+		$this->listTemplateThemes	= [];
+		$this->childParentThemesList= [];
+		$childThemeNames			= [];
+
+		foreach ($allThemes as $key => $wpThemeObject) {
+			if ($wpThemeObject->parent()) {
 				$childObject =
 					[
-						'themeName'				=>	$object->name,
-						'stylesheet'			=>	$object->get_stylesheet(),
-						'stylesheet_directory'	=>	$this->fixFileDelimiters($object->get_stylesheet_directory()),
-						'template'				=>	$object->get_template(),
-						'template_directory'	=>	$this->fixFileDelimiters($object->get_template_directory()),
-						'theme_root'			=>	$this->fixFileDelimiters($object->get_theme_root()),
-//						'WP_Theme'				=>	$object,
-						'parent_theme'			=>	$object->parent()->get_template(),
+						'themeName'				=>	$wpThemeObject->name,
+						'stylesheet'			=>	$wpThemeObject->get_stylesheet(),
+						'stylesheet_directory'	=>	$this->fixFileDelimiters($wpThemeObject->get_stylesheet_directory()),
+						'template'				=>	$wpThemeObject->get_template(),
+						'template_directory'	=>	$this->fixFileDelimiters($wpThemeObject->get_template_directory()),
+						'theme_root'			=>	$this->fixFileDelimiters($wpThemeObject->get_theme_root()),
+						'parent_theme_name'		=>	$wpThemeObject->parent()->name,
+						'parent_theme'			=>	$wpThemeObject->parent(),
+						'LASTELEMENT'			=>	"*******************************************************",
+						'WP_Theme'				=>	$wpThemeObject,
 					];
-				$this->childThemes[$key] = $childObject;
+				if (! constant('WP_DEBUG')) {
+					unset($childObject['LASTELEMENT']);
+				}
+				$this->listChildThemes[$key] = $childObject;
 				array_push($childThemeNames, $childObject['themeName']);
 			} else {
 				$templateObject =
 					[
-						'themeName'				=>	$key,
-						'stylesheet'			=>	$object->get_stylesheet(),
-						'stylesheet_directory'	=>	$this->fixFileDelimiters($object->get_stylesheet_directory()),
-						'theme_root'			=>	$this->fixFileDelimiters($object->get_theme_root()),
-//						'WP_Theme'				=>	$object,
+						'themeName'				=>	$wpThemeObject->name,
+						'stylesheet'			=>	$wpThemeObject->get_stylesheet(),
+						'stylesheet_directory'	=>	$this->fixFileDelimiters($wpThemeObject->get_stylesheet_directory()),
+						'theme_root'			=>	$this->fixFileDelimiters($wpThemeObject->get_theme_root()),
+						'LASTELEMENT'			=>	"*******************************************************",
 					];
-				$this->templateThemes[$key] = $templateObject;
+				if (! constant('WP_DEBUG')) {
+					unset($templateObject['LASTELEMENT']);
+				}
+					
+				$this->listTemplateThemes[$key] = $templateObject;
 			}
 		}
-		$this->allThemes =
-			[
-				'activeTheme'	=>	$activeTheme,
-				'isChild'		=>	(array_search($activeTheme, $childThemeNames) ? true : false),
-				'childThemes'	=>	$this->childThemes,
-				'parentThemes'	=>	$this->templateThemes,
-			];
-		unset($childThemeNames);
+		$this->childParentThemesList = [];
+		foreach ($this->listChildThemes as $key => $object) {
+			array_push($this->childParentThemesList, 
+				[
+					'child'				=>	$object['themeName'],
+					'parent'			=>	$object['parent_theme_name'],
+					'childStylesheet'	=>	$object['stylesheet'],
+					'parentStylesheet'	=>	$object['parent_theme']->get_stylesheet(),
+				]);
+		}
+		foreach ($this->listTemplateThemes as $key => $object) {
+			array_push($this->childParentThemesList, 
+				[
+					'child'				=>	null,
+					'childStylesheet'	=>	null,
+					'parent'			=>	$object['themeName'],
+					'parentStylesheet'	=>	$object['stylesheet'],
+				]);
+		}
+
+		usort($this->childParentThemesList, array( $this, "theme_sort" ) );
+	}
+
+	private function theme_sort($a, $b) {
+		$a_up = $a;
+		$b_up = $b;
+		$a_up['parent'] = strtoupper($a_up['parent']);
+		$a_up['child']	= strtoupper($a_up['child']);
+		$b_up['parent'] = strtoupper($b_up['parent']);
+		$b_up['child'] = strtoupper($b_up['child']);
+
+		if ($a_up['parent'] == $b_up['parent'] && $a_up['child'] == $b_up['child']) {
+			return 0;
+		} elseif ($a_up['parent'] == $b_up['parent'] && $a_up['child'] < $b_up['child']) {
+			return -1;
+		} elseif ($a_up['parent'] == $b_up['parent']) {
+			return 1;
+		} elseif ($a_up['parent'] < $b_up['parent']) {
+			return -1;
+		} else {
+			return 1;
+		}
 	}
 
 	private function fixFileDelimiters($path) {

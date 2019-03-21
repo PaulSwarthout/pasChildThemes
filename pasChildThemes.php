@@ -3,7 +3,7 @@
 	Plugin Name: Child Themes Helper
 	Plugin URI: http://www.paulswarthout.com/Child-Themes-Helper/
 	Description: ( 1 ) Copies files from the template theme to the child theme, perfectly duplicating the path structure. ( 2 ) Removes file from the child theme, and removes any empty folders that were made empty by the removal of the child theme file. ( 3 ) Creates new child themes from installed template themes.
-	Version: 1.3.3
+	Version: 1.4
 	Author: Paul A. Swarthout
 	Author URI: http://www.PaulSwarthout.com
 	License: GPL2
@@ -38,21 +38,37 @@ require_once( dirname( __FILE__ ) . '/classes/class-themes.php' );
  */
 $pas_cth_pluginDirectory =
 	[
-		'path' => plugin_dir_path( __FILE__ ),
+		'path' => plugin_dir_path ( __FILE__ ),
 		'url'  => plugin_dir_url  ( __FILE__ )
 	];
-
-$pas_cth_themeInfo = new pas_cth_activeThemeInfo( );
+$pas_cth_themes = new pas_cth_themes(['pluginDirectory' => $pas_cth_pluginDirectory]);
+$pas_cth_themeInfo = null;
+$pas_cth_child_theme_selected = false;
+$pas_cth_default_tab = "copy-theme-files";
+$pas_cth_child_theme_selected = true;
+if (get_option("pas_cth_active_theme", false) !== false) {
+	try {
+		$pas_cth_themeInfo = new pas_cth_activeThemeInfo( );
+	} catch (Exception $e) {
+		if ($e->getMessage() == "Active Theme Not Defined") {
+			$pas_cth_default_tab = "options";
+			$pas_cth_child_theme_selected = false;
+		}
+	}
+} else {
+	$pas_cth_default_tab = "options";
+}
 $pas_cth_library	= new pas_cth_library_functions( ['pluginDirectory' => $pas_cth_pluginDirectory] );
 
 $args = [
-			'pluginDirectory'	=> $pas_cth_pluginDirectory,
-			'pluginName'		=> 'Child Themes Helper',
-			'pluginFolder'		=> 'pasChildThemes',
-			'activeThemeInfo'	=> $pas_cth_themeInfo,
-			'libraryFunctions'	=> $pas_cth_library,
+			'pluginDirectory'	=>	$pas_cth_pluginDirectory,
+			'pluginName'		=>	'Child Themes Helper',
+			'pluginFolder'		=>	'pasChildThemes',
+			'activeThemeInfo'	=>	$pas_cth_themeInfo,
+			'libraryFunctions'	=>	$pas_cth_library,
+			'Themes'			=>	$pas_cth_themes,
+			'defaultTab'		=>	$pas_cth_default_tab,
 		];
-$pas_cth_allThemes = new pas_cth_themes($args);
 
 $pas_cth_colorPicker	= new pas_cth_colorPicker( $args );
 $args['colorPicker']	= $pas_cth_colorPicker;
@@ -169,6 +185,9 @@ add_action( 'wp_ajax_saveDefaultFont', Array( $pas_cth_AJAXFunctions, "saveFont"
 
 add_action( 'wp_ajax_editFile', Array( $pas_cth_AJAXFunctions, "editFile" ) );
 add_action( 'wp_ajax_saveFile', Array( $pas_cth_AJAXFunctions, "saveFile" ) );
+
+add_action( 'wp_ajax_setExpertMode', Array( $pas_cth_AJAXFunctions, "ajax_set_expert_mode") );
+add_action( 'wp_ajax_setDefaultChildTheme', Array( $pas_cth_AJAXFunctions, "ajax_set_child_theme" ) );
 
 // Plugin Deactivation
 function pas_cth_deactivate( ) {

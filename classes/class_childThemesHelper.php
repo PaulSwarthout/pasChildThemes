@@ -5,7 +5,6 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		public $pluginName;
 		public $pluginFolder;
 		public $activeThemeInfo;
-		public $allThemes;
 		public $colorPicker;
 		public $fontSamples; // Array of sample font images, to be used in pas_cth_Options( );
 		public $fontList;
@@ -13,18 +12,26 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 		public $libraryFunctions;
 		private $crlf;
 		private $demo_mode;
+		private $args;
+		private $Themes;
+		private $defaultTab;
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
 			$this->pluginName		= $args['pluginName'];
 			$this->pluginFolder		= $args['pluginFolder'];
-			$this->activeThemeInfo	= $args['activeThemeInfo'];
-			$this->allThemes		= $this->enumerateThemes( );
+
+			$this->allThemes		= $this->enumerateThemes();
+
 			$this->colorPicker		= $args['colorPicker'];
 			$this->fontSampleImages	= [];
 			$this->libraryFunctions = $args['libraryFunctions'];
 			$this->crlf				= $this->libraryFunctions->crlf();
 			$this->demo_mode		= (array_key_exists('demo_args', $args) ? $args['demo_args'] : null);
+
+			$this->activeThemeInfo	= (array_key_exists('activeThemeInfo', $args) ? $args['activeThemeInfo'] : null);
+			$this->Themes			= (array_key_exists('Themes', $args) ? $args['Themes']	: null);
+			$this->defaultTab		= (array_key_exists('defaultTab', $args) ? $args['defaultTab'] : null);
 		}
 		function __destruct( ) {
 			foreach ( $this->fontSampleImages as $img ) {
@@ -104,10 +111,15 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						 );
 		}
 		function pas_cth_tabPage() {
-			global $pas_cth_allThemes;
 			$crlf = $this->crlf;
 			$tabInfo =
 				[
+					[
+						'title'		=>	'Options',				
+						'slug'		=>	'options', 
+						'content'	=>	'Child Themes Helper options.',
+						'default'	=>	false,
+					],
 					[
 						'title'		=>	'Create Child Theme',	
 						'slug'		=>	'create-child-theme',
@@ -117,8 +129,8 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 					[
 						'title'		=>	'Copy/Edit Theme Files',
 						'slug'		=>	'copy-theme-files',
-						'content'	=> 'Copy or edit files from the template theme to the child theme.',
-						'default'	=> true,
+						'content'	=>	'Copy or edit files from the template theme to the child theme.',
+						'default'	=>	false,
 					],
 					[
 						'title'		=>	'Screenshot',
@@ -127,18 +139,17 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						'default'	=>	false,
 					],
 					[
-						'title'		=>	'Options',				
-						'slug'		=>	'options', 
-						'content'	=>	'Child Themes Helper options.',
-						'default'	=>	false,
-					],
-					[
 						'title'		=>	'Theme Data',
 						'slug'		=>	'theme-data',
-						'content'	=>	"<div style='background-color:white;font-size:12pt;font-weight:bold;'><pre>" . print_r($pas_cth_allThemes->allThemes, true) . "</pre></div>",
+						'content'	=>	"<div style='background-color:white;font-size:12pt;font-weight:bold;'><pre>" . print_r($this->Themes, true) . "</pre></div>",
 						'default'	=> false,
 					],
 				];
+			foreach ($tabInfo as $key => $tab) {
+				if ($tab['slug'] == $this->defaultTab) {
+					$tabInfo[$key]['default'] = true;
+				}
+			}
 			echo "<div class='tab'>{$crlf}";
 			foreach ($tabInfo	as $tab) {
 				echo "<button class='tablinks' data-tab='{$tab['slug']}' onclick='openCTHTab(this, event);' " . ($tab['default'] ? " id='defaultOpen' " : "") . ">{$tab['title']}</button>{$crlf}";
@@ -157,15 +168,18 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 
 					case "copy-theme-files":
 						// Copy Theme Files
-						$this->manage_child_themes("COPY");
+						if ($this->activeThemeInfo != null) {
+							$this->manage_child_themes("COPY");
+						}
 						break;
 
-					case "edit-child-theme":
-						$this->manage_child_themes("EDIT");
-						break;
-					
 					case "screenshot":
-						$this->pas_cth_Options();
+						if ($this->activeThemeInfo != null) {
+							$this->pas_cth_Options();
+						}
+						break;
+					case "options":
+						$this->loadOptionsPage();
 						break;
 					
 					default:
@@ -178,6 +192,89 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			}
 			echo "</div>"; // tabPage
 			echo "<div id='child-themes-helper-page'></div>";
+		}
+		function loadOptionsPage() {
+			$blogName = get_blogInfo('name');
+			$expertMode = (get_option("pas_cth_expert_mode", "FALSE") == "FALSE" ? "" : " CHECKED ");
+			if ($expertMode) {
+				$class = " class='hideHelp' ";
+			} else {
+				$class = "";
+			}
+			echo <<< "HELP"
+<div id='expertMode'>
+<input type='checkbox' {$expertMode} onclick='javascript:pas_cth_js_expertMode(this);'>Expert Mode
+</div>
+<div id='optionsHelp' {$class}>
+The Child Themes Helper plugin for WordPress websites was developed to aid theme developers.
+	The Child Themes Helper plugin makes it easy to copy files from a parent or template theme to a child theme.
+	You should never make direct edits to a WordPress theme that you have downloaded from the WordPress Theme repository.
+	According to the WordPress Codex, the correct method of making changes to a downloaded theme is to create a child theme and then make your changes in the child theme.
+	This allows the downloaded theme to be updated by its developer without destroying any changes that you wanted to make.
+	Usually, your child theme will continue to work without breaking when the downloaded theme is updated.
+	<br><br>
+	However, your child theme needs to follow the same conventions as the downloaded (hereinafter "parent") theme.
+	The modified files in your child theme need to be named the same as the original files in the parent theme.
+	Further, the files need to reside in the same folder in your child theme as they do in the parent theme.
+	Any mistakes you make in placing your files, will mean that your child theme will not function as expected.
+	<br><br>
+	The Child Themes Helper plugin makes this process easy. Once you have selected an existing child theme from the list below, or created a new child theme and then selected it,
+	you will see the list of files from the child theme and the parent theme on the <i>Copy/Edit Theme Files</i> tab.
+	Right click on any file to see a menu of allowed actions for the file you clicked on.
+	The following actions are available:
+
+	<div id='availableActions'>
+		<ul style='list-style-type:disc;font-size:12pt;'>
+			<li>
+				Right click on a file in the child theme.
+				<ul class='child'>
+					<li>Remove the file from the child theme</li>
+					<li>Edit the file</li>
+				</ul>
+			</li>
+			<li>
+				Right click on a file in the parent theme.
+				<ul class='child'>
+					<li>Copy the file from the parent theme to the child theme</li>
+					<li>View the contents of the parent theme file.</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+	
+	Below, you will find a list of available child themes that may be manipulated using the Child Themes Helper plugin.
+	You will need to select the child theme that you want to manipulate using the Child Themes Helper.
+	You can change this selection at any time by returning to this Options page.
+	If you have not yet created a child theme for your {$blogName} website, then the list will be missing and a notice about creating a new child theme will be displayed instead.
+	<br><br>
+	To create a new child theme, click on the <i>Create Child Theme</i> tab at the top of this webpage.
+	<br><br>
+	In order for the Child Themes Helper plugin to function, your {$blogName} website <u>MUST</u> have at least one child theme.
+	You are free to create as many child themes as you want.
+	You can choose to activate your new child theme (dashboard >> Appearances >> Themes) or not.
+	Unless you are working offline, in a development environment, we do not recommend that you activate your child themes until you have completed editing the files.
+	Effective with Child Themes Helper v2.0, the Child Themes Helper no longer requires the child theme to be active.
+	</div>
+HELP;
+			echo "<div id='pas_cth_options'>";
+			echo "<table>";
+			echo "<tr><th>&nbsp;</th><th>Child Themes</th><th>Template Themes</th></tr>";
+			foreach ($this->Themes->childParentThemesList as $object) {
+				echo "<tr>";
+				if ($object['child'] != "") {
+					$selected = ($object['childStylesheet'] == $this->Themes->pas_cth_active_theme ? " CHECKED " : "");
+					echo "<td class='checkbox'>";
+					echo "<input type='radio' {$selected} name='selectChild' onclick='setDefaultChildTheme(this, \"{$object['childStylesheet']}\");'>";
+					echo "</td>";
+				} else {
+					echo "<td class='checkbox'>&nbsp;</td>";
+				}
+				echo "<td class='data'>" . $object['child'] . "</td>";
+				echo "<td class='data'>" . $object['parent'] . "</td>";
+				echo "</tr>";
+			}
+			echo "</table>";
+			echo "</div>";
 		}
 
 		function loadAvailableFonts( ) {
@@ -549,7 +646,7 @@ OPTION;
 			}
 			echo "<p class='themeName'>" . $this->activeThemeInfo->childThemeName . "</p>";
 
-			$childThemeFolder = $this->activeThemeInfo->getChildFolder( );
+			$childThemeFolder = $this->activeThemeInfo->getChildFolder();
 
 			echo "<div class='innerCellLeft'>";
 			$this->listFolderFiles( $childThemeFolder, PAS_CTH_CHILDTHEME );
@@ -573,23 +670,20 @@ OPTION;
 			echo "</div>";
 		}
 		function showCreateChildThemeForm() {
+			$active = $this->activeThemeInfo;
 			$select = "<label for='templateTheme'>"
 			 . "Template Theme ( defaults to currently active theme )"
 							. "<br><select name='templateTheme' id='templateTheme'>";
-			foreach ( $this->allThemes as $key => $value ) {
-				if ( ! $value['childTheme'] ) { // do not list any theme that is a child theme.
-					if ( strtoupper( $this->activeThemeInfo->childThemeName ) ==
-						strtoupper( $value['themeName'] ) ) {
-						$selected = " SELECTED ";
-					} else {
-						$selected = "";
-					}
-					$select .= "<option value='"
-							.			esc_attr( $key )
-							.			"' $selected>"
-							.			esc_html( $value['themeName'] )
-							. "</option>";
-				}
+			foreach ( $this->Themes->listTemplateThemes as $key => $theme ) {
+				error_log("\$active->childThemeName = {$active->childThemeName} and themeName = {$theme['themeName']} ");
+				$selected = ($active != null &&
+							 strtoupper( $active->childThemeName ) == strtoupper( $theme['themeName'] ) ?
+								" SELECTED " : "");
+				$select .= "<option value='"
+						.			esc_attr( $key )
+						.			"' $selected>"
+						.			esc_html( $theme['themeName'] )
+						. "</option>";
 			}
 			$select .= "</select>";
 
@@ -660,6 +754,9 @@ CREATECHILDTHEME;
 		 *	 child theme.
 		 */
 		function manage_child_themes($action = "COPY") {
+			if ($this->activeThemeInfo == null) {
+				return;
+			}
 			if (defined("DEMO_CAPABILITY")) {
 				$capability = constant("DEMO_CAPABILITY");
 			} else {
@@ -667,36 +764,74 @@ CREATECHILDTHEME;
 			}
 			if ( ! current_user_can( $capability ) ) { exit; }
 
-			if ( ! $this->activeThemeInfo->isChildTheme ) {
-				/* Current active theme is not a child theme.
-				 * Prompt to create a child theme.
-				 * This is set up to look like a typical HTML <form>,
-				 * but it is not processed as one.
-				 * We want to avoid refreshing the page so the
-				 * output from the wp_ajax_createChildTheme function will be displayed.
-				 */
-				$this->showCreateChildThemeForm();
-				return false;
-			}
-
-			$args =
+			$jsdata =
 				[
-					'plugin_directory'	=> $this->pluginDirectory,
+					'childThemeRoot'	=>	$this->activeThemeInfo->childThemeRoot,
+					'templateThemeRoot' =>	$this->activeThemeInfo->templateThemeRoot,
+					'childStylesheet'	=>	$this->activeThemeInfo->childStylesheet,
+					'templateStylesheet'=>	$this->activeThemeInfo->templateStylesheet,
 				];
-
-			$themes = new pas_cth_themes($args);
+			$jsdata = json_encode($jsdata);
+			echo "<div id='jsdata' style='display:none;' data-jsdata='$jsdata'></div>";
 
 			echo "<div id='pas_cth_content'>";
-			echo "<span class='childThemeListPrompt'>Choose the Child Theme</span><br>";
-			
-			echo "<select>";
-			foreach ($themes->allThemes['childThemes'] as $key => $object) {
-				echo "<option value='{$key}'>{$object['themeName']}</option>";
-			}
-			echo "</select>";
+
+			echo "<div id='themeGrid' class='pas-grid-container'>";
+			echo "<div class='pas-grid-left-column'>";
+			echo "	<div class='childPrompt' id='childPrompt' onclick='javascript:showChild();'>CHILD</div>";
+			echo "	<div class='parentPrompt' id='parentPrompt' onclick='javascript:showParent();'>PARENT</div>";
 			echo "</div>";
+			echo "<div class='pas-grid-item-child' id='childGrid'>"; // Start grid item 1
 
+			// Shows file list in the left pane
+			$this->showActiveChildTheme( );
 
+			echo "</div>"; // end grid item 1
+
+			echo "<div class='pas-grid-item-parent' id='parentGrid'>"; // start grid item 2
+
+			// Shows file list in the right pane
+			$this->showActiveParentTheme( );
+
+			echo	"</div>"; // end grid item 2
+			echo	"</div>"; // end grid container
+			echo	"</div>"; // end pas_cth_content;
+			// HoverPrompt is used during mouseovers on devices wider than 829px;
+			// editFile is used when editting a file.
+			// Both will be sized and positioned dynamically with Javascript
+			echo	"<div id='hoverPrompt'></div>";
+
+			$debugBTN	= (constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='DEBUG' id='ef_debug_button' onclick='javascript:debug(this);'>" : "");
+			$hexdumpBTN	= (constant('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('PLUGIN_DEVELOPMENT') == "YES" ? "<input type='button' value='HEXDUMP' id='ef_hexdump_button' onclick='javascript:pas_cth_js_hexdump();'>" : "");
+
+			$editFileOutput = <<< "EDITFILE"
+
+				<div id='shield'>
+					<div id='editFile' data-gramm='false' >
+						<input type='hidden' id='directory' value=''>
+						<input type='hidden' id='file'	value=''>
+						<input type='hidden' id='themeType' value=''>
+						<input type='hidden' id='readOnlyFlag' value='false'>
+						<input type='hidden' id='currentFileExtension' value=''>
+						<input type='button' value='Save File' disabled id='ef_saveButton' onclick='javascript:pas_cth_js_saveFile();'>
+						<p id='ef_readonly_msg'>Template Theme files are READ ONLY. Changes WILL NOT BE SAVED.</p>
+						<p id='ef_filename'>FILENAME</p>
+						<input type='button' value='Close File' id='ef_closeButton' onclick='javascript:pas_cth_js_closeEditFile();'>
+						{$debugBTN}
+						{$hexdumpBTN}
+						<div id='editBox' data-gramm='false' spellcheck='false' autocapitalize='false' autocorrect='false' role='textbox' oninput='javascript:editBoxChange();'>
+						</div>
+					</div>
+				</div>
+				<div id='savePrompt'>
+					File has changed.<br>Do you want to save it?<br><br>
+					<input id='sp_saveButton' type='button' onclick='javascript:pas_cth_js_saveFile();' value='Save'>
+					&nbsp;&nbsp;&nbsp;
+					<input id='sp_closeButton' type='button' onclick='javascript:pas_cth_js_closeEditFile();' value='No Save'>
+				</div>
+EDITFILE;
+
+			echo $editFileOutput;
 		}
 
 

@@ -43,6 +43,7 @@ function openCTHTab(element) {
 	tabcontent[contentIndex].classList.toggle("tab_active", true);
 }
 var defaultOpen = document.getElementById("defaultOpen");
+debugger
 if (defaultOpen != null) {
 	defaultOpen.click();
 }
@@ -53,4 +54,35 @@ if (cthPage != null) {
 
 	body.style.overflow = "hidden";
 	html.style.overflow = "hidden";
+}
+function pas_cth_js_expertMode(element) {
+	var dataBlock = {};
+	if (element.checked) {
+		document.getElementById("optionsHelp").classList.toggle("hideHelp", true);
+		dataBlock.enabled = "TRUE";
+	} else {
+		document.getElementById("optionsHelp").classList.toggle("hideHelp", false);
+		dataBlock.enabled = "FALSE";
+	}
+	pas_cth_js_AJAXCall("setExpertMode", dataBlock);
+}
+function setDefaultChildTheme(element, childThemeName) {
+	var dataBlock = { 'childTheme'	:	childThemeName };
+	var reloadFN = function (response) {
+		if (response.length == 0) {
+			location.reload();
+		} else {
+			var box = document.createElement("div");
+			box.id = "errorBox";
+			document.getElementsByTagName("body")[0].appendChild(box);
+			box.innerHTML = response;
+			box.onclick = function (event) {
+				if (this.parentNode != null) {
+					this.parentNode.removeChild(this);
+				}
+				this.remove();
+			}
+		}
+	}
+	pas_cth_js_AJAXCall("setDefaultChildTheme", dataBlock, reloadFN);
 }

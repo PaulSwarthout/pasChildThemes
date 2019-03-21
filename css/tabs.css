@@ -92,3 +92,70 @@
 	color:white;
 	background-color:black;
 }
+#optionsHelp {
+	font-size:12pt;
+	color:black;
+	background-color:white;
+	border:solid 1pt black;
+	border-radius:15px;
+	padding:10px;
+	width:85%;
+}
+#availableActions {
+	font-size:12pt;
+	color:darkblue;
+	background-color:white;
+	padding-left:50px;
+}
+#availableActions UL {
+	font-size:12pt;
+	font-weight:bold;
+	list-style-type:disc;
+	padding-bottom:15px;
+}
+#availableActions UL.child {
+	font-size:10pt;
+	padding-top:10px;
+	list-style-type:square;
+	padding-left:30px;
+}
+#expertMode {
+	color:black;
+	font-size:12pt;
+	font-weight:bold;
+}
+.hideHelp {
+	display:none;
+}
+#pas_cth_options {
+	background-color:white;
+	border:solid 1pt black;
+	border-radius:15px;
+	padding:10px;
+	width:85%;
+	margin-bottom:100px;
+}
+#pas_cth_options TABLE {
+	border:solid 2pt black;
+	border-spacing:0px;
+	border-collapse:collapse;
+}
+#pas_cth_options TD.checkbox {
+	width:50px;
+	height:50px;
+	background-color:white;
+	text-align:center;
+	border-top:dashed 2pt lightgray;
+}
+#pas_cth_options TD.data {
+	width:200px;
+	height:50px;
+	font-size:14pt;
+	background-color:white;
+	font-weight:bold;
+	text-align:center;
+	border-top:dashed 2pt lightgray;
+}
+#pas_cth_options input[type=radio] {
+	transform:scale(2.0);
+}

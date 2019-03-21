@@ -12,14 +12,16 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		private $pluginFolder;
 		private $colorPicker;
 		private $libraryFunctions;
+		private $Themes;
 
 		function __construct( $args ) {
 			$this->pluginDirectory	= $args['pluginDirectory'];
 			$this->pluginName		= $args['pluginName'];
 			$this->pluginFolder		= $args['pluginFolder'];
-			$this->activeThemeInfo	= $args['activeThemeInfo'];
+			$this->activeThemeInfo	= (array_key_exists('activeThemeInfo', $args) ? $args['activeThemeInfo'] : null);
 			$this->colorPicker		= $args['colorPicker'];
 			$this->libraryFunctions = $args['libraryFunctions'];
+			$this->Themes			= (array_key_exists('Themes', $args) ? $args['Themes']	: null);
 		}
 		// To aid with debugging, when WP_DEBUG is true, this function displays a message code
 		// on the message box in the lower right corner.
@@ -534,6 +536,14 @@ FUNCTIONSFILEOUTPUT;
 				echo "Length of file: " . strlen($inputs['fileContents']);
 			} else {
 			}
+		}
+		function ajax_set_expert_mode() {
+			$expertMode = sanitize_text_field( $_POST['enabled'] );
+			update_option("pas_cth_expert_mode", $expertMode);
+		}
+		function ajax_set_child_theme() {
+			$childTheme = sanitize_text_field( $_POST['childTheme'] );
+			update_option("pas_cth_active_theme", $childTheme);
 		}
 	}
 }
