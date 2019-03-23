@@ -34,6 +34,7 @@
   padding: 3px;
   overflow:hidden;
   border:outset 1pt black;
+  margin-bottom:50px;
 }
 .grid-item {
 /*  background-color: rgba(255, 255, 255, 1); */
@@ -97,7 +98,7 @@
 	grid-row:6;
 	background:white;
 	width:100%;
-	text-align:left;
+	text-align:left ! important;
 }
 .rval, .gval, .bval {
 	width:45px;

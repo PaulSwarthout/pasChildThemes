@@ -15,7 +15,7 @@ if ( ! class_exists( 'pas_cth_colorPicker' ) ) {
 
 		function color_picker_styles( ) {
 			// $uniqStr tricks your browser into not loading a cached version of the CSS file
-			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?u=" . rand( 0, 999999 ) . "&" : "" );
+			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?cacheBuster=" . time() . "&" : "" );
 			wp_enqueue_style( 	'pas_cth_colorPicker',
 								$this->pluginDirectory['url'] . "css/color_picker_grid.css" . $uniqStr,
 								false );
@@ -23,7 +23,7 @@ if ( ! class_exists( 'pas_cth_colorPicker' ) ) {
 
 		function color_picker_scripts( ) {
 			// $uniqStr tricks your browser into not loading a cached version of the JS file
-			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?u=" . rand( 0, 999999 ) . "&" : "" );
+			$uniqStr = ( constant( 'WP_DEBUG' ) ? "?cacheBuster=" . time() . "&" : "" );
 			wp_enqueue_script( 'pas_cth_color_picker_script',
 								$this->pluginDirectory['url'] . "js/color_picker.js" . $uniqStr,
 								false );

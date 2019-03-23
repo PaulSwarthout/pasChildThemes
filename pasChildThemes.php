@@ -46,14 +46,20 @@ $pas_cth_themeInfo = null;
 $pas_cth_child_theme_selected = false;
 $pas_cth_default_tab = "copy-theme-files";
 $pas_cth_child_theme_selected = true;
-if (get_option("pas_cth_active_theme", false) !== false) {
-	try {
-		$pas_cth_themeInfo = new pas_cth_activeThemeInfo( );
-	} catch (Exception $e) {
-		if ($e->getMessage() == "Active Theme Not Defined") {
-			$pas_cth_default_tab = "options";
-			$pas_cth_child_theme_selected = false;
+$activeTheme = get_option("pas_cth_active_theme", false);
+if ($activeTheme !== false) {
+	if (wp_get_theme($activeTheme)->exists()) {
+		try {
+			$pas_cth_themeInfo = new pas_cth_activeThemeInfo( );
+		} catch (Exception $e) {
+			if ($e->getMessage() == "Active Theme Not Defined") {
+				$pas_cth_default_tab = "options";
+				$pas_cth_child_theme_selected = false;
+			}
 		}
+	} else {
+		delete_option("pas_cth_active_theme");
+		$pas_cth_default_tab = "options";
 	}
 } else {
 	$pas_cth_default_tab = "options";
@@ -188,6 +194,7 @@ add_action( 'wp_ajax_saveFile', Array( $pas_cth_AJAXFunctions, "saveFile" ) );
 
 add_action( 'wp_ajax_setExpertMode', Array( $pas_cth_AJAXFunctions, "ajax_set_expert_mode") );
 add_action( 'wp_ajax_setDefaultChildTheme', Array( $pas_cth_AJAXFunctions, "ajax_set_child_theme" ) );
+add_action( 'wp_ajax_generateScreenShot', Array( $pas_cth_AJAXFunctions, "ajax_generate_screen_shot" ) );
 
 // Plugin Deactivation
 function pas_cth_deactivate( ) {

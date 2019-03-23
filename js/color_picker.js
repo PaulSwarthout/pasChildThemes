@@ -356,8 +356,9 @@ function resetColor(element) {
 	cp.blueSlider.value = hexcolors.blue;
 
 	updateColorPicker(abbr);
-	cp.saveButton.disabled = false;
-	cp.resetButton.disabled = false;
+	cp.saveButton.disabled = true;
+	cp.resetButton.disabled = true;
+
 }
 // Get Complementary color
 function invertColor(hex, bw = true) {
@@ -522,4 +523,50 @@ function setWebColor(element, color) {
 	cp.hexval.value = color;
 
 	updateColorPicker(abbr);
+}
+function generateScreenShot(abbr) {
+	var saveBTNs = new eList(document.getElementsByClassName("saveButton")).toArray();
+	var unsavedCount = 0;
+
+	saveBTNs.map(function (cell) {
+		if (! cell.disabled ) {
+			unsavedCount++;
+		}
+	});
+
+	if (unsavedCount > 0) {
+		var box = displayError("Please save or reset your changes before attempting to generate a new screenshot for your child theme.");
+		var p = document.createElement("P");
+		p.innerHTML = "close [X]";
+		box.appendChild(p);
+		return;
+	}
+	var displayScreenshotFile = function (xmlResponse) {
+		var parser = new DOMParser();
+		var xmlDoc = parser.parseFromString(xmlResponse,"text/xml");
+		var records = xmlDoc.getElementsByTagName("record");
+		var site_url	= records[0].getElementsByTagName("siteURL")[0].textContent;
+		var stylesheet	= records[0].getElementsByTagName("stylesheet")[0].textContent;
+		var filename	= records[0].getElementsByTagName("filename")[0].textContent;
+
+		var box = document.createElement("DIV");
+		box.onclick = function () {
+			if (this.parentNode != null) {
+				this.parentNode.removeChild(this);
+			}
+			this.remove();
+		}
+		var theBody = document.getElementsByTagName("body")[0];
+		box.id = "screenshotBox";
+		var p = document.createElement("P");
+		p.appendChild(document.createTextNode("[X] close"));
+
+		var img = document.createElement("IMG");
+		img.src = site_url + "/wp-content/themes/" + stylesheet + "/" + filename + "?cacheBuster=" + Date.now();
+		box.appendChild(img);
+		box.appendChild(p);
+		theBody.appendChild(box);
+	}
+
+	pas_cth_js_AJAXCall("generateScreenShot", null, displayScreenshotFile);
 }

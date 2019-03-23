@@ -545,5 +545,58 @@ FUNCTIONSFILEOUTPUT;
 			$childTheme = sanitize_text_field( $_POST['childTheme'] );
 			update_option("pas_cth_active_theme", $childTheme);
 		}
+		function ajax_generate_screen_shot() {
+			$this->generateScreenShot();
+		}
+				/* Generates the screenshot.png file in the child theme, if one does not yet exist.
+		 * If changes to the options do not show up, clear your browser's stored images,
+		 * files, fonts, etc.
+		 */
+		function generateScreenShot() {
+			$screenShotFile = $this->activeThemeInfo->childThemeRoot . PAS_CTH_SEPARATOR
+							. $this->activeThemeInfo->childStylesheet
+							. PAS_CTH_SEPARATOR
+							. "screenshot.png";
+
+			$args = [
+				'targetFile'		=> $screenShotFile,
+				'childThemeName'	=> $this->activeThemeInfo->childThemeName,
+				'templateThemeName' => $this->activeThemeInfo->templateStylesheet,
+				'pluginDirectory'	=> $this->pluginDirectory,
+				'activeThemeInfo' => $this->activeThemeInfo,
+				'libraryFunctions'	=> $this->libraryFunctions
+					];
+
+			// pas_cth_ScreenShot( )::__construct( ) creates the screenshot.png file.
+			// $status not needed afterwards
+			// Will overwrite an existing screenshot.png without checking. // Need to fix this.
+			$status = new pas_cth_ScreenShot( $args );
+			unset( $status ); // ScreenShot.png is created in the class' __construct( ) function.
+
+			$outputParameters = [];
+			array_push($outputParameters, 
+				[
+					'stylesheet'	=>	get_option("pas_cth_active_theme"),
+					'siteURL'		=>	get_site_url(),
+					'filename'		=>	"screenshot.png",
+				]);
+
+
+			echo $this->convertToXML($outputParameters);
+		}
+		function convertToXML($data) {
+			$crlf = ( "WIN" === strtoupper( substr( PHP_OS, 0, 3 ) ) ? "\r\n" : "\n" );
+			$xmlOutput = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . $crlf;
+			$xmlOutput .= "<output>{$crlf}";
+			foreach ($data as $row) {
+				$xmlOutput .= "<record>{$crlf}";
+				foreach ($row as $key => $value) {
+					$xmlOutput .= "<{$key}>{$value}</{$key}>{$crlf}";
+				}
+				$xmlOutput .= "</record>{$crlf}";
+			}
+			$xmlOutput	.= "</output>";
+			return $xmlOutput;
+		}
 	}
 }

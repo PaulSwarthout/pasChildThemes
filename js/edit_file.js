@@ -81,10 +81,10 @@ function pas_cth_js_editFile(event) {
  */
 	ee.currentFileExtension.value = jsInput['extension'];
 	if (jsInput['allowedFileTypes'].findIndex(pas_cth_js_findElement) < 0) {
-		var msg = "<div style='text-align:center;width:100%;'><h2>FILE TYPE ERROR</h2><hr>You can only edit files of the following types:<br>" +
+		var msg = "<div style='text-align:center;width:100%;'><h2>FILE TYPE ERROR</h2><hr>You can only edit/view files of the following types:<br>" +
 			jsInput['allowedFileTypes'].toString().split(",").join("<br>").toBold() +
-			"<br>To add other file types, please visit the options page.</div>";
-		pas_cth_js_createBox("actionBox", "", document.getElementsByTagName("body")[0], true).innerHTML += msg;
+			"</div>";
+		pas_cth_js_createBox("invalidFileTypeMessage", "", document.getElementsByTagName("body")[0], true).innerHTML += msg;
 		return;
 	}
 /*
@@ -220,12 +220,6 @@ function processEditFile(response) {
 	ee.efSaveButton.disabled = true;
 
 	ee.editBox.innerHTML = responseSections.EDITBOX
-/*
-	if (ee.editFile.parentNode != null && ee.editFile.parentNode != document.getElementsByTagName("body")[0]) {
-		document.getElementsByTagName("body")[0].appendChild(ee.editFile);
-	}
-*/
-//	ee.wpbodyContent.style.height = (ee.windowHeight * 0.7) + "px";
 
 	enableContent(ee);
 
@@ -239,13 +233,11 @@ function processEditFile(response) {
 
 	ee.shield.style.display = "inline";
 	ee.editFile.style.display = "grid";
-//	ee.themeGrid.style.display = "none";
 
 }
 function enableContent(elements) {
 	elements.editBox.contentEditable		= true;
 
-//	elements.efButtonRow.contentEditable	= false;
 	elements.efSaveButton.contentEditable	= false;
 	elements.efCloseButton.contentEditable	= false;
 
@@ -283,7 +275,6 @@ function editBoxChange() {
 }
 function debug(element) {
 	var ee = new pas_cth_js_editElements();
-	debugger;
 }
 function pas_cth_js_saveFile() {
 	var ee = new pas_cth_js_editElements();

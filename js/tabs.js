@@ -43,7 +43,6 @@ function openCTHTab(element) {
 	tabcontent[contentIndex].classList.toggle("tab_active", true);
 }
 var defaultOpen = document.getElementById("defaultOpen");
-debugger
 if (defaultOpen != null) {
 	defaultOpen.click();
 }
@@ -57,11 +56,23 @@ if (cthPage != null) {
 }
 function pas_cth_js_expertMode(element) {
 	var dataBlock = {};
+	var optionsHelp = document.getElementById("optionsHelp");
+	var createChildHelp = document.getElementById("createChildHelp");
+	var copyThemeFilesHelp = document.getElementById("copyThemeFilesHelp");
+	var screenshotHelp = document.getElementById("screenshotHelp");
+
 	if (element.checked) {
-		document.getElementById("optionsHelp").classList.toggle("hideHelp", true);
+		if (optionsHelp != null) { optionsHelp.classList.toggle("hideHelp", true); }
+		if (createChildHelp != null) { createChildHelp.classList.toggle("hideHelp", true); }
+		if (copyThemeFilesHelp != null) { copyThemeFilesHelp.classList.toggle("hideHelp", true); }
+		if (screenshotHelp != null) { screenshotHelp.classList.toggle("hideHelp", true); }
+
 		dataBlock.enabled = "TRUE";
 	} else {
-		document.getElementById("optionsHelp").classList.toggle("hideHelp", false);
+		if (optionsHelp != null) { optionsHelp.classList.toggle("hideHelp", false); }
+		if (createChildHelp != null) { createChildHelp.classList.toggle("hideHelp", false); }
+		if (copyThemeFilesHelp != null) { copyThemeFilesHelp.classList.toggle("hideHelp", false); }
+		if (screenshotHelp != null) { screenshotHelp.classList.toggle("hideHelp", false); }
 		dataBlock.enabled = "FALSE";
 	}
 	pas_cth_js_AJAXCall("setExpertMode", dataBlock);

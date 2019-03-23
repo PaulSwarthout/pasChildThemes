@@ -15,7 +15,8 @@ define( 'PAS_CTH_PLUGINNAME', '...created by Child Themes Helper...' );
 
 define( 'DOTS', '...............................................................................' );
 
-update_option('pas_cth_edit_allowedFileTypes', get_option('pas_cth_edit_allowedFileTypes', ['php', 'js', 'css', 'txt']));
+delete_option('pas_cth_edit_allowedFileTypes');
+update_option('pas_cth_edit_allowedFileTypes', get_option('pas_cth_edit_allowedFileTypes', ['js', 'css', 'php', 'txt', 'xml', 'html']));
 
 /*
  * As has been the case for many years, Windows uses the folder delimiter of a backslash.

@@ -39,7 +39,7 @@
 
 /* Style the tab content */
 #tabPage .tabcontent {
-	padding: 6px 50px;
+	padding: 6px 0px 6px 10px;
 	border: none;
 	border-top: none;
 	background-color:#ccc;
@@ -61,7 +61,7 @@
 	box-shadow:5px 5px 5px darkgray;
 	font-size:10pt;
 	font-weight:bold;
-	width:250px;
+	width:180px;
 	padding:5px;
 }
 .popupLinks {
@@ -80,6 +80,7 @@
 	background-color:#D0D0D0;
 	margin:0px;
 	padding:0px;
+	white-space:nowrap;
 }
 .menuP {
 	width:100%;
@@ -98,8 +99,9 @@
 	background-color:white;
 	border:solid 1pt black;
 	border-radius:15px;
-	padding:10px;
+	padding:10px 10px 40px 10px;
 	width:85%;
+
 }
 #availableActions {
 	font-size:12pt;
@@ -119,7 +121,7 @@
 	list-style-type:square;
 	padding-left:30px;
 }
-#expertMode {
+.pas_cth_expertMode {
 	color:black;
 	font-size:12pt;
 	font-weight:bold;
@@ -158,4 +160,16 @@
 }
 #pas_cth_options input[type=radio] {
 	transform:scale(2.0);
+}
+#tabPage .noActiveThemeSet {
+	padding:10px;
+	width:500px;
+	height:100px;
+	border:solid 1pt;
+	border-radius:15px;
+	box-shadow:20px 10px 20px rgba(80, 80, 80, .7);
+	background-color:white;
+	color:black;
+	font-size:14pt;
+	text-align:center;
 }

@@ -7,6 +7,15 @@
 	--default-createTheme-fieldWidth:95%;
 	--default-border:solid 1pt black;
 }
+.abbreviatedPluginName {
+	font-weight:bold;
+	font-style:italic;
+	color:#000090;
+}
+.welcomeToCTH {
+	font-size:16pt;
+	text-align:center;
+}
 /*
  ***************************************
  *                                     *
@@ -24,7 +33,7 @@
 	overflow-y:scroll;
 }
 #themegrid {
-	height:95%;
+	height:100%;
 	overflow:scroll;
 }
 .pas-grid-container {
@@ -104,7 +113,7 @@
 .innerCellLeft, .innerCellRight {
 	text-align:left;
 }
-#actionBox, .errorMessageBox {
+#actionBox, .errorMessageBox, #invalidFileTypeMessage {
 	position:fixed;
 	background-color:rgba(255,255,240,1);
 	border:solid 1pt black;
@@ -112,6 +121,70 @@
 	display:inline;
 	visibility:visible;
 	overflow:hidden;
+}
+#popupErrorMessage {
+	position:fixed;
+	left:50%;
+	top:50%;
+	background-color:rgba(255,255,240,1);
+	border:solid 1pt black;
+	color:black;
+	display:inline;
+	visibility:visible;
+	overflow:hidden;
+	width:240px;
+	height:80px;
+	margin-left:-120px;
+	margin-top:-40px;
+	border:solid 1pt red;
+	border-radius:15px;
+	box-shadow:10px 10px 10px rgba(100, 0, 0, .5);
+	padding:10px 10px 10px 10px;
+	font-size:12pt;
+	font-weight:bold;
+}
+#popupErrorMessage P {
+	margin:0px;
+	padding:0px 10px 0px 0px;
+	color:red;
+	font-size:12pt;
+	font-weight:bold;
+	position:absolute;
+	bottom:0px;
+	right:0px;
+	cursor:pointer;
+}
+#screenshotBox {
+	position:fixed;
+	left:50%;
+	top:50%;
+	width:450px;
+	height:350px;
+	margin-left:-225px;
+	margin-top:-175px;
+	text-align:center;
+	background-color:white;
+	border:solid 1pt black;
+	border-radius:15px;
+	box-shadow:0px 0px 50px rgba(0, 0, 0, 1);
+}
+#screenshotBox img {
+	width:421px;
+	height:315px;
+	position:absolute;
+	top:17px;
+	left:13px;
+}
+#screenshotBox P {
+	font-size:12pt;
+	font-weight:bold;
+	color:red;
+	position:absolute;
+	bottom:0px;
+	right:0px;
+	padding:0px 15px 0px 0px;
+	margin:0px;
+	cursor:pointer;
 }
 /*
  * #hoverPrompt, #innerLine, .redHighlight, .actionPrompt are all used with
@@ -185,18 +258,19 @@ p.pas_cth_directory {
  * Full width display, full size, only uses about 825px.
  */
 .createChildThemeBox {
-	background-color:white;
 	color:black;
 	display:inline-block;
 	width:100%;
-	padding:0px 0px 0px 10px;
+	margin-top:20px;
 }
 .createChildThemeBoxForm {
 	background-color:white;
-	margin:10px 0 0 0;
-	padding:0 0 0 10px;
+	margin:0px;
+	padding:10px;
 	border:solid 1pt black;
 	width:100%;
+	font-family:arial;
+	font-size:14pt;
 }
 .createChildThemeBoxForm_HDR {
 	width:100%;
@@ -261,7 +335,7 @@ p.pas_cth_directory {
 	.pas-grid-item-parent {
 		display:inline;
 	}
-	#actionBox, .errorMessageBox {
+	#actionBox, .errorMessageBox, #invalidFileTypeMessage {
 		box-shadow:10px 20px 50px #C09090;
 		border-radius:25px;
 		font-size:10pt;
@@ -410,7 +484,7 @@ p.pas_cth_directory {
 	.pas-grid-item-parent {
 		display:none;
 	}
-	#actionBox, .errorMessageBox {
+	#actionBox, .errorMessageBox, #invalidFileTypeMessage {
 		box-shadow:5px 8px 16px #C09090;
 		border-radius:15px;
 		font-size:8pt;
@@ -523,7 +597,7 @@ p.pas_cth_directory {
 	.pas-grid-item-parent {
 		display:none;
 	}
-	#actionBox, .errorMessageBox {
+	#actionBox, .errorMessageBox, #invalidFileTypeMessage {
 		box-shadow:5px 8px 16px #C09090;
 		border-radius:8px;
 		font-size:6pt;
@@ -733,7 +807,9 @@ span.pctOptionValue {
 	font-size:12pt;
 	font-weight:bold;
 	color:red;
-	background-color:transparent;
+	background-color:white;
+	width:500px;
+	padding:10px;
 }
 p.mID {
 	font-family:courier-new;

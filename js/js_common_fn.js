@@ -191,7 +191,7 @@ function pas_cth_js_processResponse(response) {
 function pas_cth_js_showBox() {
 	return pas_cth_js_createBox("actionBox", "");
 }
-function pas_cth_js_createBox(id, className, parent = document.getElementsByTagName("body")[0], clickClose = false) {
+function pas_cth_js_createBox(id, className = "", parent = document.getElementsByTagName("body")[0], clickClose = false) {
 	var box = document.getElementById(id);
 	if (box != null && box != undefined) {
 		if (box.parentNode != null) {
@@ -284,4 +284,15 @@ function getTopLeftPosition(obj = null) {
 	} else {
 		return null;
 	}
+}
+function displayError(str) {
+	var box = document.getElementById("popupErrorMessage");
+	var theBody = document.getElementsByTagName("body")[0];
+	if (box != null) {
+		if (box.parentNode != null) { box.parentNode.removeChild(box); }
+		box.remove();
+	}
+	box = pas_cth_js_createBox("popupErrorMessage", "", theBody, true);
+	box.appendChild(document.createTextNode(str));
+	return box;
 }

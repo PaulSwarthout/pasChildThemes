@@ -3,29 +3,31 @@ Number.prototype.px = function () {
 }
 function elementInfo(element) {
 	this.element= element;
-	this.X		= element.offsetLeft;
-	this.Y		= element.offsetTop;
-	this.width	= element.clientWidth;
-	this.height	= element.clientHeight;
+
+	this.rect = element.getBoundingClientRect(element);
+
+	this.width	= this.rect.width;
+	this.height	= this.rect.height;
+
 	this.UL = 
 		{
-			'X'	:	this.X,
-			'Y' :	this.Y
+			'X'	:	this.rect.left,
+			'Y' :	this.rect.top
 		};
 	this.UR = 
 		{
-			'X' :	this.X + this.width,
-			'Y' :	this.Y
+			'X' :	this.rect.right,
+			'Y' :	this.rect.top
 		};
 	this.LL = 
 		{
-			'X' :	this.X,
-			'Y' :	this.Y + this.height
+			'X' :	this.rect.left,
+			'Y' :	this.rect.bottom
 		};
 	this.LR = 
 		{
-			'X' :	this.X + this.width,
-			'Y' :	this.Y + this.height
+			'X' :	this.rect.right,
+			'Y' :	this.rect.bottom
 		};
 	this.isMouseOver = function (point = mousePosition) {
 		var obj = this;
@@ -69,11 +71,10 @@ function copyDataAttributes(targetElement, sourceElement) {
 		}
 	}
 }
-function pas_cth_js_openMenu(element) {
-	var event = window.event;
+function pas_cth_js_openMenu(element, event) {
 	if (event.shiftKey) { return }
 	var pos = new elementInfo(element)
-	var currentPosition = mousePosition;
+	var position = { 'x'	:	event.clientX, 'y'	:	event.clientY };
 	var jsdata = JSON.parse(element.getAttribute("data-jsdata"));
 	var elementID = Date.now();
 	var childGrid = document.getElementById("childGrid");
@@ -81,7 +82,6 @@ function pas_cth_js_openMenu(element) {
 	var themeType = "";
 
 	var obj = new elementInfo(childGrid);
-	var position = { 'x' : event.clientX, 'y' : event.clientY };
 	if (obj.isMouseOver(position)) {
 		themeType = "child";
 	} else {
@@ -99,8 +99,6 @@ function pas_cth_js_openMenu(element) {
 			menuElements[menuElements.length] = cell;
 		}
 	});
-	debugger
-
 	element.setAttribute("id", "file_" + elementID);
 
 	var box = document.getElementById("popupMenu");
@@ -111,9 +109,16 @@ function pas_cth_js_openMenu(element) {
 	box = document.createElement("DIV");
 	var p = document.createElement("P");
 	p.id = "menuFileName";
-	p.appendChild(document.createTextNode("File: " + jsdata.file));
-	box.appendChild(p);
+	var txt = document.createTextNode("File: " + jsdata.file);
+	p.appendChild(txt);
 
+	
+	
+	var rect = p.getBoundingClientRect();
+	var pHeight = rect.height;
+	rect = p.getBoundingClientRect();
+
+	box.appendChild(p);
 
 	var anchor = [];
 
@@ -129,15 +134,19 @@ function pas_cth_js_openMenu(element) {
 		copyDataAttributes(anchor[anchor.length-1], element);
 		p.appendChild(anchor[ndx]);
 		box.appendChild(p);
-//		box.appendChild(document.createElement("BR"));
 	}
 	box.id = "popupMenu";
 
-	var lft = currentPosition.x + 25;
-	var tp = currentPosition.y;
+	var lft = position.x + 25;
+	var tp = position.y;
 	box.style.left = lft.px();
 	box.style.top = tp.px();
 	document.getElementsByTagName("body")[0].appendChild(box);
+
+	box.style.width = box.scrollWidth;
+
+	var pRect = p.getBoundingClientRect();
+	var boxRect = box.getBoundingClientRect();
 
 	event.preventDefault();
 }

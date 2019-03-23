@@ -30,6 +30,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			$this->demo_mode		= (array_key_exists('demo_args', $args) ? $args['demo_args'] : null);
 
 			$this->activeThemeInfo	= (array_key_exists('activeThemeInfo', $args) ? $args['activeThemeInfo'] : null);
+
 			$this->Themes			= (array_key_exists('Themes', $args) ? $args['Themes']	: null);
 			$this->defaultTab		= (array_key_exists('defaultTab', $args) ? $args['defaultTab'] : null);
 		}
@@ -110,6 +111,12 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 							61 // appears just below the Appearances menu.
 						 );
 		}
+		function NoActiveThemeMsg() {
+			echo "<div class='noActiveThemeSet'>";
+			echo "Active Theme Not Set<hr>"
+				."Please visit the <i>Options</i> tab to set the active child theme.";
+			echo "</div>";
+		}
 		function pas_cth_tabPage() {
 			$crlf = $this->crlf;
 			$tabInfo =
@@ -138,13 +145,16 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						'content'	=>	'Screenshot options and generation.',
 						'default'	=>	false,
 					],
+				];
+			if (defined('WP_DEBUG') && defined('PLUGIN_DEVELOPMENT') && constant('WP_DEBUG') && constant('PLUGIN_DEVELOPMENT')) {
+				array_push($tabInfo, 
 					[
 						'title'		=>	'Theme Data',
 						'slug'		=>	'theme-data',
 						'content'	=>	"<div style='background-color:white;font-size:12pt;font-weight:bold;'><pre>" . print_r($this->Themes, true) . "</pre></div>",
 						'default'	=> false,
-					],
-				];
+					]);
+			}
 			foreach ($tabInfo as $key => $tab) {
 				if ($tab['slug'] == $this->defaultTab) {
 					$tabInfo[$key]['default'] = true;
@@ -170,16 +180,24 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 						// Copy Theme Files
 						if ($this->activeThemeInfo != null) {
 							$this->manage_child_themes("COPY");
+						} else {
+							$this->noActiveThemeMsg();
 						}
 						break;
 
 					case "screenshot":
 						if ($this->activeThemeInfo != null) {
 							$this->pas_cth_Options();
+						} else {
+							$this->noActiveThemeMsg();
 						}
 						break;
 					case "options":
 						$this->loadOptionsPage();
+						break;
+					case "theme-data":
+						echo "<h3>{$tab['title']}</h3>";
+						echo "<p>{$tab['content']}</p>";
 						break;
 					
 					default:
@@ -201,62 +219,65 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			} else {
 				$class = "";
 			}
+			$abbr	= "<span class='abbreviatedPluginName'>CTH</span>";
 			echo <<< "HELP"
-<div id='expertMode'>
+<div class='pas_cth_expertMode'>
 <input type='checkbox' {$expertMode} onclick='javascript:pas_cth_js_expertMode(this);'>Expert Mode
 </div>
 <div id='optionsHelp' {$class}>
-The Child Themes Helper plugin for WordPress websites was developed to aid theme developers.
-	The Child Themes Helper plugin makes it easy to copy files from a parent or template theme to a child theme.
-	You should never make direct edits to a WordPress theme that you have downloaded from the WordPress Theme repository.
-	According to the WordPress Codex, the correct method of making changes to a downloaded theme is to create a child theme and then make your changes in the child theme.
-	This allows the downloaded theme to be updated by its developer without destroying any changes that you wanted to make.
-	Usually, your child theme will continue to work without breaking when the downloaded theme is updated.
+	<h1>Welcome to the Child Themes Helper plugin.</h1>
 	<br><br>
-	However, your child theme needs to follow the same conventions as the downloaded (hereinafter "parent") theme.
-	The modified files in your child theme need to be named the same as the original files in the parent theme.
-	Further, the files need to reside in the same folder in your child theme as they do in the parent theme.
-	Any mistakes you make in placing your files, will mean that your child theme will not function as expected.
+	The Child Themes Helper plugin for WordPress child theme development, (hereinafter: {$abbr}) was developed to aid website developers who have a need to modify the underlying PHP of their website's installed theme(s).
 	<br><br>
-	The Child Themes Helper plugin makes this process easy. Once you have selected an existing child theme from the list below, or created a new child theme and then selected it,
-	you will see the list of files from the child theme and the parent theme on the <i>Copy/Edit Theme Files</i> tab.
-	Right click on any file to see a menu of allowed actions for the file you clicked on.
-	The following actions are available:
+	Many people new to WordPress will download a free theme that they like and then make it their own using the theme customization features.
+	But they will soon discover that many of the changes that they want to make cannot be made using customization.
+	<br><br>
+	The next logical step is to modify the downloaded theme's internal PHP files.
+	<br><br>
+	That is a bad thing. When the developer(s) who created the free theme that they downloaded, update their theme and upload it to the WordPress Theme repository, those new-to-WordPress website developers will get a message about the theme needing to be updated.
+	And 10 seconds after they tap the link to update the theme, they will notice that all of their changes are gone.
+	<br><br>Poof<br><br>
+	Welcome to the world of Child Themes, a feature of WordPress designed to solve this exact problem -- how to make direct modifications to your installed themes.
+	<br><br>
+	Before proceeding, here are a couple of links that you will want to refer to 35 times per day.
+	<ul>
+		<li><a href='https://codex.wordpress.org/' target='_blank'>The WordPress Codex</a> -- an online WordPress manual and repository of all information about WordPress.</li>
+		<li><a href='https://developer.wordpress.org/themes/advanced-topics/child-themes/' target='_blank'>Child Themes</a> -- an advanced dive into everything you will need to know about Child Themes.</li>
+	</ul>
 
-	<div id='availableActions'>
-		<ul style='list-style-type:disc;font-size:12pt;'>
-			<li>
-				Right click on a file in the child theme.
-				<ul class='child'>
-					<li>Remove the file from the child theme</li>
-					<li>Edit the file</li>
-				</ul>
-			</li>
-			<li>
-				Right click on a file in the parent theme.
-				<ul class='child'>
-					<li>Copy the file from the parent theme to the child theme</li>
-					<li>View the contents of the parent theme file.</li>
-				</ul>
-			</li>
-		</ul>
-	</div>
-	
-	Below, you will find a list of available child themes that may be manipulated using the Child Themes Helper plugin.
-	You will need to select the child theme that you want to manipulate using the Child Themes Helper.
-	You can change this selection at any time by returning to this Options page.
-	If you have not yet created a child theme for your {$blogName} website, then the list will be missing and a notice about creating a new child theme will be displayed instead.
+	A simple working definition of a child theme is that it is like a sub-theme where you put all of your changes so that when the original theme -- the Template theme or the Parent theme -- gets updated, your changes are not lost.
+	WordPress loads your changed files instead of the original files of the parent theme.
 	<br><br>
-	To create a new child theme, click on the <i>Create Child Theme</i> tab at the top of this webpage.
+	But your changed files must have the same name and location in your child theme as they do in the original theme, or your child theme will not work.
+	That is an important thought and it bears repeating.
 	<br><br>
-	In order for the Child Themes Helper plugin to function, your {$blogName} website <u>MUST</u> have at least one child theme.
-	You are free to create as many child themes as you want.
-	You can choose to activate your new child theme (dashboard >> Appearances >> Themes) or not.
-	Unless you are working offline, in a development environment, we do not recommend that you activate your child themes until you have completed editing the files.
-	Effective with Child Themes Helper v2.0, the Child Themes Helper no longer requires the child theme to be active.
+	<b>The changed files in your child theme, must be named the same and exist in the same location in your child theme as they do in the original theme.</b>
+	<br><br>
+	The concept is easy enough.
+	But in practice, you copy a file, then close the window. Then you open the child theme, and try to remember the path to where the file goes, and create each folder and subsequent subfolders and then finally paste the file.
+	The Child Theme Helper plugin was created because I, the developer of {$abbr} would invariably screw it up and my child theme would not work and I would spend hours trying to figure out why.
+	<br><br>
+	<h3>The Child Themes Helper plugin has 4 areas of primary functionality.</h3> For more information on each of these, review the information at the top of each tab.
+	<ol>
+		<li>Create a new child theme from any of the template themes installed on your website. {$abbr} requires the child theme to exist before you can copy files to it.</li>
+		<li>Copy files from the original theme to the child theme. {$abbr} guarantees that the folder structure in the child theme matches the folder structure in the original theme and that the file being copied is named the same as the original file, including capitalization. {$abbr} <i><b>makes this process point-and-click simple</b></i>.</li>
+		<li>Directly edit your child theme's files or view the original theme's files directly in your browser. This is not meant as a substitute for using an offline editor, just a mechanism to make quick changes or peer into a file.</li>
+		<li>Generate a temporary graphic that will clearly identify your new child theme in the WordPress list of themes.</li>
+	</ol>
+
+	Before you can start copying files to your child theme, you have to specify which child theme is the active theme.
+	<br><br>
+	<b>The active child theme does <u>NOT</u> have to be an activated theme, but it does have to be a child theme</b>.
+	<br><br>
+	Below you will find a list of themes installed on your {$blogName} website. The lines with a radio button at the beginning may be selected as the active theme.
+	This selection <u>does not</u> change which theme is activated. It only specifies to {$abbr} which child/parent theme that it should manipulate.
+	<br><br>
+	Once selected, the page will reload and you will be on the Copy/Edit Theme Files tab.
+
 	</div>
 HELP;
 			echo "<div id='pas_cth_options'>";
+			echo "<div style='font-size:14pt;font-weight:bold;padding-bottom:15px;'>Please select the child theme that you want to manipulate.</div>";
 			echo "<table>";
 			echo "<tr><th>&nbsp;</th><th>Child Themes</th><th>Template Themes</th></tr>";
 			foreach ($this->Themes->childParentThemesList as $object) {
@@ -311,7 +332,7 @@ HELP;
 			$ifColorPicker =
 				( array_key_exists( 'colorPicker', $args ) ? $args['colorPicker'] : false );
 
-			$dots = DOTS; // string of periods. Will overflow the div.
+			$dots = DOTS; // string of periods. Will intentionally overflow the div.
 			$optionValue = get_option( "pas_cth_$optionName", $defaultValue );
 			$color_picker_parameters = ( array_key_exists( 'cp_parameters', $args ) ? $args['cp_parameters'] : [] );
 
@@ -338,12 +359,13 @@ HELP;
 						$abbrev = $color_picker_parameters['abbreviation'];
 						$initial_color = $color_picker_parameters['initial_color'];
 						$heading = $color_picker_parameters['heading'];
+						$generateButton = "<input type='button' value='generate screenshot' class='blueButton' onclick='javascript:generateScreenShot(\"{$abbrev}\");'>";
 						$rgb = $this->libraryFunctions->getColors( $initial_color );
 
 						$formElement = <<< "COLORPICKER"
 							<input type='hidden' id='{$abbrev}_initial_color' value='{$initial_color}'>
 							<input type='hidden' id='{$abbrev}_heading' value='$heading'>
-							<div class='colorPickerHeader'>$heading</div>
+							<div class='colorPickerHeader'>$heading {$generateButton}</div>
 							<div class='colorPickerContainer'>
 
 								<div class='grid-item item1' id='{$abbrev}_rval_cell' style='background-color:{$rgb["redColor"]};'>
@@ -550,12 +572,14 @@ OPTION;
 		}
 
 		// pasChildThemes' Options page.
-		function pas_cth_Options( ) {
-//			echo "<div id='screenShotOptions'>";
-			echo "<h1>Screen Shot Options</h1>";
-			echo "<p id='notice'>";
-			echo "If you make changes here and your screenshot.png doesn't change when you ";
-			echo "generate it, clear your browser's image cache.";
+		function pas_cth_Options() {
+			echo <<< 'CLEARCACHE'
+<h2>Generate a Temporary ScreenShot.png for your child theme.</h2>
+<p id='notice'>
+You may need to clear your browser's image cache to see any temporary screenshots that you generate here.
+</p>
+CLEARCACHE;
+// '
 			echo "</p>";
 			echo $this->WriteOption(
 				[
@@ -602,46 +626,15 @@ OPTION;
 			// No longer required.
 //			echo "<input type='button' class='blueButton' value='Save Options'>";
 		}
-		/* Generates the screenshot.png file in the child theme, if one does not yet exist.
-		 * If changes to the options do not show up, clear your browser's stored images,
-		 * files, fonts, etc.
-		 */
-		function generateScreenShot( ) {
-			$screenShotFile = $this->activeThemeInfo->childThemeRoot . PAS_CTH_SEPARATOR
-							. $this->activeThemeInfo->childStylesheet
-							. PAS_CTH_SEPARATOR
-							. "screenshot.png";
-
-			$args = [
-				'targetFile'		=> $screenShotFile,
-				'childThemeName'	=> $this->activeThemeInfo->childThemeName,
-				'templateThemeName' => $this->activeThemeInfo->templateStylesheet,
-				'pluginDirectory'	=> $this->pluginDirectory,
-				'activeThemeInfo' => $this->activeThemeInfo,
-				'libraryFunctions'	=> $this->libraryFunctions
-					];
-
-			// pas_cth_ScreenShot( )::__construct( ) creates the screenshot.png file.
-			// $status not needed afterwards
-			// Will overwrite an existing screenshot.png without checking. // Need to fix this.
-			$status = new pas_cth_ScreenShot( $args );
-			unset( $status ); // ScreenShot.png is created in the class' __construct( ) function.
-
-
-			// All done. Reload the Dashboard Themes page.
-			// Response buffering turned on so we can do this.
-			wp_redirect( admin_url( "themes.php" ) );
-		}
 
 		// showActiveChildTheme( ) will display the list of files for the child theme
 		// in the left-hand pane.
-		function showActiveChildTheme( ) {
+		function showActiveChildTheme() {
 			$currentThemeInfo = $this->activeThemeInfo; // this is an object.
 			if ( $this->activeThemeInfo->templateStylesheet ) {
 				echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
 				echo "<p class='actionReminder'>";
-				echo "Left Click a file to <u>REMOVE</u> it from the child theme.<br>";
-				echo "Right Click or long press a file to <u>EDIT</u> it.";
+				echo "Right Click or long press on a file to see an action menu";
 				echo "</p>";
 			}
 			echo "<p class='themeName'>" . $this->activeThemeInfo->childThemeName . "</p>";
@@ -658,8 +651,7 @@ OPTION;
 		function showActiveParentTheme( ) {
 			echo "<p class='pasChildTheme_HDR'>TEMPLATE THEME</p>";
 				echo "<p class='actionReminder'>";
-				echo "Left Click a file to <u>COPY</u> it to the child theme.<br>";
-				echo "Right Click or long press a file to <u>EDIT</u> it.";
+				echo "Right Click or long press on a file to see an action menu";
 				echo "</p>";
 			echo "<p class='themeName'>" . $this->activeThemeInfo->templateThemeName . "</p>";
 
@@ -670,15 +662,17 @@ OPTION;
 			echo "</div>";
 		}
 		function showCreateChildThemeForm() {
-			$active = $this->activeThemeInfo;
+			$pas_cth_active_theme = get_option("pas_cth_active_theme", false);
+			$activeTheme = ($pas_cth_active_theme !== false && wp_get_theme($pas_cth_active_theme)->exists() ? wp_get_theme($pas_cth_active_theme) : wp_get_theme());
+			$currentTemplate = ($activeTheme->parent() != null ? $activeTheme->parent() : $activeTheme);
+			$currentTemplateName = $currentTemplate->name;
+
 			$select = "<label for='templateTheme'>"
-			 . "Template Theme ( defaults to currently active theme )"
+			 . "Template Theme ( defaults to currently active template theme )"
 							. "<br><select name='templateTheme' id='templateTheme'>";
 			foreach ( $this->Themes->listTemplateThemes as $key => $theme ) {
-				error_log("\$active->childThemeName = {$active->childThemeName} and themeName = {$theme['themeName']} ");
-				$selected = ($active != null &&
-							 strtoupper( $active->childThemeName ) == strtoupper( $theme['themeName'] ) ?
-								" SELECTED " : "");
+				$selected = ($theme['themeName'] == $currentTemplateName ? " SELECTED " : "");
+
 				$select .= "<option value='"
 						.			esc_attr( $key )
 						.			"' $selected>"
@@ -687,19 +681,20 @@ OPTION;
 			}
 			$select .= "</select>";
 
+			$adminThemesPage = admin_url("themes.php");
+			$themeRoot		 = ($this->activeThemeInfo != null ? $this->activeThemeInfo->childThemeRoot : wp_get_theme()->get_theme_root());
+
 			echo "<div class='createChildThemeBox'>";
 
-			$adminThemes = admin_url("themes.php");
-
 			$createChildTheme = <<< "CREATECHILDTHEME"
-	Fill out the following form to create a child theme.<br>
-	The only required fields are the <i>Child Theme Name</i> and the <i>Template Theme Name</i>
 	<div class='createChildThemeBoxForm'>
+		Fill out the following form to create a new child theme. Only the <i>Child Theme Name</i> and the <i>Template Theme Name</i> drop down box are required.
+		<br><br>
 		<div class='createChildThemeBoxForm_HDR'>Create Child Theme</div>
 			<form>
-				<input type='hidden' name='themeRoot' value='{$this->activeThemeInfo->childThemeRoot}'>
+				<input type='hidden' name='themeRoot' value='{$themeRoot}'>
 				<input type='hidden' name='action' value='createChildTheme'>
-				<input type='hidden' name='href' value='{$adminThemes}'>
+				<input type='hidden' name='href' value='{$adminThemesPage}'>
 				<label for='childThemeName'>
 					Child Theme Name:
 					<br>
@@ -763,6 +758,27 @@ CREATECHILDTHEME;
 				$capability = "manage_options";
 			}
 			if ( ! current_user_can( $capability ) ) { exit; }
+
+/*
+	<div id='availableActions'>
+		<ul style='list-style-type:disc;font-size:12pt;'>
+			<li>
+				Right click on a file in the child theme.
+				<ul class='child'>
+					<li>Remove the file from the child theme</li>
+					<li>Edit the file</li>
+				</ul>
+			</li>
+			<li>
+				Right click on a file in the parent theme.
+				<ul class='child'>
+					<li>Copy the file from the parent theme to the child theme</li>
+					<li>View the contents of the parent theme file.</li>
+				</ul>
+			</li>
+		</ul>
+	</div>
+*/
 
 			$jsdata =
 				[
@@ -913,7 +929,7 @@ EDITFILE;
 					echo "<li>"
 						 . "<p class='file' "
 						 . " data-jsdata='" . esc_attr( $jsdata ) . "' "
-						 . " oncontextmenu='javascript:pas_cth_js_openMenu( this );' >";
+						 . " oncontextmenu='javascript:pas_cth_js_openMenu( this, event );' >";
 /*
  *						 . " onclick='javascript:pas_cth_js_selectFile( this );' "
  *						 . " oncontextmenu='javascript:pas_cth_js_editFile( this );return false;' "
