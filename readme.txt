@@ -36,6 +36,9 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 	Creating a child theme does not create a graphic for your new theme on the WordPress themes page. The Child Themes Helper plugin can create a graphic for your child theme. You're free to select the foreground and background colors for that graphic and choose from up to a couple of dozen Google Fonts. If you would like a different font, you only need to copy the .ttf file into the Child Themes Helper plugin's assets/fonts folder. The next time you open the Options page, the newly downloaded font will be displayed with a sample string.
 
 1. **Notes**
+	- *PHP Versions*
+		The Child Themes Helper plugin has been tested and found to work with PHP 5.6.31, PHP 7.2.7, and PHP 7.3.0.
+
 	- *Troubleshooting Installation Issues*
 		The primary filename and primary folder name of the Child Themes Helper changed (in v2.0) from pasChildThemes and pasChildThemes.php to child-themes-helper and child-themes-helper.php. This *may* cause some problems during the installation. If you experience problems, I suggest that you deactivate the plugin and delete it. Then reinstall the Child Themes Helper v2.0 from the WordPress Plugins repository.
 
