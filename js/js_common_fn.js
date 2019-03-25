@@ -105,7 +105,7 @@ if (window.location.href.indexOf("manage_child_themes")	>= 0) {
 		}
 
 		var pointElement = null;
-		var actionBox = document.getElementById("actionBox");
+		var actionBox = document.getElementById("pas_cth_actionBox");
 		var errorMessageBox = document.getElementsByName("errorMessageBox")[0];
 
 		pointElement = document.elementFromPoint(e.clientX, e.clientY);
@@ -137,7 +137,7 @@ function pas_cth_js_killMe(element) {
 
 	elements = document.getElementsByName("errorMessageBox");
 	if (0 == elements.length) {
-		var actionBox = document.getElementById("actionBox");
+		var actionBox = document.getElementById("pas_cth_actionBox");
 		if (actionBox.parentNode != null) {
 			actionBox.parentNode.removeChild(actionBox);
 		}
@@ -169,7 +169,7 @@ function pas_cth_js_processResponse(response) {
 		response = response.left(response.length - 1);
 		processEditFile(response);
 	} else if ("DEBUG:{" == response.left("DEBUG:{".length).toUpperCase()) {
-		actionBox = document.getElementById("actionBox");
+		actionBox = document.getElementById("pas_cth_actionBox");
 		if (actionBox != null && actionBox != undefined) {
 			if (actionBox.parentNode != null) {
 				actionBox.parentNode.removeChild(actionBox);
@@ -183,13 +183,13 @@ function pas_cth_js_processResponse(response) {
 	// Nothing special. We've got output from the PHP function, dump it to the screen.
 	} else {
 		if (response.length > 0) {
-			pas_cth_js_createBox("actionBox", "").innerHTML = response;
+			pas_cth_js_createBox("pas_cth_actionBox", "").innerHTML = response;
 			windowFlag = true;
 		}
 	}
 }
 function pas_cth_js_showBox() {
-	return pas_cth_js_createBox("actionBox", "");
+	return pas_cth_js_createBox("pas_cth_actionBox", "");
 }
 function pas_cth_js_createBox(id, className = "", parent = document.getElementsByTagName("body")[0], clickClose = false) {
 	var box = document.getElementById(id);
@@ -220,7 +220,7 @@ function pas_cth_js_createBox(id, className = "", parent = document.getElementsB
 		box.appendChild(dismissBTN);
 		dismissBTN.innerHTML = "DISMISS";
 		dismissBTN.onclick = function () {
-			var ab = document.getElementById("actionBox");
+			var ab = document.getElementById("pas_cth_actionBox");
 			if (ab.parentNode != null) {
 				ab.parentNode.removeChild(ab);
 			}

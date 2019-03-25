@@ -113,7 +113,7 @@
 .innerCellLeft, .innerCellRight {
 	text-align:left;
 }
-#actionBox, .errorMessageBox, #invalidFileTypeMessage {
+#pas_cth_actionBox, .errorMessageBox, #invalidFileTypeMessage {
 	position:fixed;
 	background-color:rgba(255,255,240,1);
 	border:solid 1pt black;
@@ -335,7 +335,7 @@ p.pas_cth_directory {
 	.pas-grid-item-parent {
 		display:inline;
 	}
-	#actionBox, .errorMessageBox, #invalidFileTypeMessage {
+	#pas_cth_actionBox, .errorMessageBox, #invalidFileTypeMessage {
 		box-shadow:10px 20px 50px #C09090;
 		border-radius:25px;
 		font-size:10pt;
@@ -484,7 +484,7 @@ p.pas_cth_directory {
 	.pas-grid-item-parent {
 		display:none;
 	}
-	#actionBox, .errorMessageBox, #invalidFileTypeMessage {
+	#pas_cth_actionBox, .errorMessageBox, #invalidFileTypeMessage {
 		box-shadow:5px 8px 16px #C09090;
 		border-radius:15px;
 		font-size:8pt;
@@ -597,7 +597,7 @@ p.pas_cth_directory {
 	.pas-grid-item-parent {
 		display:none;
 	}
-	#actionBox, .errorMessageBox, #invalidFileTypeMessage {
+	#pas_cth_actionBox, .errorMessageBox, #invalidFileTypeMessage {
 		box-shadow:5px 8px 16px #C09090;
 		border-radius:8px;
 		font-size:6pt;

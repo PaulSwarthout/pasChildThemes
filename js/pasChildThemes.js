@@ -32,7 +32,7 @@ function pas_cth_js_selectFile(event) {
 			}
 			this.remove();
 		}
-		document.getElementById("actionBox").style.display = "inline";
+		document.getElementById("pas_cth_actionBox").style.display = "inline";
 		windowFlag = true; // Prevents the window.onclick event from closing this prompt.
 		return;
 	}
@@ -292,7 +292,7 @@ function pas_cth_js_createChildTheme(element) {
 }
 // Responds to an onclick event, on a cancel button.
 function pas_cth_js_cancelOverwrite(element) {
-	var box = document.getElementById("actionBox");
+	var box = document.getElementById("pas_cth_actionBox");
 	if (null == box.parentNode) {
 		var theBody = document.getElementsByTagName("body")[0];
 		theBody.removeChild(box);
@@ -302,7 +302,7 @@ function pas_cth_js_cancelOverwrite(element) {
 }
 // Responds to an onclick event
 function pas_cth_js_cancelDeleteChild(element) {
-	var box = document.getElementById("actionBox");
+	var box = document.getElementById("pas_cth_actionBox");
 	if (null == box.parentNode) {
 		var theBody = document.getElementsByTagName("body")[0];
 		theBody.removeChild(box);
@@ -422,7 +422,7 @@ function pas_cth_validateField(element) {
 	}
 	var re = new RegExp(element.pattern);
 	var box;
-	var boxID = "actionBox";
+	var boxID = "pas_cth_actionBox";
 	var parent = document.getElementsByTagName("body")[0];
 	var onclickFunction = true;
 	var className = "";

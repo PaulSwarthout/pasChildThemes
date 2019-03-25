@@ -234,7 +234,8 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 	<br><br>
 	The next logical step is to modify the downloaded theme's internal PHP files.
 	<br><br>
-	That is a bad thing. When the developer(s) who created the free theme that they downloaded, update their theme and upload it to the WordPress Theme repository, those new-to-WordPress website developers will get a message about the theme needing to be updated.
+	
+	That is a bad thing. When the developer(s) who created the free theme that they downloaded, updates their theme and upload it to the WordPress Theme repository, those new-to-WordPress website developers will get a message about the theme needing to be updated.
 	And 10 seconds after they tap the link to update the theme, they will notice that all of their changes are gone.
 	<br><br>Poof<br><br>
 	Welcome to the world of Child Themes, a feature of WordPress designed to solve this exact problem -- how to make direct modifications to your installed themes.
@@ -576,7 +577,9 @@ OPTION;
 			echo <<< 'CLEARCACHE'
 <h2>Generate a Temporary ScreenShot.png for your child theme.</h2>
 <p id='notice'>
-You may need to clear your browser's image cache to see any temporary screenshots that you generate here.
+	Your browser will attempt to cache the screenshots that appear on your WordPress Themes page.
+	If you generate a new temporary graphic for your child theme and you still see the old one on the Themes page,
+	you must clear your browser's image cache to see your new graphic.
 </p>
 CLEARCACHE;
 // '

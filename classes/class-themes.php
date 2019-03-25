@@ -10,7 +10,7 @@ class pas_cth_themes {
 	function __construct($args) {
 		$this->pluginDirectory = (array_key_exists('pluginDirectory', $args) ? $args['pluginDirectory'] : ['url' => '', 'path' => '']);
 
-		$allThemes			= wp_get_themes(); // plural
+		$allThemes				= wp_get_themes(); // plural
 		$this->WP_Active_Theme	= wp_get_theme()->name;
 
 		$this->pas_cth_active_theme = get_option("pas_cth_active_theme", false);
@@ -32,7 +32,6 @@ class pas_cth_themes {
 						'theme_root'			=>	$this->fixFileDelimiters($wpThemeObject->get_theme_root()),
 						'parent_theme_name'		=>	$wpThemeObject->parent()->name,
 						'parent_theme'			=>	$wpThemeObject->parent(),
-						'LASTELEMENT'			=>	"*******************************************************",
 						'WP_Theme'				=>	$wpThemeObject,
 					];
 				if (! constant('WP_DEBUG')) {
@@ -47,11 +46,7 @@ class pas_cth_themes {
 						'stylesheet'			=>	$wpThemeObject->get_stylesheet(),
 						'stylesheet_directory'	=>	$this->fixFileDelimiters($wpThemeObject->get_stylesheet_directory()),
 						'theme_root'			=>	$this->fixFileDelimiters($wpThemeObject->get_theme_root()),
-						'LASTELEMENT'			=>	"*******************************************************",
 					];
-				if (! constant('WP_DEBUG')) {
-					unset($templateObject['LASTELEMENT']);
-				}
 					
 				$this->listTemplateThemes[$key] = $templateObject;
 			}
