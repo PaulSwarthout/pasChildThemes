@@ -1,65 +1,65 @@
-#hexDump {
-	border:solid 1pt red;
-	background:#FFFFFF;
-	color:black;
-	font-size:12pt;
-	font-weight:normal;
-	font-family:monospace;
-	width:60%;
-	height:50%;
-	z-index:99999999;
-	position:fixed;
-	top:100px;
-	left:200px;
-	white-space:pre;
-	display:inline;
-	visibility:visible;
-	padding:25px;
-	box-shadow:10px 10px 10px lightgray;
-	overflow:scroll;
-}
-#hexDump .newline {
-	color:red;
-	background-color:red;
-}
-#hexDump .tab {
-	color:blue;
-	background-color:blue;
-}
-#hexGrid {
-	display:inline-grid;
-	column-gap:50px;
-	padding:20px;
-}
-.hexItem1 {
-	grid-column:1;
-	grid-row:1;
-	border-right:solid 1pt white;
-	white-space:pre;
-	font-family:courier-new, monospace;
-}
-.hexItem2 {
-	grid-column:2;
-	grid-row:1;
-	border-left:solid 1pt white;
-	border-right:solid 1pt white;
-	white-space:pre;
-	font-family:courier-new, monospace;
-}
-#hexCloseBTN {
-	position:absolute;
-	top:0px;
-	right:0px;
-	margin:3px;
-	border:solid 1pt red;
-	border-radius:50px;
-	width:40px;
-	height:40px;
-	box-shadow:3px 3px 3px rgba(255, 220, 220, .7);
-	display:inline;
-	visibility:visible;
-	text-align:center;
-	line-height:40px;
-	vertical-align:middle;
-	font-size:16pt;
-}
+#hexDump {
+	border:solid 1pt red;
+	background:#FFFFFF;
+	color:black;
+	font-size:12pt;
+	font-weight:normal;
+	font-family:monospace;
+	width:60%;
+	height:50%;
+	z-index:99999999;
+	position:fixed;
+	top:100px;
+	left:200px;
+	white-space:pre;
+	display:inline;
+	visibility:visible;
+	padding:25px;
+	box-shadow:10px 10px 10px lightgray;
+	overflow:scroll;
+}
+#hexDump .newline {
+	color:red;
+	background-color:red;
+}
+#hexDump .tab {
+	color:blue;
+	background-color:blue;
+}
+#hexGrid {
+	display:inline-grid;
+	column-gap:50px;
+	padding:20px;
+}
+.hexItem1 {
+	grid-column:1;
+	grid-row:1;
+	border-right:solid 1pt white;
+	white-space:pre;
+	font-family:courier-new, monospace;
+}
+.hexItem2 {
+	grid-column:2;
+	grid-row:1;
+	border-left:solid 1pt white;
+	border-right:solid 1pt white;
+	white-space:pre;
+	font-family:courier-new, monospace;
+}
+#hexCloseBTN {
+	position:absolute;
+	top:0px;
+	right:0px;
+	margin:3px;
+	border:solid 1pt red;
+	border-radius:50px;
+	width:40px;
+	height:40px;
+	box-shadow:3px 3px 3px rgba(255, 220, 220, .7);
+	display:inline;
+	visibility:visible;
+	text-align:center;
+	line-height:40px;
+	vertical-align:middle;
+	font-size:16pt;
+}

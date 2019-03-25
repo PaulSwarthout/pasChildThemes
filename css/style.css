@@ -25,15 +25,14 @@
 */
 #pas_cth_content {
 	width:100%;
-	height:100%;
+	overflow-y:scroll;
 }
 #screenShotOptions {
 	width:100%;
 	height:100%;
 	overflow-y:scroll;
 }
-#themegrid {
-	height:100%;
+#themeGrid {
 	overflow:scroll;
 }
 .pas-grid-container {

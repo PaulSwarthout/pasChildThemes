@@ -97,3 +97,8 @@ function setDefaultChildTheme(element, childThemeName) {
 	}
 	pas_cth_js_AJAXCall("setDefaultChildTheme", dataBlock, reloadFN);
 }
+window.addEventListener("load", function (event) {
+	var tabPage = document.getElementById("tabPage");
+	if (tabPage == null) { return }
+	tabPage.style.height = window.innerHeight.px();
+});
