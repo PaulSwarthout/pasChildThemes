@@ -39,6 +39,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		 * is called from the Javascript function removeChildFile( ) in 'js/pasChildThemes.js'
 		 */
 		function verifyRemoveFile( ) {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_REMOVE_FILE);
 			// Posted from Javascript AJAX call
 			$inputs = [
 						'directory'	=> sanitize_text_field( $_POST['directory'] ),
@@ -110,6 +111,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		 * is called from the Javascript function copyTemplateFile( ) in 'js/pasChildThemes.js'
 		 */
 		function verifyCopyFile( ) {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_COPY_FILE);
 			$inputs =[
 						'directory'	=> sanitize_text_field( $_POST['directory'] ),
 						'file'		=> $this->MyFilenameSanitize( $_POST['file'] ),
@@ -272,6 +274,7 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		 * If the folders to the new child theme file do not exist: create them.
 		 */
 		function copyFile( $args = null ) {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_COPY_FILE);
 			if ( null != $args ) {
 				$childThemeRoot		= $this->activeThemeInfo->childThemeRoot;
 				$childStylesheet	= $this->activeThemeInfo->childStylesheet;
@@ -322,11 +325,12 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		 * Delete the file and any empty folders made empty by the deletion of the file
 		 * or subsequent subfolders.
 		 */
-		function deleteFile( ) {
+		function deleteFile() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_REMOVE_FILE);
 			$args = [
-						'directory'	=> sanitize_text_field( $_POST['directory'] ),
-						'file'		=> sanitize_file_name( $_POST['file'] ),
-						'activeThemeInfo' => $this->activeThemeInfo
+						'directory'			=> sanitize_text_field( $_POST['directory'] ),
+						'file'				=> sanitize_file_name( $_POST['file'] ),
+						'activeThemeInfo'	=> $this->activeThemeInfo
 					];
 			$this->libraryFunctions->killChildFile( $args );
 		}
@@ -334,7 +338,8 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		/* createChildTheme( ) is called from the Javascript function
 		 * pas_cth_js_createChildTheme( ) in 'js/pasChildThemes.js'
 		 */
-		function createChildTheme( ) {
+		function createChildTheme() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_CREATE_THEME);
 			$err = 0;
 			$inputs =	[
 							'childThemeName'=> sanitize_text_field( $_POST['childThemeName'] ),
@@ -434,32 +439,13 @@ function {$childThemeStylesheet}_theme_styles() {
 FUNCTIONSFILEOUTPUT;
 			fwrite( $functionsFile, $functionsFileOutput);
 			fclose( $functionsFile );
-
-
-
-/*
-			fwrite( $functionsFile, "<" . "?" . "PHP" . $newlineChar );
-			fwrite( $functionsFile, "add_action( 'wp_enqueue_scripts', '" . $childThemeStylesheet . "_theme_styles' );" . $newlineChar );
-			fwrite( $functionsFile, "function " .
-									$childThemeStylesheet .
-									"_theme_styles( ) {" .
-									$newlineChar );
-			fwrite( $functionsFile, "\twp_enqueue_style( 'parent-style', " .
-				 " get_template_directory_uri( ) . " .
-				 " '/style.css' );" . $newlineChar );
-			fwrite( $functionsFile, "\twp_enqueue_style( '" .
-									$childThemeStylesheet . "-style', " .
-									"'$stylesheetURL' );" . $newlineChar );
-			fwrite( $functionsFile, "}" . $newlineChar );
-			fwrite( $functionsFile, "?>" );
-			fclose( $functionsFile );
-*/
 			// Handshake with the Javascript AJAX call that got us here.
 			// When "SUCCESS:url" is returned, Javascript will redirect to the url.
 			echo "SUCCESS:" . esc_url_raw( $_POST['href'] );
 		}
 		// Save options.
 		function saveOptions() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_CHANGE_OPTIONS);
 			$inputs =
 				[
 					'abbreviation'	=> sanitize_text_field( $_POST['abbreviation'] ),
@@ -469,7 +455,8 @@ FUNCTIONSFILEOUTPUT;
 			update_option( "pas_cth_" . $inputs['abbreviation'], $inputs['hexColorCode'] );
 			echo "ABBREVIATION:{" . $inputs['abbreviation'] . "}";
 		}
-		function chooseColor( ) {
+		function chooseColor() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_CHANGE_OPTIONS);
 			$initialColor		= sanitize_text_field( $_POST['initialColor'] );
 			$originalColorField = sanitize_text_field( $_POST['callingFieldName'] );
 			$args = [
@@ -479,14 +466,16 @@ FUNCTIONSFILEOUTPUT;
 			echo $this->colorPicker->getNewColor( $args );
 		}
 
-		function saveFont( ) {
+		function saveFont() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_CHANGE_OPTIONS);
 			$fontFile = trim( sanitize_text_field( $_POST['fontFile-base'] ) );
 			$fontName = sanitize_text_field( $_POST['fontName'] );
 
 			update_option( 'pas_cth_font', [ 'fontName'=>$fontName, 'fontFile-base'=>$fontFile ] );
 		}
 
-		function editFile() {
+		function editFile() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_EDIT_FILE);
 			$inputs =
 				[
 					'directory'	=> sanitize_text_field( $_POST['directory'] ),
@@ -513,6 +502,7 @@ FUNCTIONSFILEOUTPUT;
 			echo "}";
 		}
 		function saveFile() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_EDIT_FILE);
 			$inputs =
 				[
 					'fileContents'	=> $_POST['fileContents'],
@@ -542,17 +532,20 @@ FUNCTIONSFILEOUTPUT;
 			update_option("pas_cth_expert_mode", $expertMode);
 		}
 		function ajax_set_child_theme() {
+			$this->libraryFunctions->VerifyAuthorization();
 			$childTheme = sanitize_text_field( $_POST['childTheme'] );
 			update_option("pas_cth_active_theme", $childTheme);
 		}
 		function ajax_generate_screen_shot() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_CHANGE_OPTIONS);
 			$this->generateScreenShot();
 		}
 				/* Generates the screenshot.png file in the child theme, if one does not yet exist.
 		 * If changes to the options do not show up, clear your browser's stored images,
 		 * files, fonts, etc.
 		 */
-		function generateScreenShot() {
+		function generateScreenShot() {
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED_CHANGE_OPTIONS);
 			$screenShotFile = $this->activeThemeInfo->childThemeRoot . PAS_CTH_SEPARATOR
 							. $this->activeThemeInfo->childStylesheet
 							. PAS_CTH_SEPARATOR
@@ -583,7 +576,11 @@ FUNCTIONSFILEOUTPUT;
 
 
 			echo $this->convertToXML($outputParameters);
-		}
+		}
+		/*
+		 * convertToXML takes a numerically indexed array of associative arrays and converts it into XML.
+		 * The XML data will be returned to the Javascript function that made the AJAX call.
+		 */
 		function convertToXML($data) {
 			$crlf = ( "WIN" === strtoupper( substr( PHP_OS, 0, 3 ) ) ? "\r\n" : "\n" );
 			$xmlOutput = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' . $crlf;

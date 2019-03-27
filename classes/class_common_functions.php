@@ -5,6 +5,35 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 
 		function __construct( $args ) {
 			$this->pluginDirectory = ( array_key_exists( 'pluginDirectory', $args ) ? $args['pluginDirectory'] : null );
+		}
+		
+		/*
+		 * Use this function for encapsulation of "current_user_can" so that we can centralize the handling of permissions.
+		 */
+		function VerifyAuthorization($src = null) {
+			if (current_user_can('manage_options')) {
+				return;
+			} else {
+				if ($src != null) {
+					error_log($src);
+				}
+				$current_user = wp_get_current_user();
+				if ( $current_user->exists() ) {
+					$user = [
+						'username'	=>	$current_user->user_login,
+						'name'		=>	$current_user->user_firstname . " " . $current_user->user_lastname,
+						'email'		=>	$current_user->user_email,
+						'display_name' => $current_user->display_name,
+						'user_id'	=>	$current_user->ID,
+							];
+					error_log("Invalid access attempt by user:\n" . print_r($user, true));
+					error_log("******************************");
+				} else {
+					error_log("....by an unknown user");
+				}
+
+				wp_die("You are not authorized to access this page");
+			}
 		}
 
 		function isDefined($v, $default = false) {

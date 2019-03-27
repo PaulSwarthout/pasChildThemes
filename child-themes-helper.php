@@ -45,48 +45,57 @@ $pas_cth_themes = new pas_cth_themes(['pluginDirectory' => $pas_cth_pluginDirect
 $pas_cth_themeInfo = null;
 $pas_cth_child_theme_selected = false;
 $pas_cth_default_tab = "copy-theme-files";
-$pas_cth_child_theme_selected = true;
+$pas_cth_child_theme_selected = true;
+
 $activeTheme = get_option("pas_cth_active_theme", false);
 if ($activeTheme !== false) {
 	if (wp_get_theme($activeTheme)->exists()) {
 		try {
-			$pas_cth_themeInfo = new pas_cth_activeThemeInfo( );
-		} catch (Exception $e) {
-			if ($e->getMessage() == "Active Theme Not Defined") {
-				$pas_cth_default_tab = "options";
-				$pas_cth_child_theme_selected = false;
+			$pas_cth_themeInfo = new pas_cth_activeThemeInfo();
+		} catch (Exception $exc) {
+			if ($exc->getMessage() == "Active Theme Not Defined") {
+
+				$pas_cth_default_tab			= "options";
+				$pas_cth_child_theme_selected	= false;
+
 			}
 		}
-	} else {
+	} else { 
+		/*
+		 * If an admin deletes a child theme that CTH has set to 'active', (not the activated theme)
+		 *   then disable 'active' and 
+		 *     return the user to the Options tab to set a different child theme as 'active'.
+		 */
 		delete_option("pas_cth_active_theme");
 		$pas_cth_default_tab = "options";
 	}
 } else {
 	$pas_cth_default_tab = "options";
 }
+
 $pas_cth_library	= new pas_cth_library_functions( ['pluginDirectory' => $pas_cth_pluginDirectory] );
 
 $args = [
 			'pluginDirectory'	=>	$pas_cth_pluginDirectory,
 			'pluginName'		=>	'Child Themes Helper',
-			'pluginFolder'		=>	'pasChildThemes',
+			'pluginFolder'		=>	'child-themes-helper',
 			'activeThemeInfo'	=>	$pas_cth_themeInfo,
 			'libraryFunctions'	=>	$pas_cth_library,
 			'Themes'			=>	$pas_cth_themes,
 			'defaultTab'		=>	$pas_cth_default_tab,
 		];
 
-$pas_cth_colorPicker	= new pas_cth_colorPicker( $args );
-$args['colorPicker']	= $pas_cth_colorPicker;
+$pas_cth_colorPicker		= new pas_cth_colorPicker( $args );
+$args['colorPicker']		= $pas_cth_colorPicker;
 
 $pas_cth_ChildThemesHelper	= new pas_cth_ChildThemesHelper( $args );
 $pas_cth_AJAXFunctions		= new pas_cth_AJAXFunctions( $args );
 
-add_action( 'admin_menu',				array( $pas_cth_ChildThemesHelper,	'dashboard_menu' ) );
-add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper,	'dashboard_styles' ) );
-add_action( 'admin_enqueue_scripts',	array( $pas_cth_ChildThemesHelper,	'dashboard_scripts' ) );
-add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker,		'color_picker_styles' ) );
-add_action( 'admin_enqueue_scripts',	array( $pas_cth_colorPicker,		'color_picker_scripts' ) );
+add_action( 'admin_menu',				Array( $pas_cth_ChildThemesHelper,	'dashboard_menu' ) );
+add_action( 'admin_enqueue_scripts',	Array( $pas_cth_ChildThemesHelper,	'dashboard_styles' ) );
+add_action( 'admin_enqueue_scripts',	Array( $pas_cth_ChildThemesHelper,	'dashboard_scripts' ) );
+add_action( 'admin_enqueue_scripts',	Array( $pas_cth_colorPicker,		'color_picker_styles' ) );
+add_action( 'admin_enqueue_scripts',	Array( $pas_cth_colorPicker,		'color_picker_scripts' ) );
 
 add_action( 'init',		'pas_cth_startBuffering' );		// Response Buffering
 /*
@@ -158,47 +167,48 @@ add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
  *
  * For removing a child theme file, the next steps, in order, are:
  * PHP selectFile( )					#1 REMOVED THIS FUNCTION and Eliminated 1 AJAX call
- * JS pas_cth_js_removeChildFile( ) #2
- * PHP verifyRemoveFile( )			#3
- * JS pas_cth_js_deleteChildFile( ) #4
+ * JS pas_cth_js_removeChildFile( )		#2
+ * PHP verifyRemoveFile( )				#3
+ * JS pas_cth_js_deleteChildFile( )		#4
  * PHP deleteFile( )					#5
  * File has been deleted. We're done.
  *
  * For copying a template theme file to the child theme, the next steps, in order, are:
- * PHP selectFile( )					#6
- * JS pas_cth_js_copyTemplateFile( ) #7
+ * PHP selectFile( )					#6 REMOVED THIS FUNCTION and eliminated 1 AJAX call
+ * JS pas_cth_js_copyTemplateFile( )	#7
  * PHP verifyCopyFile( )				#8
- * JS pas_cth_js_overwriteFile( ) #9
- * PHP copyFile( )					#10
+ * JS pas_cth_js_overwriteFile( )		#9
+ * PHP copyFile( )						#10
  * File has been copied. We're done.
  */
-add_action( 'wp_ajax_verifyRemoveFile',	array( $pas_cth_AJAXFunctions, 'verifyRemoveFile' ) ); //#3
-add_action( 'wp_ajax_deleteFile',		array( $pas_cth_AJAXFunctions, 'deleteFile' ) ); //#5
-add_action( 'wp_ajax_verifyCopyFile',	array( $pas_cth_AJAXFunctions, 'verifyCopyFile' ) ); //#8
-add_action( 'wp_ajax_copyFile',			array( $pas_cth_AJAXFunctions, 'copyFile' ) ); //#10
+add_action( 'wp_ajax_verifyRemoveFile',		Array( $pas_cth_AJAXFunctions, 'verifyRemoveFile' ) ); //#3
+add_action( 'wp_ajax_deleteFile',			Array( $pas_cth_AJAXFunctions, 'deleteFile' ) ); //#5
+add_action( 'wp_ajax_verifyCopyFile',		Array( $pas_cth_AJAXFunctions, 'verifyCopyFile' ) ); //#8
+add_action( 'wp_ajax_copyFile',				Array( $pas_cth_AJAXFunctions, 'copyFile' ) ); //#10
 
 /* From the Create Child Theme "form", "submit" button triggers the pas_cth_js_createChildTheme( )
  * javascript function.
  * It is triggered with an AJAX call from Javascript when the
  * Create Child Theme button is clicked. */
-add_action( 'wp_ajax_createChildTheme', Array( $pas_cth_AJAXFunctions, 'createChildTheme' ) );
+add_action( 'wp_ajax_createChildTheme',		Array( $pas_cth_AJAXFunctions, 'createChildTheme' ) );
 
 // Save Options for generating a simple, custom, screenshot.png file for a new child theme.
-add_action( 'wp_ajax_saveOptions', Array( $pas_cth_AJAXFunctions, 'saveOptions' ) );
+add_action( 'wp_ajax_saveOptions',			Array( $pas_cth_AJAXFunctions, 'saveOptions' ) );
 
-add_action( 'wp_ajax_displayColorPicker', Array( $pas_cth_AJAXFunctions, 'chooseColor' ) );
-add_action( 'wp_ajax_saveDefaultFont', Array( $pas_cth_AJAXFunctions, "saveFont" ) );
+add_action( 'wp_ajax_displayColorPicker',	Array( $pas_cth_AJAXFunctions, 'chooseColor' ) );
+add_action( 'wp_ajax_saveDefaultFont',		Array( $pas_cth_AJAXFunctions, "saveFont" ) );
 
-add_action( 'wp_ajax_editFile', Array( $pas_cth_AJAXFunctions, "editFile" ) );
-add_action( 'wp_ajax_saveFile', Array( $pas_cth_AJAXFunctions, "saveFile" ) );
+add_action( 'wp_ajax_editFile',				Array( $pas_cth_AJAXFunctions, "editFile" ) );
+add_action( 'wp_ajax_saveFile',				Array( $pas_cth_AJAXFunctions, "saveFile" ) );
 
-add_action( 'wp_ajax_setExpertMode', Array( $pas_cth_AJAXFunctions, "ajax_set_expert_mode") );
+add_action( 'wp_ajax_setExpertMode',		Array( $pas_cth_AJAXFunctions, "ajax_set_expert_mode") );
 add_action( 'wp_ajax_setDefaultChildTheme', Array( $pas_cth_AJAXFunctions, "ajax_set_child_theme" ) );
-add_action( 'wp_ajax_generateScreenShot', Array( $pas_cth_AJAXFunctions, "ajax_generate_screen_shot" ) );
+add_action( 'wp_ajax_generateScreenShot',	Array( $pas_cth_AJAXFunctions, "ajax_generate_screen_shot" ) );
 
 // Plugin Deactivation
 function pas_cth_deactivate( ) {
-	update_option( 'pas_cth_test', 'plugin-deactivated' );
+	update_option( 'pas_cth_test', 'plugin-deactivated' );
+
 	delete_option( 'pas_cth_fcColor' );
 	delete_option( 'pas_cth_bcColor' );
 	delete_option( 'pas_cth_font' );
@@ -208,7 +218,8 @@ function pas_cth_deactivate( ) {
 	delete_option( 'pas_cth_string2' );
 	delete_option( 'pas_cth_string3' );
 	delete_option( 'pas_cth_string4' );
-	delete_option( 'pas_cth_fontList' );
+	delete_option( 'pas_cth_fontList' );
+	delete_option( 'pas_cth_active_theme' );
 }
 
 register_deactivation_hook( __FILE__, 'pas_cth_deactivate' );//Plugin Deactivation

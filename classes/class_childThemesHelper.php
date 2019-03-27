@@ -117,7 +117,8 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 				."Please visit the <i>Options</i> tab to set the active child theme.";
 			echo "</div>";
 		}
-		function pas_cth_tabPage() {
+		function pas_cth_tabPage() {
+			$this->libraryFunctions->VerifyAuthorization();
 			$crlf = $this->crlf;
 			$tabInfo =
 				[
@@ -211,7 +212,8 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 			echo "</div>"; // tabPage
 			echo "<div id='child-themes-helper-page'></div>";
 		}
-		function loadOptionsPage() {
+		function loadOptionsPage() {
+			$this->libraryFunctions->VerifyAuthorization();
 			$blogName = get_blogInfo('name');
 			$expertMode = (get_option("pas_cth_expert_mode", "FALSE") == "FALSE" ? "" : " CHECKED ");
 			if ($expertMode) {
@@ -573,7 +575,9 @@ OPTION;
 		}
 
 		// pasChildThemes' Options page.
-		function pas_cth_Options() {
+		function pas_cth_Options() {
+			$this->libraryFunctions->VerifyAuthorization();
+
 			echo <<< 'CLEARCACHE'
 <h2>Generate a Temporary ScreenShot.png for your child theme.</h2>
 <p id='notice'>
@@ -623,16 +627,13 @@ CLEARCACHE;
 				] );
 //			echo "</div>";
 			echo "<div id='popupMessageBox'></div>";
-
-			// Dummy button. Options are saved onblur event for each option. This button simply
-			// forces an onblur event to be fired from the last option that had focus.
-			// No longer required.
-//			echo "<input type='button' class='blueButton' value='Save Options'>";
 		}
 
 		// showActiveChildTheme( ) will display the list of files for the child theme
 		// in the left-hand pane.
 		function showActiveChildTheme() {
+			$this->libraryFunctions->VerifyAuthorization();
+
 			$currentThemeInfo = $this->activeThemeInfo; // this is an object.
 			if ( $this->activeThemeInfo->templateStylesheet ) {
 				echo "<p class='pasChildTheme_HDR'>CHILD THEME</p>";
@@ -652,6 +653,8 @@ CLEARCACHE;
 		// showActiveParentTheme( ) will display the list of files for the template theme
 		// in the right-hand pane.
 		function showActiveParentTheme( ) {
+			$this->libraryFunctions->VerifyAuthorization();
+
 			echo "<p class='pasChildTheme_HDR'>TEMPLATE THEME</p>";
 				echo "<p class='actionReminder'>";
 				echo "Right Click or long press on a file to see an action menu";
@@ -665,6 +668,8 @@ CLEARCACHE;
 			echo "</div>";
 		}
 		function showCreateChildThemeForm() {
+			$this->libraryFunctions->VerifyAuthorization();
+
 			$pas_cth_active_theme = get_option("pas_cth_active_theme", false);
 			$activeTheme = ($pas_cth_active_theme !== false && wp_get_theme($pas_cth_active_theme)->exists() ? wp_get_theme($pas_cth_active_theme) : wp_get_theme());
 			$currentTemplate = ($activeTheme->parent() != null ? $activeTheme->parent() : $activeTheme);
@@ -752,6 +757,8 @@ CREATECHILDTHEME;
 		 *	 child theme.
 		 */
 		function manage_child_themes($action = "COPY") {
+			$this->libraryFunctions->VerifyAuthorization();
+
 			if ($this->activeThemeInfo == null) {
 				return;
 			}
@@ -761,27 +768,6 @@ CREATECHILDTHEME;
 				$capability = "manage_options";
 			}
 			if ( ! current_user_can( $capability ) ) { exit; }
-
-/*
-	<div id='availableActions'>
-		<ul style='list-style-type:disc;font-size:12pt;'>
-			<li>
-				Right click on a file in the child theme.
-				<ul class='child'>
-					<li>Remove the file from the child theme</li>
-					<li>Edit the file</li>
-				</ul>
-			</li>
-			<li>
-				Right click on a file in the parent theme.
-				<ul class='child'>
-					<li>Copy the file from the parent theme to the child theme</li>
-					<li>View the contents of the parent theme file.</li>
-				</ul>
-			</li>
-		</ul>
-	</div>
-*/
 
 			$jsdata =
 				[
