@@ -26,11 +26,13 @@ if ( ! class_exists( 'pas_cth_AJAXFunctions' ) ) {
 		// To aid with debugging, when WP_DEBUG is true, this function displays a message code
 		// on the message box in the lower right corner.
 		function displayMessageID( $msgID ) {
-			if ( constant( 'WP_DEBUG' ) ) {
-				echo "<p class='mID' "
-				   . " onmouseover='javascript:debugTip(\"show\", \"$msgID\");' "
-				   . " onmouseout='javascript:debugTip(\"hide\");' "
-				   . ">" . $msgID . "</p>";
+			if ( constant( 'WP_DEBUG' ) ) {
+				echo <<< "MESSAGEID"
+<p class='mID'
+   onmouseover='javascript:debugTip("show", "{$msgID}");'
+   onmouseout='javascript:debugTip("hide");'
+>{$msgID}</p>
+MESSAGEID;
 			}
 		}
 
@@ -479,7 +481,7 @@ FUNCTIONSFILEOUTPUT;
 			$inputs =
 				[
 					'directory'	=> sanitize_text_field( $_POST['directory'] ),
-					'file'	=> sanitize_file_name( $_POST['file'] ),
+					'file'		=> sanitize_file_name( $_POST['file'] ),
 					'themeType' => sanitize_text_field( $_POST['themeType'] ),
 				];
 			switch (strtolower($inputs['themeType'])) {

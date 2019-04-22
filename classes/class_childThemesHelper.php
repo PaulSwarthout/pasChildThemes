@@ -586,7 +586,7 @@ OPTION;
 	you must clear your browser's image cache to see your new graphic.
 </p>
 CLEARCACHE;
-// '
+// ' The single tick at the beginning of this line fixes a color coding bug with the development tool.
 			echo "</p>";
 			echo $this->WriteOption(
 				[
@@ -595,7 +595,7 @@ CLEARCACHE;
 					'defaultFont'=> get_option( 'pas_cth_font', unserialize( PAS_CTH_DEFAULT_FONT ) ),
 					'type'		 => 'imageselect',
 					'skipwrite'	 => true,
-					'selectOptions'	=> $this->loadAvailableFonts( ),
+					'selectOptions'	=> $this->loadAvailableFonts(),
 				] );
 			echo $this->WriteOption(
 				[
@@ -919,13 +919,6 @@ EDITFILE;
 						 . "<p class='file' "
 						 . " data-jsdata='" . esc_attr( $jsdata ) . "' "
 						 . " oncontextmenu='javascript:pas_cth_js_openMenu( this, event );' >";
-/*
- *						 . " onclick='javascript:pas_cth_js_selectFile( this );' "
- *						 . " oncontextmenu='javascript:pas_cth_js_editFile( this );return false;' "
- *						 . " onmouseover='javascript:pas_cth_js_mouseOver( this );' "
- *						 . " onmouseout='javascript:pas_cth_js_mouseOut( this );' "
- *						 . ">" . $this->crlf;
-*/
 					echo $ff . $this->crlf;
 					echo "</p>" . $this->crlf;
 				}

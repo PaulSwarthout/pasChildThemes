@@ -88,21 +88,21 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		 */
 		function areFilesIdentical( $a, $b, $blocksize = 512 ) {
 			if ( is_dir( $a ) || is_dir( $b ) ) {
-				$msg = "Expected 2 files.<br>" .
-					 "At least one was a directory.<br><br>" .
-					 "File1: $a<br><br>" .
-					 "File2: $b<br><br>" .
-					 "Aborting....";
+				$msg =	'Expected 2 files.<br>' .
+						'At least one was a directory.<br><br>' .
+						'File1: ' . esc_html($a) . '<br><br>' .
+						'File2: ' . esc_html($b) . '<br><br>' .
+						'Aborting....';
 				$this->displayError( "FILE ERROR", $msg );
 				unset( $msg );
 				exit;
 			}
 			if ( ! file_exists( $a ) ) {
-				echo "FILE: $a DOES NOT EXIST";
+				echo "FILE: " . esc_html($a) . " DOES NOT EXIST";
 				return false;
 			}
 			if ( ! file_exists( $b ) ) {
-				echo "FILE: $b DOES NOT EXIST";
+				echo "FILE: " . esc_html($b) . " DOES NOT EXIST";
 				return false;
 			}
 			// Check if filesize is different If the filesize is different, no more checking necessary.
@@ -115,10 +115,10 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			$bh = fopen( $b, 'rb' );
 
 			if ( $ah === false || $bh === false ) {
-				$msg = "File1: " . esc_html( $a ) . "<br>File2: " . esc_html( $b ) . "<br>" .
-					 "Unable to open one or both of the files listed above. <br><br>Aborting....";
+				// Should never be here. Checks for file_exists() above should prevent this.
+				$msg =	"File1: " . esc_html( $a ) . "<br>File2: " . esc_html( $b ) . "<br>" .
+						"Unable to open one or both of the files listed above. <br><br>Aborting....";
 				$this->displayError( "FILE ERROR", $msg );
-				// Should never be here. Checks for file_exists( ) above should prevent this.
 				unset( $msg );
 				exit;
 			}
@@ -155,7 +155,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		}
 		/*
 		 * As its name implies, pas_cth_isFolderEmpty( ) looks at the specified $dir and
-		 * returns true if the folder is empty or false otherwise.
+		 * returns true if the folder is empty, i.e., no files, or false otherwise.
 		 */
 		function isFolderEmpty( $dir ) {
 			return ( 0 === $this->fileCount( $dir ) ? true : false );
@@ -225,11 +225,10 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		function displayError( $heading, $message ) {
 			// Dismiss box lures the user to believe that's how you close the error box.
 			// But really, the user can click anywhere in the message box and it will close.
-			echo "<div name='errorMessageBox' ";
-			echo " class='errorMessageBox' >";
-//			echo " onclick='javascript:pas_cth_js_killMe( this );'>";
+			echo "<div	name='errorMessageBox' ";
+			echo "		class='errorMessageBox' >";
 			echo "<p id='errorMessageHeader'>" . esc_html( $heading ) . "</p><br><br>";
-			echo $message;
+			echo esc_html($message);
 			echo "<p id='dismissBox' onclick='javascript:pas_cth_js_killMe( document.getElementsByName(\"errorMessageBox\")[0] );'>Dismiss</p>";
 			echo "</div>";
 		}
@@ -337,6 +336,9 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		}
 		/*
 		 * Calculate the largest font size that will fit in the $imgWidth x $imgHeight space.
+		 * Font size starts at 90 and is reduced by 10pts until smaller than the space.
+		 * then increased by 2pts until larger than the space.
+		 * Then return the last font size before it went larger than the space.
 		 */
 		function getMaxFontSize( $args ) {
 			$font			= $args['font'];
@@ -355,10 +357,10 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			}
 			$sampleArgs =
 				[
-					'font'=>$args['font'],
-					'fontSize'=>$fontSize,
-					'imageSize'=>$imageSize,
-					'sampleSize'=>$fontSize
+					'font'			=>	$args['font'],
+					'fontSize'		=>	$fontSize,
+					'imageSize'		=>	$imageSize,
+					'sampleSize'	=>	$fontSize
 				];
 			// reduce the font size until it's smaller than the space.
 			do {
@@ -397,10 +399,10 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 			return $rtn;
 		}
 
-		function create_sample_fonts( ) {
-			$this->fontList = $this->loadAvailableFonts( );
+		function create_sample_fonts() {
+			$this->fontList = $this->loadAvailableFonts();
 		}
-		function loadFonts( ) {
+		function loadFonts() {
 			return get_option( 'pas_cth_fontList', [] );
 		}
 
@@ -422,7 +424,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		 * Sometimes it's helpful to be able to see the HTML code in a 'view-source' not all crammed together.
 		 * This function appends a (windows) carriage return / line-feed or (Linux) line-feed
 		 * to the end of (php) echo commands such that when debugging, the view-source html code is more readable.
-		 * It is preferrable to only call this function once, so store it in a local variable.
+		 * It is preferrable to only call this function once, so store its return value in a local variable.
 		 */
 		function crlf() {
 			if (constant('WP_DEBUG')) {

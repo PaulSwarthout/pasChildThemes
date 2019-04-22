@@ -30,10 +30,12 @@ update_option('pas_cth_edit_allowedFileTypes', get_option('pas_cth_edit_allowedF
  * ( PAS_CTH_SEPARATOR )
  * character throughout this plugin.
  */
-define( 'PAS_CTH_SEPARATOR', "/" );
-define( 'PAS_CTH_NOT_AUTHORIZED_REMOVE_FILE',	'AJAX: Not authorized to remove file');
-define( 'PAS_CTH_NOT_AUTHORIZED_COPY_FILE',		'AJAX: Not authorized to copy file');
-define( 'PAS_CTH_NOT_AUTHORIZED_EDIT_FILE',		'AJAX: Not authorized to edit file');
-define( 'PAS_CTH_NOT_AUTHORIZED_VIEW_FILE',		'AJAX: Not authorized to view file');
-define( 'PAS_CTH_NOT_AUTHORIZED_CREATE_THEME',	'AJAX: Not authorized to create child themes');
-define( 'PAS_CTH_NOT_AUTHORIZED_CHANGE_OPTIONS','AJAX: Not authorized to change options');
+define( 'PAS_CTH_SEPARATOR', "/" );
+
+
+define( 'PAS_CTH_NOT_AUTHORIZED_REMOVE_FILE',	'Not authorized to remove file');
+define( 'PAS_CTH_NOT_AUTHORIZED_COPY_FILE',		'Not authorized to copy file');
+define( 'PAS_CTH_NOT_AUTHORIZED_EDIT_FILE',		'Not authorized to edit file');
+define( 'PAS_CTH_NOT_AUTHORIZED_VIEW_FILE',		'Not authorized to view file');
+define( 'PAS_CTH_NOT_AUTHORIZED_CREATE_THEME',	'Not authorized to create child themes');
+define( 'PAS_CTH_NOT_AUTHORIZED_CHANGE_OPTIONS','Not authorized to change options');
