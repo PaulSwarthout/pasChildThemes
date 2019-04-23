@@ -39,3 +39,4 @@ define( 'PAS_CTH_NOT_AUTHORIZED_EDIT_FILE',		'Not authorized to edit file');
 define( 'PAS_CTH_NOT_AUTHORIZED_VIEW_FILE',		'Not authorized to view file');
 define( 'PAS_CTH_NOT_AUTHORIZED_CREATE_THEME',	'Not authorized to create child themes');
 define( 'PAS_CTH_NOT_AUTHORIZED_CHANGE_OPTIONS','Not authorized to change options');
+define( 'PAS_CTH_NOT_AUTHORIZED', 'Not authorized');

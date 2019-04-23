@@ -530,8 +530,12 @@ FUNCTIONSFILEOUTPUT;
 			}
 		}
 		function ajax_set_expert_mode() {
-			$expertMode = sanitize_text_field( $_POST['enabled'] );
-			update_option("pas_cth_expert_mode", $expertMode);
+			$this->libraryFunctions->VerifyAuthorization(PAS_CTH_NOT_AUTHORIZED);
+
+			$enabledFlag = strtoupper(sanitize_text_field( $_POST['enabled'] ));
+			if ($enabledFlag == "TRUE" || $enabledFlag == "FALSE") {
+				update_option("pas_cth_expert_mode", $enabledFlag);
+			}
 		}
 		function ajax_set_child_theme() {
 			$this->libraryFunctions->VerifyAuthorization();

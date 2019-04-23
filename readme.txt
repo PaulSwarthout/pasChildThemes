@@ -5,7 +5,7 @@ Donate link: https://paypal.me/PaulSwarthout
 Tags: child themes helper, child themes, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
 Requires at least: 4.7.0
 Tested up to: 5.1.1
-Stable tag: 2.0
+Stable tag: 2.1.1
 Requires PHP: 5.6.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -20,7 +20,7 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 	The primary purpose of the Child Themes Helper plugin is to copy files from a parent theme (also called the template theme) to a child theme. The folder path in the parent theme is duplicated in the child theme during the copy.
 
 1. **Edit Child Theme Files**
-	Starting with the Child Themes Helper version 1.3, you can now edit your child theme files and save the changes. You can also "edit" your parent theme files, but they are marked read-only and you will not be able to save any changes that you make.
+	Starting with the Child Themes Helper version 2.1, you can now edit your child theme files and save the changes. You can also "edit" your parent theme files, but they are marked read-only and you will not be able to save any changes that you make.
  This is not meant to be the primary method of editing your files, but rather a way to make a quick change or to peer inside of a file without having to go elsewhere to make a quick change.
 
 1. **Remove files from the Child Theme**
@@ -40,7 +40,7 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 		The Child Themes Helper plugin has been tested and found to work with PHP 5.6.31, PHP 7.2.7, and PHP 7.3.0.
 
 	- *Troubleshooting Installation Issues*
-		The primary filename and primary folder name of the Child Themes Helper changed (in v2.0) from pasChildThemes and pasChildThemes.php to child-themes-helper and child-themes-helper.php. This *may* cause some problems during the installation. If you experience problems, I suggest that you deactivate the plugin and delete it. Then reinstall the Child Themes Helper v2.0 from the WordPress Plugins repository.
+		The primary filename and primary folder name of the Child Themes Helper changed (in v2.1) from pasChildThemes and pasChildThemes.php to child-themes-helper and child-themes-helper.php. This *may* cause some problems during the installation. If you experience problems, I suggest that you deactivate the plugin and delete it. Then reinstall the Child Themes Helper v2.1 from the WordPress Plugins repository.
 
 	- *What would you like to see in this plugin?*
 
@@ -75,7 +75,7 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 
 - This plugin may be installed through the usual method of installing and activating WordPress plugins. The first time you open the Child Themes Helper plugin page on your dashboard, it will look a bit different from the previous version. Instead of a stack of menu options on the dashboard menu, there is a single menu option "Child Themes Helper" and it opens to a page featuring tabs across the top -- one for each area of functionality. Previous versions worked on the currently active Child Theme, but effective with this release, you are free to modify any child theme that has been created. You will still need to specify the "active" theme, but it does not have to be the "activated" theme. The first time you use it, you will only be able to set an active theme on the Options tab, or create a new child theme.
 
-- If you experience problems installing or activating version 2.0, after having an earlier version installed, please deactivate it, delete it, and then reinstall it. The primary folder name and the primary plugin filename changed with this release. It may conflict with an earlier version and crash upon install.
+- If you experience problems installing or activating version 2.1, after having an earlier version installed, please deactivate it, delete it, and then reinstall it. The primary folder name and the primary plugin filename changed with this release. It may conflict with an earlier version and crash upon install.
 
 - The Child Themes Helper plugin requires an active theme be specified (Options tab). Unlike previous versions, this "active theme" does NOT have to be the currently "Activated" theme.
 
@@ -99,7 +99,7 @@ I am glad you asked.
 
 = Where I can see the Child Themes Helper in action? =
 
-I am glad you asked. Starting with version 1.2 (version 2.0 is not yet installed on that page), you can visit [my demo page](http://www.1acsi.com) and take it for a test drive. Create your own child theme. Copy files to the newly created child theme. Generate screenshots. Change the Screenshot options. In short, put it through its paces. And don't worry about screwing up the website. It's there for that purpose.
+I am glad you asked. Starting with version 1.2 (version 2.1 is not yet installed on that page), you can visit [my demo page](http://www.1acsi.com) and take it for a test drive. Create your own child theme. Copy files to the newly created child theme. Generate screenshots. Change the Screenshot options. In short, put it through its paces. And don't worry about screwing up the website. It's there for that purpose.
 
 = I generated a screenshot but it didn't change. Why not? =
 
@@ -121,6 +121,13 @@ is the name of your Child Theme. The page scrolls.
 For this example, the Child Theme was created as a child of the 'Twenty Sixteen' theme and it's name appears at the top. The page scrolls.
 
 == Changelog ==
+
+= 2.1.1 =
+ - WordPress Plugin review team discovered a security vulnerability in version 2.0 of the Child Themes Helper plugin.
+   The bug has been fixed. All of the code has been reviewed.
+   Upon review, I discovered the vulnerability existed in version 1.3.2 also, so that version will no longer be available for download either.
+
+ - Added a tab that explains the basics of this plugin. Click "Expert Mode" checkbox to hide all of the explanations.
 
 = 2.0 =
 - Tested with WP 5.1.1.

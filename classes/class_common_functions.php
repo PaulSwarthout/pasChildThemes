@@ -20,11 +20,11 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 				$current_user = wp_get_current_user();
 				if ( $current_user->exists() ) {
 					$user = [
-						'username'	=>	$current_user->user_login,
-						'name'		=>	$current_user->user_firstname . " " . $current_user->user_lastname,
-						'email'		=>	$current_user->user_email,
-						'display_name' => $current_user->display_name,
-						'user_id'	=>	$current_user->ID,
+						'username'		=>	$current_user->user_login,
+						'name'			=>	$current_user->user_firstname . " " . $current_user->user_lastname,
+						'email'			=>	$current_user->user_email,
+						'display_name'	=>	$current_user->display_name,
+						'user_id'		=>	$current_user->ID,
 							];
 					error_log("Invalid access attempt by user:\n" . print_r($user, true));
 					error_log("******************************");
@@ -66,7 +66,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		}
 
 		/*
-		 * pas_cth_isWin( ) Are we running on a Windows server ( true ) or not ( false ).
+		 * pas_cth_isWin() Are we running on a Windows server ( true ) or not ( false ).
 		 * While this function isn't really needed since PHP_OS is available everywhere,
 		 * from a self-documenting code perspective:
 		 * if ( pas_cth_isWin( ) ) {}
@@ -76,7 +76,7 @@ if ( ! class_exists( 'pas_cth_library_functions' ) ) {
 		 * Also, if PHP ever changes the contents of PHP_OS, then we only need to change the plugin
 		 * in one place.
 		 */
-		function isWin( ) {
+		function isWin() {
 			return ( "WIN" === strtoupper( substr( PHP_OS, 0, 3 ) ) ? true : false );
 		}
 

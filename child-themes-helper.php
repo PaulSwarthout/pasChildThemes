@@ -3,7 +3,7 @@
 	Plugin Name: Child Themes Helper
 	Plugin URI: http://www.paulswarthout.com/Child-Themes-Helper/
 	Description: Tool to aid child theme developer. Copies files from the parent theme to the child theme, duplicating the folder structure in the child theme. Directly edit the child theme's files. Create a new child theme from any template theme.
-	Version: 2.1
+	Version: 2.1.1
 	Author: Paul A. Swarthout
 	Author URI: http://www.PaulSwarthout.com
 	License: GPL2
