@@ -313,6 +313,9 @@ p.pas_cth_directory {
 	font-style:italic;
 	color:black;
 }
+.pas_cth_errorCondition {
+	background-color:#FFFF90;
+}
 @media (min-width:830px) {
 	.pasChildTheme_HDR {
 		font-size:24pt;

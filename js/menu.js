@@ -76,7 +76,7 @@ function pas_cth_js_openMenu(element, event) {
 	var pos = new elementInfo(element)
 	var position = { 'x'	:	event.clientX, 'y'	:	event.clientY };
 	var jsdata = JSON.parse(element.getAttribute("data-jsdata"));
-	var elementID = Date.now();
+	var elementID = Date.now(); // clock ticks since midnight at the epoch. Guarantees a unique ID number.
 	var childGrid = document.getElementById("childGrid");
 	var parentGrid = document.getElementById("parentGrid");
 	var themeType = "";

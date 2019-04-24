@@ -5,7 +5,7 @@ Donate link: https://paypal.me/PaulSwarthout
 Tags: child themes helper, child themes, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
 Requires at least: 4.7.0
 Tested up to: 5.1.1
-Stable tag: 2.1.1
+Stable tag: 2.1.2
 Requires PHP: 5.6.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -121,6 +121,11 @@ is the name of your Child Theme. The page scrolls.
 For this example, the Child Theme was created as a child of the 'Twenty Sixteen' theme and it's name appears at the top. The page scrolls.
 
 == Changelog ==
+
+= 2.1.2 =
+ - Added "wait" cursors in the places where there is a delay in processing ... i.e., it's not immediate.
+ 
+ - Modified the AJAX calls to be consistent.
 
 = 2.1.1 =
  - WordPress Plugin review team discovered a security vulnerability in version 2.0 of the Child Themes Helper plugin.

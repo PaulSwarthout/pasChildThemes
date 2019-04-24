@@ -293,6 +293,7 @@ function displayError(str) {
 		box.remove();
 	}
 	box = pas_cth_js_createBox("popupErrorMessage", "", theBody, true);
-	box.appendChild(document.createTextNode(str));
+//	box.appendChild(document.createTextNode(str));
+	box.innerHTML = str;
 	return box;
 }

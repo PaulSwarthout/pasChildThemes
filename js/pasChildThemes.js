@@ -1,3 +1,4 @@
+"use strict;"
 /* pasChildThemes.js
  * This file contains nearly pure JavaScript code.
  * With the exception of XMLHttpRequest() and JSON, no other WordPress core, nor 3rd party JavaScript
@@ -7,10 +8,15 @@
 
 /* pas_cth_js_selectFile() called from an onclick event in ListFolderFiles() in /pasChildThemes.php
  */
+if (typeof(String.prototype.trim) == "undefined") {
+	String.prototype.trim = function () {
+		return this.ltrim().rtrim();
+	}
+}
 function pas_cth_js_selectFile(event) {
 	var element = document.getElementById(event.srcElement.dataset.elementid);
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
+//	var xmlhttp = new XMLHttpRequest();
+//	var data = new FormData();
 	var jsInput;
 	var box;
 
@@ -51,6 +57,20 @@ function pas_cth_js_selectFile(event) {
 			pas_cth_js_copyTemplateFile(element);
 			break;
 	}
+}
+
+function pas_cth_js_showWait() {
+	var body = document.getElementsByTagName("body")[0];
+	body.style.cursor = "wait";
+}
+function pas_cth_js_hideWait() {
+	var body = document.getElementsByTagName("body")[0];
+	body.style.cursor = "";
+}
+var pas_cth_js_spinTimer = 0;
+var pas_cth_js_spinPosition = 0;
+
+function pas_cth_js_spin() {
 }
 
 
@@ -59,178 +79,194 @@ function pas_cth_js_selectFile(event) {
  * in file '/pasChildThemes.php'
  */
 function pas_cth_js_removeChildFile(element) {
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
+	var dataBlock = {};
+
+	pas_cth_js_showWait();
 
-/* AJAX call to pas_cth_AJAXFunctions::verifyRemoveFile()
- * in 'classes/class_ajax_functions.php'
- */
-	xmlhttp.open("POST", ajaxurl, true);
-
-	data.append("action", jsInput['action']); // verifyRemoveFile
-
-	// $_POST[] values in pas_cth_AJAXFunctions::verifyRemoveFile()
-	data.append("directory",	jsInput['directory'] );
-	data.append("file",			jsInput['file']);
-
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload();
-					} else {
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400:
-					msg = "400 Error:<br>" + xmlhttp.statusText;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data)
+	// $_POST[] values in pas_cth_AJAXFunctions::verifyRemoveFile()
+	dataBlock.directory = jsInput['directory'];
+	dataBlock.file		= jsInput['file'];
+
+	var successCallback = function (response) {
+		if (response.length) {
+			pas_cth_js_processResponse(response);
+			pas_cth_js_hideWait();
+		} else {
+			location.reload();
+		}
+	}
+	var failureCallback = function (status, response) {
+		var msg = "400 Error:<br>" + status;
+		pas_cth_js_showBox().innerHTML = msg;
+		pas_cth_js_hideWait();
+	}
+
+	pas_cth_js_AJAXCall(jsInput['action'], dataBlock, successCallback, failureCallback);
 }
 /* pas_cth_js_deleteChildFile() is called from an onclick event in a popup error box
  * set up in pas_cth_AJAXFunctions::verifyRemoveFile() in 'classes/class_ajax_functions.php'
  *
  */
 function pas_cth_js_deleteChildFile(element) {
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
-
-	// AJAX call to pas_cth_AJAXFunctions::deleteFile() in 'classes/class_ajax_functions.php'
-	xmlhttp.open("POST", ajaxurl, true);
-	data.append("action",		jsInput['action']);
+	var dataBlock = {};
+
+	pas_cth_js_showWait();
 
 	// $_POST[] values in pas_cth_AJAXFunctions::deleteFile()
-	data.append("directory",	jsInput['directory'] );
-	data.append("file",			jsInput['file']);
-
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload();
-					} else {
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400:
-					msg = "400 Error:<br>" + xmlhttp.statusText;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data);
+	dataBlock.directory = jsInput['directory'];
+	dataBlock.file		= jsInput['file'];
+
+	var successCallback = function (response) {
+		if (response.length) {
+			pas_cth_js_processResponse(response);
+			pas_cth_js_hideWait();
+		} else {
+			location.reload();
+		}
+	}
+	var failureCallback = function(status, response) {
+		var msg = "400 Error:<br>" + status;
+		pas_cth_js_showBox().innerHTML = msg;
+		pas_cth_js_hideWait();
+	}
+
+	pas_cth_js_AJAXCall(jsInput['action'], dataBlock, successCallback, failureCallback);
 }
+function pas_cth_js_successCallback(response) {
+	if (response.length) {
+		pas_cth_js_processResponse(response);
+		pas_cth_js_hideWait();
+	} else {
+		location.reload();
+	}
+}
+function pas_cth_js_failureCallback(status, response) {
+	var msg = "400 Error:<br>" + status;
+	pas_cth_js_showBox().innerHTML = msg;
+	pas_cth_js_hideWait();
+}
 /*
  * pas_cth_js_copyTemplateFile() responds to an onclick event set up pas_cth_AJAXFunctions::selectFile()
  * in 'classes/class_ajax_functions.php' when a user clicks a file in the template theme files list.
  */
 function pas_cth_js_copyTemplateFile(element) {
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
-
-	// AJAX call to pas_cth_AJAXFunctions::verifyCopyFile() in 'classes/class_ajax_functions.php'
-	xmlhttp.open("POST", ajaxurl, true);
-	data.append("action",				jsInput['action']);
+	var dataBlock = {};
 
 	// $_POST[] values in pas_cth_AJAXFunctions::verifyCopyFile()
-	data.append("directory",	jsInput['directory'] );
-	data.append("file",			jsInput['file']);
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (1 <= xmlhttp.responseText.length ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload();
-					} else {
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400:
-					msg = "400 Error:<br>" + xmlhttp.statusText + "<HR>" + response;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data);
+	dataBlock.directory = jsInput['directory'];
+	dataBlock.file		= jsInput['file'];
+
+	pas_cth_js_showWait();
+
+	var successCallback = function (response) {
+		if (response.length) {
+			pas_cth_js_processResponse(response);
+			pas_cth_js_hideWait();
+		} else {
+			location.reload();
+		}
+	}
+	var failureCallback = function (status, response) {
+		var msg = "400 Error:<br>" + status + "<HR>" + response;
+		pas_cth_js_showBox().innerHTML = msg;
+		pas_cth_js_hideWait();
+	}
+
+	pas_cth_js_AJAXCall(jsInput['action'], dataBlock, successCallback, failureCallback);
 }
 function pas_cth_js_overwriteFile(element) {
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
+	var dataBlock = {};
+
+	pas_cth_js_showWait();
 
-	// AJAX call to pas_cth_AJAXFunctions::copyFile() in 'classes/class_ajax_functions.php'
-	xmlhttp.open("POST", ajaxurl, true);
-	data.append("action",		jsInput["action"]); // copyFile
-
-	// $_POST[] values in pas_cth_AJAXFunctions::copyFile()
-	data.append("directory",	jsInput["directory"]);
-	data.append("file",			jsInput["file"]);
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload();
-					} else {
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400: // There was an error
-					msg = "400 Error:<br>" + xmlhttp.statusText;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-
-	xmlhttp.send(data);
+	dataBlock.directory = jsInput['directory'];
+	dataBlock.file		= jsInput['file'];
+
+	// copyFile
+	pas_cth_js_AJAXCall(jsInput['action'], dataBlock, pas_cth_js_successCallback, pas_cth_js_failureCallback);
 }
+function pas_cth_js_resetChildThemeForm(frm) {
+	var formElements = frm.elements, ndx;
+	for (ndx = 0; ndx < formElements.length; ndx++) {
+		formElements[ndx].style.backgroundColor = "";
+	}
+	frm.reset();
+}
 /* The pas_cth_js_createChildTheme() function processes the form in
  * pas_cth_ChildThemesHelper::manage_child_themes() in file 'classes/class_childThemesHelper.php'
  * without actually executing a "Submit" on that form. This prevents the page refresh and allows
  * us to redirect to the admin_url("themes.php") page once the child theme has been created.
  */
-function pas_cth_js_createChildTheme(element) {
-	var frm = element.form;
-	var formElements = frm.elements;
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
-	var jsInput;
+function pas_cth_js_createChildTheme(element) {
+	var ndx = 0,
+		frm = element.form,
+		formElements = frm.elements,
+		dataBlock = {},
+		jsInput,
+		action,
+		e, err = 0;
+
+	pas_cth_js_showWait();
+
+	// Used to validate the data in the form before making the AJAX call to save the data and create the child theme.
+	this.test = function (elementValue = "", elementPattern = "", elementRequiredFlag = false) {
+		var re;
+		var result = false;
+
+		if (elementRequiredFlag) {
+			if (elementValue.length) {
+				if (elementPattern.length) { // element is required, value is not blank, pattern exists, return true if value matches pattern.
+					re = new RegExp(elementPattern);
+					result = re.test(elementValue);
+				} else { // element is required, value is not blank, no pattern specified, so any value will do, return true
+					result = true;
+				}
+			} else  { // element is required, value is blank, return false;
+				result = false;
+			}
+		} else {
+			if (elementPattern.length) {
+				if (elementValue.length) { // element is NOT required, value is not blank, pattern exists, return true if value matches pattern
+					re = new RegExp(elementPattern);
+					result = re.test(elementValue);
+				} else { // element is NOT required. value is blank. return true;
+					result = true;
+				}
+			} else { // element is NOT required, pattern is blank, return true
+				result = true;
+			}
+		}
+		return result;
+	}
+
+	var outputMessage = "";
+
+	for (ndx = 0; ndx < formElements.length; ndx++) {
+		e = formElements[ndx];
+		if (! this.test(e.value, e.dataset.pattern, e.required) ) {
+			e.style.backgroundColor = "#FFFF90";
+			outputMessage += (outputMessage.length ? "<hr>" + e.dataset.message : e.dataset.message);
+			err++;
+		}
+	}
+	if (err) {
+		var errorBox = displayError(outputMessage);
+		errorBox.style.width = "300px";
+		errorBox.style.height = "300px";
+		errorBox.style.overflowY = "scroll";
+		errorBox.style.marginLeft = "-150px";
+		errorBox.style.marginTop = "-150px";
+
+		pas_cth_js_hideWait();
+
+		return;
+	}
+
+
 
 	/* Move the data from the form to the FormData object.
 	 * Data will be accessible using the $_POST[] array in pas_cth_AJAXFunctions::createChildTheme()
@@ -239,56 +275,34 @@ function pas_cth_js_createChildTheme(element) {
 	 */
 	for (ndx = 0; ndx < formElements.length; ndx++) {
 		switch (formElements[ndx].tagName.toUpperCase()) {
-			case "INPUT":
-				data.append(formElements[ndx].name,
-							formElements[ndx].value);
-				break;
-			case "TEXTAREA":
-				data.append(formElements[ndx].name,
-							formElements[ndx].value);
-				break;
-			case "SELECT":
-				data.append(formElements[ndx].name,
-							formElements[ndx].options[formElements[ndx].selectedIndex].value);
-				break;
-			case "BUTTON":
-				// ignore
-				break;
+			case "INPUT":
+				if (formElements[ndx].name.toLowerCase() == "action") {
+					action = formElements[ndx].value;
+				} else {
+					dataBlock[formElements[ndx].name] = formElements[ndx].value;
+				}
+				break;
+			case "TEXTAREA":
+		 		dataBlock[formElements[ndx].name] = formElements[ndx].value;
+				break;
+			case "SELECT":
+				dataBlock[formElements[ndx].name] = formElements[ndx].options[formElements[ndx].selectedIndex].value;
+				break;
+			case "BUTTON":
+				// ignore
+				break;
 		}
-	}
-	// AJAX call to pas_cth_AJAXFunctions::createChildTheme() in 'classes/class_ajax_functions.php'
-	xmlhttp.open("POST", ajaxurl, true);
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			// strip the AJAX zero from wp_die() WORDPRESS ONLY
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is Okay
-					/* If responseText is not empty, there might be a request to overwrite
-					 * or a request to delete that needs to be displayed.
-					 * else, reload the page.
-					 * <= 1 accounts for the AJAX return of zero that sometimes shows up
-					 * despite my best efforts to avoid that.
-					 */
-					if ("SUCCESS:" == response.left("SUCCESS:".length)) {
-						location.href="/wp-admin/themes.php";
-					} else if (response.length >= 1) {
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400: // There was an error
-					msg = "400 Error:<br>" + xmlhttp.statusText + "<br>" + response;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data);
+	}
+	var successCallback = function (response) {
+		if ("SUCCESS:" == response.left("SUCCESS:".length)) {
+			location.href='/wp-admin/themes.php';
+		} else if (response.length >= 1) {
+			pas_cth_js_processResponse(response);
+			pas_cth_js_hideWait();
+		}
+	}
+	// AJAX call to pas_cth_AJAXFunctions::createChildTheme() in 'classes/class_ajax_functions.php'
+	pas_cth_js_AJAXCall(action, dataBlock, successCallback, pas_cth_js_failureCallback);
 }
 // Responds to an onclick event, on a cancel button.
 function pas_cth_js_cancelOverwrite(element) {
@@ -298,7 +312,8 @@ function pas_cth_js_cancelOverwrite(element) {
 		theBody.removeChild(box);
 	} else {
 		box.parentNode.removeChild(box);
-	}
+	}
+	pas_cth_js_hideWait();
 }
 // Responds to an onclick event
 function pas_cth_js_cancelDeleteChild(element) {
@@ -308,85 +323,28 @@ function pas_cth_js_cancelDeleteChild(element) {
 		theBody.removeChild(box);
 	} else {
 		box.parentNode.removeChild(box);
-	}
+	}
+	pas_cth_js_hideWait();
 }
 
 // Responds to an onblur event on the ScreenShot Options page.
 function pas_cth_js_SetOption(element) {
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
+	var dataBlock = {};
 
-	data.append('action', 'saveOptions');
-	data.append('optionName', element.name);
-	data.append('optionValue', element.value);
-
-	xmlhttp.open("POST", ajaxurl, true);
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			// strip the AJAX zero from wp_die() WORDPRESS ONLY
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is Okay
-					/* If responseText is not empty, there might be a request to overwrite
-					 * or a request to delete that needs to be displayed.
-					 * else, reload the page.
-					 * <= 1 accounts for the AJAX return of zero that sometimes shows up
-					 * despite my best efforts to avoid that.
-					 */
-					if ("SUCCESS:" == response.left("SUCCESS:".length)) {
-						location.href="/wp-admin/themes.php"
-					} else if (response.length >= 1) {
-						pas_cth_js_showBox().innerHTML = response;
-					}
-					break;
-
-				case 400: // There was an error
-					msg = "400 Error:<br>" + xmlhttp.statusText + "<br>" + response;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data);
-}
-function pas_cth_js_mouseOver(element) {
-	var jsdata = JSON.parse(element.getAttribute("data-jsdata"));
-	var themeType = jsdata['themeType'];
-	var filename = jsdata['file'];
-	var msg;
-	var mID = document.getElementById("hoverPrompt");
-
-
-	switch (themeType.toLowerCase()) {
-		case "child":
-			msg = "File: <font class='fileHighlight'>" + filename + "</font><br>" +
-				  "<div id='innerLine'>" +
-				  "  <font class='actionPrompt'>Left Click</font> to <font class='redHighlight'>Remove</font> from the Child Theme.<br>" +
-				  "  <br>" +
-				  "  <font class='actionPrompt'>Right Click</font> to <font class='redHighlight'>Edit</font> the file." +
-				  "</div>";
-			break;
-		case "parent":
-			msg = "File: <font class='fileHighlight'>" + filename + "</font><br>" +
-				  "<div id='innerLine'>" +
-				  "  <font class='actionPrompt'>Left Click</font> to <font class='redHighlight'>Copy</font> to the Child Theme.<br>" +
-				  "  <br>" +
-				  "	 <font class='actionPrompt'>Right Click</font> to <font class='redHighlight'>Edit</font> the file." +
-				  "</div>";
-			break;
-	}
-	mID.innerHTML = msg;
-	mID.style.cssText = "visibility:visible;";
-	mID.style.left = mousePosition["x"] + 25 + "px";
-	mID.style.top = mousePosition["y"] + "px";
-}
-function pas_cth_js_mouseOut(element) {
-	var mID = document.getElementById("hoverPrompt");
-	mID.style.visibility = "hidden";
-	mID.innerHTML = "";
+	dataBlock.optionName	= element.name;
+	dataBlock.optionValue	= element.value;
+
+	var successCallback = function (response) {
+		alert("Here");
+		if ("SUCCESS:" == response.left("SUCCESS:".length)) {
+			location.href = "/wp-admin/themes.php";
+		} else if (response.length >= 1) {
+			pas_cth_js_showBox().innerHTML = response;
+		}
+		pas_cth_js_hideWait();
+	}
+
+	pas_cth_js_AJAXCall('saveOptions', dataBlock, successCallback, pas_cth_js_failureCallback);
 }
 function showChild() {
 	document.getElementById("childGrid").style.display = "inline";
@@ -413,23 +371,25 @@ function debugTip(action, msg) {
 			break;
 	}
 }
-function pas_cth_validateField(element) {
-	if (element.value.trim().length == 0) {
+function pas_cth_validateField(element = null) {
+	if (element == null) {
+		return;
+	}
+	var strValue	= element.value.trim();
+	var ptrn		= element.dataset.pattern.trim();
+	if (strValue.length == 0 || ptrn.length == 0) {
 		return;
 	}
-	if (element.pattern.trim().length == 0) {
-		return;
-	}
-	var re = new RegExp(element.pattern);
+	var re = new RegExp(ptrn);
 	var box;
 	var boxID = "pas_cth_actionBox";
 	var parent = document.getElementsByTagName("body")[0];
 	var onclickFunction = true;
 	var className = "";
 
-	if (! re.test(element.value)) {
+	if (! re.test(strValue)) {
 		box = pas_cth_js_createBox(boxID, className, parent, onclickFunction);
-		box.innerHTML = element.getAttribute("data-message") + "<br><br>Click on this messagebox to close it";
+		box.innerHTML = element.dataset.message + "<br><br>Click on this messagebox to close it";
 	}
 }
 function pas_cth_js_launch(btn) {

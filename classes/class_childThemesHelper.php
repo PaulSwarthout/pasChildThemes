@@ -693,6 +693,7 @@ CLEARCACHE;
 			$themeRoot		 = ($this->activeThemeInfo != null ? $this->activeThemeInfo->childThemeRoot : wp_get_theme()->get_theme_root());
 
 			echo "<div class='createChildThemeBox'>";
+			$urlPattern = "^[a-zA-Z]{4,5}\:/{2}[a-zA-Z0-9]{1}[a-zA-Z0-9:/\-\.\&\=\?]+$";
 
 			$createChildTheme = <<< "CREATECHILDTHEME"
 	<div class='createChildThemeBoxForm'>
@@ -706,27 +707,27 @@ CLEARCACHE;
 				<label for='childThemeName'>
 					Child Theme Name:
 					<br>
-					<input type='text' name='childThemeName' id='childThemeName' value='' required pattern='^[a-zA-Z][a-zA-Z0-9\-\ ]+' data-message='Child Theme Names must begin with a letter' onblur='javascript:pas_cth_validateField(this);'>
+					<input required type='text' name='childThemeName' id='childThemeName' value='' data-pattern='^[a-zA-Z][a-zA-Z0-9\- ]+$' data-message='Child Theme Name: Names must begin with a letter and contain only numbers letters, spaces, and dashes. The name is required.' onblur='javascript:pas_cth_validateField(this);'>
 				</label>
 			<br>
 			{$select}<br> <!-- displays list of non-child installed themes -->
 			<label for='ThemeURI'>
 			Theme URI<br>
-			<input type='text' name='themeURI' id='themeURI' value='' pattern='^[a-zA-Z]{4,5}\://[a-zA-Z0-9:/\-\.\&\=\?]+$' data-message='Invalid URI' onblur='javascript:pas_cth_validateField(this);'>
+			<input type='text' name='themeURI' id='themeURI' value='' data-pattern='{$urlPattern}' data-message='Theme URI: The entered URL is not valid.' onblur='javascript:pas_cth_validateField(this);'>
 			</label><br>
 			<label for='Description'>
 			Theme Description<br>
-			<textarea required id='description' name='description' pattern='^[a-zA-Z0-9\.:;?#\%,\(\)/ ]+$' data-message='You may use letters, numbers, and special characters that you would normally use in writing, only. No HTML or other scripts are allowed here.' onblur='javascript:pas_cth_validateField(this);'></textarea>
+			<textarea id='description' name='description' data-pattern='^[a-zA-Z0-9\.:;?#\%,\(\)/ ]+$' data-message='Description: You may use letters, numbers, and special characters that you would normally use in writing, only. No HTML or other scripts are allowed here.' onblur='javascript:pas_cth_validateField(this);'></textarea>
 			</label><br>
 			<label for='authorName'>
 			Author Name:<br>
-			<input type='text' id='authorName' name='authorName' value='' pattern='^[a-zA-Z \.]+$' data-message='upper or lower case, spaces, or periods, only.' onblur='javascript:pas_cth_validateField(this);'>
+			<input type='text' id='authorName' name='authorName' value='' data-pattern='^[a-zA-Z \.]+$' data-message='Author Name: You may use upper or lower case letters, spaces, or periods, only.' onblur='javascript:pas_cth_validateField(this);'>
 			</label><br>
 			<label for='authorURI'>
 			Author URI:<br>
-			<input type='text' id='authorURI' name='authorURI' value=''  pattern='^[a-zA-Z]{4,5}\://[a-zA-Z0-9:/\-\.\&\=\?]+$' data-message='Invalid URI' onblur='javascript:pas_cth_validateField(this);'>
+			<input type='text' id='authorURI' name='authorURI' value=''  data-pattern='{$urlPattern}' data-message='Author URI: The entered URL is not valid.' onblur='javascript:pas_cth_validateField(this);'>
 			</label><br>
-			<input type='hidden' id='version' name='version' value='0.0.1' readonly>
+			<input type='hidden' id='version' name='version' value='0.1.0' readonly>
 			<br>
 
 			<div class='buttonRow'>
@@ -739,7 +740,7 @@ CLEARCACHE;
 				<input type='button'
 					value='Reset'
 					class='blueButton'
-					onclick='javascript:this.form.reset();'
+					onclick='javascript:pas_cth_js_resetChildThemeForm(this.form)'
 				>
 			</div>
 			<br>
