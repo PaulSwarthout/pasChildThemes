@@ -95,6 +95,7 @@ function setDefaultChildTheme(element, childThemeName) {
 			}
 		}
 	}
+	document.getElementsByTagName("body")[0].style.cursor = "wait";
 	pas_cth_js_AJAXCall("setDefaultChildTheme", dataBlock, reloadFN);
 }
 window.addEventListener("load", function (event) {

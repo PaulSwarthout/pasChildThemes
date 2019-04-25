@@ -5,7 +5,7 @@ Donate link: https://paypal.me/PaulSwarthout
 Tags: child themes helper, child themes, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
 Requires at least: 4.7.0
 Tested up to: 5.1.1
-Stable tag: 2.1.2
+Stable tag: 2.2
 Requires PHP: 5.6.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,7 +14,7 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 
 == Description ==
 1. **The Child Themes Helper is a tool....**
-	...developed for those child theme developers who write or modify PHP code in the development of their child themes. Previous versions of the Child Themes Helper required the child theme being modified be the activated theme. That is no longer the case. However, you will still need to set a child theme to be an "Active Theme" on the Options tab, but it does not have to be the activated theme.
+	...developed for those child theme developers who **write or modify PHP code in the development of their child themes**. Previous versions of the Child Themes Helper required the child theme being modified be the activated theme. That is no longer the case. However, you will still need to set a child theme to be an "Active Theme" on the Options tab, but it does not have to be the activated theme.
 
 1. **Copy files from Parent Theme to Child Theme**
 	The primary purpose of the Child Themes Helper plugin is to copy files from a parent theme (also called the template theme) to a child theme. The folder path in the parent theme is duplicated in the child theme during the copy.
@@ -36,13 +36,30 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 	Creating a child theme does not create a graphic for your new theme on the WordPress themes page. The Child Themes Helper plugin can create a graphic for your child theme. You're free to select the foreground and background colors for that graphic and choose from up to a couple of dozen Google Fonts. If you would like a different font, you only need to copy the .ttf file into the Child Themes Helper plugin's assets/fonts folder. The next time you open the Options page, the newly downloaded font will be displayed with a sample string.
 
 1. **Notes**
-	- *PHP Versions*
-		The Child Themes Helper plugin has been tested and found to work with PHP 5.6.31, PHP 7.2.7, and PHP 7.3.0.
-
 	- *Troubleshooting Installation Issues*
-		The primary filename and primary folder name of the Child Themes Helper changed (in v2.1) from pasChildThemes and pasChildThemes.php to child-themes-helper and child-themes-helper.php. This *may* cause some problems during the installation. If you experience problems, I suggest that you deactivate the plugin and delete it. Then reinstall the Child Themes Helper v2.1 from the WordPress Plugins repository.
+		If you are upgrading the Child Themes Helper from a version prior to version 2.0, you might have problems installing the upgrade.
+		The most frequent problem is that the upgrade fails and displays a nasty message at the top of the plugins page. WordPress then politely deactivates the Child Themes Helper plugin.
+		If you experience this problem, the solution is to: **deactivate the plugin** if it isn't already deactivated. **Delete the plugin**. And then **reinstall the Child Themes Helper** directly from the WordPress plugins repository.
+		
+		New with Child Themes Helper v2.0, the primary folder name ("~/plugins/pasChildThemes) and the primary file name (pasChildThemes.php) were changed to (~/plugins/child-themes-helper) and (child-themes-helper.php) to make the plugin match the WordPress assigned slug.
+		Under certain circumstances, probably due to either browser caching or website caching, this causes the upgrade to fail.
 
-	- *What would you like to see in this plugin?*
+	- *PHP Developer Tool*
+		The Child Themes Helper is meant as a PHP developer's tool to help the WordPress PHP developer make direct changes to a child theme's PHP code. It is **NOT** a GUI, drag -n- drop tool to help non-developers build a child theme.
+	
+	- *Child Themes Helper on GitHub*
+		The GitHub repository for this plugin can be found [here](https://github.com/PaulSwarthout/pasChildThemes). Stable versions are usually found on the WordPress SVN repository. Intermediate versions are often found on GitHub.
+
+	- *Child Themes Helper access*
+		The Child Themes Helper is accessed from the WordPress dashboard under the heading "Child Themes Helper". The menu item may be found immediately below the *Appearance* Dashboard menu item.
+
+	- *Platform Support*
+		The Child Themes Helper was developed on Microsoft IIS 10 and tested on both Windows' and Linux -based web servers.
+
+	- *If you like the Child Themes Helper plugin, please consider writing a review [here](https://wordpress.org/support/plugin/child-themes-helper/reviews/#new-post). Thank you.*
+
+	- *Development versions*
+		Versions 2\.1, 1\.2 are available for download and install.
 
 	- *Screenshot*
 		The temporary graphic is referred to as the ScreenShot because the filename is "screenshot.png" and is located in the root folder of your theme. The filename and the location are defined by the WordPress core and cannot be changed by this (or any) plugin.
@@ -55,18 +72,6 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 
 		In a future release, there will be a lock feature on the options page to prevent accidental overwrites of the screenshot file. Also, in a future release, there will be the ability to select an existing graphic and crop it as necessary, instead of generating one.
 
-	- *Child Themes Helper access*
-		The Child Themes Helper is accessed from the WordPress dashboard under the heading "Child Themes Helper". The menu item may be found immediately below the *Appearance* Dashboard menu item.
-
-	- *Platform Support*
-		The Child Themes Helper plugin has been tested with both WordPress running on a Windows server and with WordPress running on a Linux server. Development is done on a Windows platform. If you find any compatibility issues with Linux, please let me know.
-	
-	- *Child Themes Helper on GitHub*
-		The GitHub repository for this plugin can be found [here](https://github.com/PaulSwarthout/pasChildThemes). Stable versions are usually found on the WordPress SVN repository. Intermediate versions are often found on GitHub.
-
-	- *Development versions*
-		Versions 1\.2, 1\.1\.3 and 1\.0 are available for download and install.
-
 	- *Known Bug*
 		Although the Child Themes Helper plugin is mostly responsive, the Edit File functionality doesn't work very well on small screens. But does anybody actually modify themes on smartphones and tablets? (Please say 'No').
 
@@ -75,7 +80,7 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 
 - This plugin may be installed through the usual method of installing and activating WordPress plugins. The first time you open the Child Themes Helper plugin page on your dashboard, it will look a bit different from the previous version. Instead of a stack of menu options on the dashboard menu, there is a single menu option "Child Themes Helper" and it opens to a page featuring tabs across the top -- one for each area of functionality. Previous versions worked on the currently active Child Theme, but effective with this release, you are free to modify any child theme that has been created. You will still need to specify the "active" theme, but it does not have to be the "activated" theme. The first time you use it, you will only be able to set an active theme on the Options tab, or create a new child theme.
 
-- If you experience problems installing or activating version 2.1, after having an earlier version installed, please deactivate it, delete it, and then reinstall it. The primary folder name and the primary plugin filename changed with this release. It may conflict with an earlier version and crash upon install.
+- If you experience problems installing or activating version 2.1 or later, after having an earlier version installed, please deactivate it, delete it, and then reinstall it. The primary folder name and the primary plugin filename changed with this release. It may conflict with an earlier version and crash upon install.
 
 - The Child Themes Helper plugin requires an active theme be specified (Options tab). Unlike previous versions, this "active theme" does NOT have to be the currently "Activated" theme.
 
@@ -88,6 +93,10 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 
 == Frequently Asked Questions ==
 
+= Do I have to keep the Child Themes Helper installed and/or activated? =
+
+No. You should at least deactivate all plugins and themes that you are not using. That will decrease your website's load times. The Child Themes Helper leaves nothing behind that is required for you to be able to use your child themes or temporary graphics files. Feel free to uninstall it and/or deactivate it once you've completed your child theme.
+
 = What is next? =
 
 I am glad you asked.
@@ -99,15 +108,11 @@ I am glad you asked.
 
 = Where I can see the Child Themes Helper in action? =
 
-I am glad you asked. Starting with version 1.2 (version 2.1 is not yet installed on that page), you can visit [my demo page](http://www.1acsi.com) and take it for a test drive. Create your own child theme. Copy files to the newly created child theme. Generate screenshots. Change the Screenshot options. In short, put it through its paces. And don't worry about screwing up the website. It's there for that purpose.
+I am glad you asked. Starting with version 1.2 (version 2.2 is not yet installed on that page), you can visit [my demo page](http://www.1acsi.com) and take it for a test drive. Create your own child theme. Copy files to the newly created child theme. Generate screenshots. Change the Screenshot options. In short, put it through its paces. And don't worry about screwing up the website. It's there for that purpose.
 
 = I generated a screenshot but it didn't change. Why not? =
 
 You did nothing wrong. Your browser will cache the screenshot file to help your website to load more quickly. The solution is to clear your browser's image cache. [Here's a good article](https://kb.iu.edu/d/ahic) that I found that gives great directions on how to accomplish that.
-
-= What does the "Generate ScreenShot" option do? =
-
-The WordPress Themes page displays a graphic for each theme. A newly created child theme does not have a graphic. The Generate ScreenShot menu option creates a temporary graphic. Generally, developers will use a copy of a header image for their screenshot. But rather than leaving it blank until later, the Child Themes Helper plugin will create a temporary graphic which displays the child theme name, the parent theme name, a message indicating that the child theme was created using the Child Themes Helper and the Child Themes Helper's developer's web address. It is expected that the developer will want to replace this temporary graphic with their own custom graphic at a later time. Please check out [my demo page](http://www.1acsi.com) where you are welcome to take the Child Themes Helper plugin for a test drive.
 
 = Why create a screenshot? I'm just going to delete it later anyway. =
 
@@ -115,17 +120,24 @@ I hate the fact that nothing appears as a graphic in a newly created child theme
 
 == Screenshots ==
 
-1. The files for the Child Theme are displayed in the left-hand pane. The name, 'MyChildTheme' for example
-is the name of your Child Theme. The page scrolls.
-2. The files for the Template / Parent Theme's, or the Child Theme's parent theme, are displayed in the right-hand pane.
-For this example, the Child Theme was created as a child of the 'Twenty Sixteen' theme and it's name appears at the top. The page scrolls.
+1. When you first install the Child Themes Helper, and attempt to open the dashboard page, Child Themes Helper, you will see a long description, which you can hide by click the "Expert Mode" checkbox at the top. Below the description will be a list of your installed themes.
+2. If you don't already have a Child Theme, you can click the Create Child Theme tab at the top and create one.
+3. Once you have created a child theme, the first dialog will list the installed themes plus your new child theme. Click the large radio button to select your child theme. Note: this does NOT activate your child theme.
+4. If your screen is wide enough, you will see the child theme files listed on the left and the parent theme files listed on the right. If you are using a mobile device or a tablet that is not wide enough, then you will only see the child theme files list or the parent theme files list, and a button where you can switch back and forth.
+5. Right click on a file in either the child theme files or the parent theme files to open a popup menu. On the child theme files list, you will see the ability to remove a file from the child theme or edit the file. On the parent theme files list, you will see the ability to copy the file to the child theme or view the contents of the file.
+6. Choosing Edit Child Theme file will let you open the file in a simple editor.
+7. After copying the footer.php file from the parent theme to the child theme, we have opened it in the simple editor.
+8. The Screenshot tab lets you create a temporary graphic that will display on the Dashboard >> Appearance >> Themes page for your child theme. Most developers will replace this image during their child theme development, but it makes a nice placeholder in the meantime.
+9. You can change the font, the text color, and the background color of your temporary graphic. You can add fonts to the plugin's ~/assets/fonts folder and they will be automatically available. Click the Generate Screenshot button and a window will open with a copy of your new temporary graphic. Go to the website's themes page to see it as it was intended to be used.
 
 == Changelog ==
 
-= 2.1.2 =
- - Added "wait" cursors in the places where there is a delay in processing ... i.e., it's not immediate.
+= 2.2 =
+ - Added "wait" cursors in the places where there is a delay in processing ... i.e., it's not immediate. It's lightning fast in the test environment, but not as fast when it has to move large quantities of data through the Internet.
  
  - Modified the AJAX calls to be consistent.
+
+ - I discovered that some of my vanilla Javascript function names conflicted with function names in other plugins. I created a vanilla Javascript library which contains those functions. From a structural perspective, think "CLASS", but Javascript doesn't support classes.
 
 = 2.1.1 =
  - WordPress Plugin review team discovered a security vulnerability in version 2.0 of the Child Themes Helper plugin.
