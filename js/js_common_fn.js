@@ -1,3 +1,4 @@
+"use strict;"
 if(typeof String.prototype.ltrim == "undefined")
 	String.prototype.ltrim = function(){return this.replace(/^\s+/,"");}
 if(typeof String.prototype.rtrim == "undefined")
@@ -9,7 +10,77 @@ if(typeof String.prototype.right == "undefined")
 if(typeof String.prototype.left == "undefined")
 	String.prototype.left = function(n) { return this.substring(0, n); }
 
+function pas_cth_DOMFunctions() {
+	var self = this;
+	this.killElement = function (element) {
+		if (element == null || element == undefined) { return false; }
+		var e;
+		if (typeof element == "string") {
+			e = document.getElementById(element);
+		} else {
+			e = element;
+		}
+
+		if (e.parentNode != null) {
+			e.parentNode.removeChild(e);
+		}
+		e.remove();
+	}
+	this.kill = function (element) {
+		if (element == null || element == undefined) { return false; }
+		this.killElement(element);
+	}
+	this.createBox = function (id, parent = null, bKillFirst = true) {
+		if (parent == null) { parent = document.getElementsByTagName("body")[0]; }
+		var box = document.getElementById(id);
+		if (box != null && bKillFirst) {
+			this.killElement(box);
+			box = null;
+		}
+		
+		box = document.createElement("DIV");
+		box.id = id;
+
+		parent.appendChild(box);
+		return box;
+	}
+	this.displayError = function (str) {
+		var box = this.createBox("popupErrorMessage");
+		box.onclick = function () {
+			self.killElement(box);
+		}
+		box.innerHTML = str;
+		return box;
+	}
+	this.getPosition = function (element = null) {
+		if (element == null) { return null; }
+		var rect = element.getBoundingClientRect();
+
+		return {left : rect.left, top: rect.top, width : Math.abs(rect.right - rect.left), height : Math.abs(rect.bottom - rect.top), 'element' : element };
+	}
+	this.getElementTree = function (element) {
+		if (element == null) {
+			return [];
+		} else {
+			return element.getElementsByTagName("*");
+		}
+	}
+	this.searchTree = function (rootElement, tree, pointElement) {
+		var found = false;
+
+		if (rootElement == pointElement) {
+			return true;
+		} else {
+			for (ndx = 0; ndx < tree.length && ! found; ndx++) {
+				found = (tree[ndx] == pointElement ? true : false);
+			}
+			return found;
+		}
+	}
+}
+
 var mousePosition = {x:0, y:0, element:null};
+var pas_cth_library = new pas_cth_DOMFunctions();
 
 window.addEventListener("mousemove", function (e) {
 	mousePosition.x = e.clientX;
@@ -23,9 +94,7 @@ function pas_cth_js_AJAXCall(action, dataBlock = [], callback = null, error_call
 
 	if (dataBlock != null) {
 		Object.keys(dataBlock).forEach(function(key) {
-			if (key != "action") {
-				data.append(key, dataBlock[key]);
-			}
+			if (key != "action") { data.append(key, dataBlock[key]); }
 		});
 	}
 	xmlhttp.open("POST", ajaxurl, true);
@@ -50,7 +119,7 @@ function pas_cth_js_AJAXCall(action, dataBlock = [], callback = null, error_call
 	xmlhttp.send(data);
 }
 if (document.getElementById("childGrid") != null && document.getElementById("parentGrid") != null) {
-	window.onresize = function (e) {
+	window.addEventListener("resize", function (e) {
 		var childGrid = document.getElementById("childGrid")
 		var parentGrid = document.getElementById("parentGrid")
 
@@ -61,41 +130,12 @@ if (document.getElementById("childGrid") != null && document.getElementById("par
 		if (parentGrid != null) {
 			parentGrid.style = "";
 		}
-	}
-}
-function getElementTree(element) {
-	if (element == null) {
-		return [];
-	} else {
-		return element.getElementsByTagName("*");
-	}
-}
-function kill(element) {
-	if (element == null) {
-		return false;
-	}
-	if (element.parentNode != null) {
-		element.parentNode.removeChild(element);
-	}
-	element.remove();
-	return true;
-}
-function searchTree(rootElement, tree, pointElement) {
-	var found = false;
-
-	if (rootElement == pointElement) {
-		return true;
-	} else {
-		for (ndx = 0; ndx < tree.length && ! found; ndx++) {
-			found = (tree[ndx] == pointElement ? true : false);
-		}
-		return found;
-	}
+	});
 }
 var windowFlag = false;
 
-if (window.location.href.indexOf("manage_child_themes")	>= 0) {
-	window.onclick = function (e) {
+if (window.location.href.indexOf("manage_child_themes")	>= 0) {
+	window.addEventListener("click", function (e) {
 		if (windowFlag) {
 			windowFlag = false;
 			return;
@@ -104,26 +144,26 @@ if (window.location.href.indexOf("manage_child_themes")	>= 0) {
 			return;
 		}
 
-		var pointElement = null;
-		var actionBox = document.getElementById("pas_cth_actionBox");
+		var pointElement	= null;
+		var actionBox		= document.getElementById("pas_cth_actionBox");
 		var errorMessageBox = document.getElementsByName("errorMessageBox")[0];
 
 		pointElement = document.elementFromPoint(e.clientX, e.clientY);
 
-		var tree = getElementTree(actionBox);
+		var tree = pas_cth_library.getElementTree(actionBox);
 		var found = false;
-		found = searchTree(actionBox, tree, pointElement);
+		found = pas_cth_library.searchTree(actionBox, tree, pointElement);
 
 		if (! found) {
-			tree = getElementTree(errorMessageBox);
-			found = searchTree(errorMessageBox, tree, pointElement);
+			tree = pas_cth_library.getElementTree(errorMessageBox);
+			found = pas_cth_library.searchTree(errorMessageBox, tree, pointElement);
 		}
 
 		if (! found) {
-			kill(actionBox);
-			kill(errorMessageBox);
+			pas_cth_library.kill(actionBox);
+			pas_cth_library.kill(errorMessageBox);
 		}
-	}
+	});
 }
 
 // KillMe kills the error message boxes.
@@ -169,15 +209,11 @@ function pas_cth_js_processResponse(response) {
 		response = response.left(response.length - 1);
 		processEditFile(response);
 	} else if ("DEBUG:{" == response.left("DEBUG:{".length).toUpperCase()) {
-		actionBox = document.getElementById("pas_cth_actionBox");
-		if (actionBox != null && actionBox != undefined) {
-			if (actionBox.parentNode != null) {
-				actionBox.parentNode.removeChild(actionBox);
-			}
-			actionBox.remove();
-		}
+		pas_cth_library.kill("pas_cth_actionBox");
+
 		debugResponse = response.right(response.length - "debug:{".length);
 		debugResponse = debugResponse.left(debugResponse.length - 1);
+		
 		box = pas_cth_js_createBox('debugBox', 'debug');
 		box.innerHTML = debugResponse;
 	// Nothing special. We've got output from the PHP function, dump it to the screen.
@@ -189,83 +225,32 @@ function pas_cth_js_processResponse(response) {
 	}
 }
 function pas_cth_js_showBox() {
-	return pas_cth_js_createBox("pas_cth_actionBox", "");
+	return pas_cth_library.createBox("pas_cth_actionBox");
 }
 function pas_cth_js_createBox(id, className = "", parent = document.getElementsByTagName("body")[0], clickClose = false) {
-	var box = document.getElementById(id);
-	if (box != null && box != undefined) {
-		if (box.parentNode != null) {
-			box.parentNode.removeChild(box);
-		}
-		box.remove();
-	}
-	box = document.createElement("div");
-	box.setAttribute("id", id);
+	var box = pas_cth_library.createBox(id, parent);
+
 	if (className.trim.length > 0) {
 		box.className = className;
 	}
 
-	parent.appendChild(box);
-
 	if (clickClose) {
-		box.onclick= function () {
-			if (this.parentNode != null) {
-				this.parentNode.removeChild(this);
-			}
-			this.remove();
-		}
+		box.onclick= function () { pas_cth_library.kill(this); }
 	} else {
 		var dismissBTN = document.createElement("p")
 		dismissBTN.setAttribute("id", "dismissBox");
 		box.appendChild(dismissBTN);
 		dismissBTN.innerHTML = "DISMISS";
 		dismissBTN.onclick = function () {
-			var ab = document.getElementById("pas_cth_actionBox");
-			if (ab.parentNode != null) {
-				ab.parentNode.removeChild(ab);
-			}
-			ab.remove();
+			pas_cth_library.kill("pas_cth_actionBox");
 		}
-
-
-/*
-		box.oncontextmenu = function () {
-			box.style.width = "100%";
-			box.style.height = "100%";
-			box.style.position = "absolute";
-			box.style.left = "180px";
-			box.style.top  = "40px";
-			box.style.zIndex = 9999999;
-			box.style.overflow = "scroll";
-			box.style.marginTop = "0px";
-			box.style.marginLeft = "0px";
-			return false;
-		}
-*/
 	}
 	return box;
-}
-/*
-function findPos(obj) {
-	var curleft = curtop = 0;
-	if (obj.offsetParent) {
-		do {
-			curleft += obj.offsetLeft;
-			curtop += obj.offsetTop;
-		} while (obj = obj.offsetParent);
-	}
-	return {left:curleft ,top:curtop};
-}
-*/
-function getPosition(element) {
-	var rect = element.getBoundingClientRect();
-
-	return {left : rect.left, top: rect.top, width : Math.abs(rect.right - rect.left), height : Math.abs(rect.bottom - rect.top) };
 }
 function pas_cth_js_addCloseButton(id, parent, text) {
 	var element = document.createElement("p");
 	element.setAttribute("id", id);
-//	element.setAttribute("contentEditable", false);
+
 	parent.appendChild(element);
 	element.innerHTML = text;
 	element.onclick = function () {
@@ -280,20 +265,8 @@ function pas_cth_js_addCloseButton(id, parent, text) {
 }
 function getTopLeftPosition(obj = null) {
 	if (obj != null) {
-		return getPosition(obj);
+		return pas_cth_library.getPosition(obj);
 	} else {
 		return null;
 	}
-}
-function displayError(str) {
-	var box = document.getElementById("popupErrorMessage");
-	var theBody = document.getElementsByTagName("body")[0];
-	if (box != null) {
-		if (box.parentNode != null) { box.parentNode.removeChild(box); }
-		box.remove();
-	}
-	box = pas_cth_js_createBox("popupErrorMessage", "", theBody, true);
-//	box.appendChild(document.createTextNode(str));
-	box.innerHTML = str;
-	return box;
 }

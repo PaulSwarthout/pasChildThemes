@@ -107,7 +107,7 @@ if ( ! class_exists( 'pas_cth_ChildThemesHelper' ) ) {
 							$cap,
 							'manage_child_themes',
 							Array( $this, 'pas_cth_tabPage' ),
-							"",
+							"dashicons-admin-appearance",
 							61 // appears just below the Appearances menu.
 						 );
 		}

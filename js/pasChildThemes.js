@@ -1,8 +1,6 @@
 "use strict;"
 /* pasChildThemes.js
  * This file contains nearly pure JavaScript code.
- * With the exception of XMLHttpRequest() and JSON, no other WordPress core, nor 3rd party JavaScript
- * libraries are used, herein.
  */
 
 
@@ -15,8 +13,6 @@ if (typeof(String.prototype.trim) == "undefined") {
 }
 function pas_cth_js_selectFile(event) {
 	var element = document.getElementById(event.srcElement.dataset.elementid);
-//	var xmlhttp = new XMLHttpRequest();
-//	var data = new FormData();
 	var jsInput;
 	var box;
 
@@ -254,7 +250,7 @@ function pas_cth_js_createChildTheme(element) {
 		}
 	}
 	if (err) {
-		var errorBox = displayError(outputMessage);
+		var errorBox = pas_cth_library.displayError(outputMessage);
 		errorBox.style.width = "300px";
 		errorBox.style.height = "300px";
 		errorBox.style.overflowY = "scroll";

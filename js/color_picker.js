@@ -1,3 +1,4 @@
+"use strict;"
 // /js/color_picker.js
 if(typeof String.prototype.right == "undefined")
 	String.prototype.right = function(n){return this.substring(this.length - n, this.length)}
@@ -230,50 +231,23 @@ function colorParts(color) {
 	this.blueColor = "#0000" + this.blueHex;
 }
 function pas_cth_js_showColorPicker(clr) {
-	var xmlhttp = new XMLHttpRequest();
-	var data	= new FormData();
 	var currentColor = clr.value;
 	var fieldName = clr.name;
+
+	var dataBlock = {};
 
-	data.append('action', 'displayColorPicker');
-	data.append('initialColor', currentColor);
-	data.append('callingFieldName', fieldName);
+	dataBlock.initialColor = currentColor;
+	dataBlock.callingFieldName = fieldName;
+
+	var successCallback = function (response) {
+		if (response.length) {
+			pas_cth_js_createColorWindow(response);
+		} else {
+			location.reload();
+		}
+	}
 
-	xmlhttp.open("POST", ajaxurl,true);
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			// strip the AJAX zero from wp_die() WORDPRESS ONLY
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is Okay
-					/* If responseText is not empty, there might be a request to overwrite
-					 * or a request to delete that needs to be displayed.
-					 * else, reload the page.
-					 * <= 1 accounts for the AJAX return of zero that sometimes shows up
-					 * despite my best efforts to avoid that.
-					 */
-					if (response.length <= 0) {
-						// refresh the current display
-						location.reload();
-					} else {
-						pas_cth_js_createColorWindow(response);
-						// display any output from the wp_ajax_* function.
-//						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400: // There was an error
-					msg = "400 Error:<br>" + xmlhttp.statusText;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data);
+	pas_cth_js_AJAXCall('displayColorPicker', dataBlock, successCallback, pas_cth_js_failureCallback);
 }
 
 function pas_cth_js_createColorWindow(response) {
@@ -305,42 +279,18 @@ function makeElement(id, name, type, value) {
 function saveColor(button) {
 	var abbr = button.getAttribute("data-abbr");
 	var cp = new colorPickerElements(abbr);
+	var dataBlock = {};
 	cp.initialColor.value = cp.hexval.value;
 
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
 	var jsInput;
 
-	data.append("hexColorCode", cp.hexval.value);
-	data.append("abbreviation", abbr);
-	data.append("action", "saveOptions");
-
-	xmlhttp.open("POST", ajaxurl,true);
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-					} else {
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400:
-					msg = "400 Error:<br>" + xmlhttp.statusText;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	cp.saveButton.disabled = true;
-	cp.resetButton.disabled = true;
-	xmlhttp.send(data)
+	dataBlock.hexColorCode = cp.hexval.value;
+	dataBlock.abbreviation = abbr;
+
+	cp.saveButton.disabled = true;
+	cp.resetButton.disabled = true;
+
+	pas_cth_js_AJAXCall('saveOptions', dataBlock, pas_cth_js_successCallback, pas_cth_js_failureCallback);
 }
 function resetColor(element) {
 	var abbr = element.id.left(element.id.length - "_resetButton".length)
@@ -400,8 +350,10 @@ function selectThisFont(fontDataElement) {
 	var textBox = document.getElementById(fontData['text-box']);
 	var listBox = document.getElementById(fontData['list-box']);
 
-	var selectedFontNameElement = document.getElementById("selectedFontName")
-	var selectedFontSampleElement = document.getElementById("selectedFontSample")
+	var selectedFontNameElement = document.getElementById("selectedFontName");
+	var selectedFontSampleElement = document.getElementById("selectedFontSample");
+	
+	var dataBlock = {};
 
 	selectedFontNameElement.innerHTML = fontName
 
@@ -421,45 +373,17 @@ function selectThisFont(fontDataElement) {
 	textBox.style.display = "inline";
 	listBox.style.display = "none";
 
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
-	data.append("action", "saveDefaultFont");
-	data.append("fontName", fontName);
-	data.append("fontFile-base", fontBase);
-
-	xmlhttp.open("POST", ajaxurl,true);
-	xmlhttp.onreadystatechange = function () {
-
-		if (4 == xmlhttp.readyState) {
-			// strip the AJAX zero from wp_die() WORDPRESS ONLY
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-			switch (xmlhttp.status) {
-				case 200: // Everything is Okay
-					/* If responseText is not empty, there might be a request to overwrite
-					 * or a request to delete that needs to be displayed.
-					 * else, reload the page.
-					 * <= 1 accounts for the AJAX return of zero that sometimes shows up
-					 * despite my best efforts to avoid that.
-					 */
-					if (response.length <= 0) {
-						// do nothing. Just return.
-
-					} else {
-						// display any output from the wp_ajax_* function.
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400: // There was an error
-					msg = "400 Error:<br>" + xmlhttp.statusText;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data);
+	dataBlock.fontName = fontName;
+	dataBlock['fontFile-base'] = fontBase;
+
+	var successCallback = function (response) {
+		if (response.length) {
+			pas_cth_js_processResponse(response);
+			pas_cth_js_hideWait();
+		}
+	}
+
+	pas_cth_js_AJAXCall('saveDefaultFont', dataBlock, successCallback, pas_cth_js_failureCallback);
 }
 function test(abbr) {
 	var r = document.getElementById(abbr + "_rval_cell")
@@ -535,7 +459,7 @@ function generateScreenShot(abbr) {
 	});
 
 	if (unsavedCount > 0) {
-		var box = displayError("Please save or reset your changes before attempting to generate a new screenshot for your child theme.");
+		var box = pas_cth_library.displayError("Please save or reset your changes before attempting to generate a new screenshot for your child theme.");
 		var p = document.createElement("P");
 		p.innerHTML = "close [X]";
 		box.appendChild(p);
@@ -549,7 +473,7 @@ function generateScreenShot(abbr) {
 		var stylesheet	= records[0].getElementsByTagName("stylesheet")[0].textContent;
 		var filename	= records[0].getElementsByTagName("filename")[0].textContent;
 
-		var box = document.createElement("DIV");
+		var box = pas_cth_library.createBox("screenshotBox")
 		box.onclick = function () {
 			if (this.parentNode != null) {
 				this.parentNode.removeChild(this);
@@ -557,7 +481,6 @@ function generateScreenShot(abbr) {
 			this.remove();
 		}
 		var theBody = document.getElementsByTagName("body")[0];
-		box.id = "screenshotBox";
 		var p = document.createElement("P");
 		p.appendChild(document.createTextNode("[X] close"));
 
@@ -565,7 +488,6 @@ function generateScreenShot(abbr) {
 		img.src = site_url + "/wp-content/themes/" + stylesheet + "/" + filename + "?cacheBuster=" + Date.now();
 		box.appendChild(img);
 		box.appendChild(p);
-		theBody.appendChild(box);
 	}
 
 	pas_cth_js_AJAXCall("generateScreenShot", null, displayScreenshotFile);

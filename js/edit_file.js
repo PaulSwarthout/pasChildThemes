@@ -1,3 +1,4 @@
+"use strict;"
 if (typeof String.prototype.toBold == "undefined") {
 	String.prototype.toBold = function () {
 		return "<span style='font-weight:bold;'>" + this + "</span>";
@@ -71,8 +72,7 @@ function pas_cth_js_findElement(element) {
 }
 function pas_cth_js_editFile(event) {
 	var element = document.getElementById(event.srcElement.dataset.elementid);
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
+	var dataBlock = {};
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
 	var ee = new pas_cth_js_editElements();
 
@@ -92,40 +92,11 @@ function pas_cth_js_editFile(event) {
  * The themeType indicates whether the file is read-only or writeable.
  */
 
-	xmlhttp.open("POST", ajaxurl, true);
+	dataBlock.directory = jsInput['directory'];
+ 	dataBlock.file		= jsInput['file'];
+	dataBlock.themeType = jsInput['themeType'];
 
-	data.append("action",	 'editFile');
-	data.append("directory", jsInput['directory'] );
-	data.append("file",		 jsInput['file']);
-	data.append("themeType", jsInput['themeType'] );
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-						location.reload();
-					} else {
-						/*
-						 * Function pas_cth_js_processResponse is in the js_common_fn.js file
-						 * which then passes control back to the processEditFile() in this file.
-						 */
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400:
-					msg = "400 Error:<br>" + xmlhttp.statusText;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data)
+	pas_cth_js_AJAXCall('editFile', dataBlock, pas_cth_js_successCallback, pas_cth_js_failureCallback);
 }
 function captureKeystrokes(element) {
 	switch (event.keyCode) {
@@ -249,8 +220,8 @@ function enableContent(elements) {
 function pas_cth_js_closeEditFile() {
 	var ee = new pas_cth_js_editElements();
 
-	if ( ! ee.efSaveButton.disabled) {
-		ee.savePrompt.style.cssText = "display:inline;"
+	if ( ! ee.efSaveButton.disabled) { // not disabled = visible
+		ee.savePrompt.style.display = "inline"
 		ee.efSaveButton.disabled = true;
 	} else {
 //		ee.themeGrid.style.display = "inline-grid";
@@ -279,48 +250,28 @@ function debug(element) {
 function pas_cth_js_saveFile() {
 	var ee = new pas_cth_js_editElements();
 
-	var xmlhttp = new XMLHttpRequest();
-	var data = new FormData();
 	var fileContents = "";
-
-	xmlhttp.open("POST", ajaxurl, true);
+	var dataBlock = {};
 
 	fileContents = ee.editBox.innerText; // .replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 
-	data.append("fileContents", fileContents);
-	data.append("file",			ee.filenameINP.value);
-	data.append("directory",	ee.directoryINP.value);
-	data.append("themeType",	ee.themeTypeINP.value);
-	data.append("action",		"saveFile");
-
+	dataBlock.fileContents	= fileContents;
+	dataBlock.file			= ee.filenameINP.value;
+	dataBlock.directory		= ee.directoryINP.value;
+	dataBlock.themeType		= ee.themeTypeINP.value;
+
 	ee.efSaveButton.disabled = true; // last possible chance to disable the button.
 
 	pas_cth_js_closeEditFile(); // Closing only clears the div and hides it. Not destroyed.
-
-	xmlhttp.onreadystatechange = function () {
-		if (4 == xmlhttp.readyState) {
-			var response = (xmlhttp.responseText.length >= 1 ?
-								xmlhttp.responseText.left(xmlhttp.responseText.length - 1) :
-								xmlhttp.responseText);
-
-			switch (xmlhttp.status) {
-				case 200: // Everything is okay
-					if (response.length <= 0) {
-
-					} else {
-						pas_cth_js_processResponse(response);
-					}
-					break;
-
-				case 400:
-				case 500:
-					msg = xmlhttp.status + " Error:<br>" + xmlhttp.statusText;
-					pas_cth_js_showBox().innerHTML = msg;
-					break;
-			}
-		}
-	}
-	xmlhttp.send(data);
+
+	var successCallback = function (response) {
+		if (response.length) {
+			pas_cth_js_processResponse(response);
+			pas_cth_js_hideWait();
+		}
+	}
+
+	pas_cth_js_AJAXCall('saveFile', dataBlock, successCallback, pas_cth_js_failureCallback);
 }
 function parseOutput(response) {
 

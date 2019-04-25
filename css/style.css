@@ -914,7 +914,7 @@ p.mID {
 	display:none;
 	background-color:rgba(255, 255, 255, .8);
 	color:black;
-	z-index:99999;
+	z-index:1000000;
 }
 #ef_readonly_msg	{ grid-column:1 / span 4;	grid-row:1; }
 
@@ -989,6 +989,7 @@ p.mID {
 	display:none;
 	font-size:12pt;
 	font-weight:bold;
+	z-index:1000005;
 }
 #sp_saveButton, #sp_closeButton {
 	background-color:blue;
