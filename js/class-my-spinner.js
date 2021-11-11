@@ -4,12 +4,11 @@ class pas_cth_spinning_class {
 		this.wait_cursor_count = 0;
 	}
 	wait_cursor() {
-		debugger
 		var spinner;
 		var self = this;
 		if (this.wait_cursor_count == 0) {
 			spinner = this.showSpinner();
-			spinner.onclick = function () { toc_common.default_cursor(); self.wait_cursor_count = 0; }
+			spinner.onclick = function () { self.self.default_cursor(); self.wait_cursor_count = 0; }
 		}
 		this.wait_cursor_count++;
 	}

@@ -1,11 +1,11 @@
 <?php
 /*
 	Plugin Name: Child Themes Helper
-	Plugin URI: http://www.paulswarthout.com/Child-Themes-Helper/
-	Description: Tool to aid child theme developer. Copies files from the parent theme to the child theme, duplicating the folder structure in the child theme. Directly edit the child theme's files. Create a new child theme from any template theme.
-	Version: 2.2.1
+	Plugin URI: https://www.paulswarthout.com/Child-Themes-Helper/
+	Description: Tool to aid the child theme developer. Copies files from the parent theme to the child theme, duplicating the folder structure in the child theme. Directly edit the child theme's files. Create a new child theme from any template theme.
+	Version: 2.2.4
 	Author: Paul A. Swarthout
-	Author URI: http://www.PaulSwarthout.com
+	Author URI: https://www.PaulSwarthout.com
 	License: GPL2
 	License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
@@ -157,7 +157,7 @@ add_action( 'init',		__NAMESPACE__ . '\pas_cth_startBuffering' );		// Response B
  */
 if (defined("DEMO_CAPABILITY")) { add_action( 'init',	'pas_cth_no_profile_access' ); }
 
-add_action( 'wp_footer','pas_cth_flushBuffer' );		// Response Buffering
+add_action( 'wp_footer', __NAMESPACE__ . '\pas_cth_flushBuffer' );		// Response Buffering
 
 /* AJAX PHP functions may be found in the 'classes/class_ajax_functions.php' file
  * AJAX Javascript functions are in the 'js/pasChildThemes.js' file
@@ -228,7 +228,7 @@ function pas_cth_deactivate( ) {
 	delete_option( 'pas_cth_active_theme' );
 }
 
-register_deactivation_hook( __FILE__, 'pas_cth_deactivate' );//Plugin Deactivation
+register_deactivation_hook( __FILE__, __NAMESPACE__ . '\pas_cth_deactivate' );//Plugin Deactivation
 
 
 /*

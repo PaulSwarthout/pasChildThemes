@@ -287,7 +287,7 @@ The concept is easy enough.
 But in practice, you copy a file, then close the window. Then you open the child theme, and try to remember the path to where the file goes, and create each folder and subsequent subfolders and then finally paste the file.
 The Child Theme Helper plugin was created because I, the developer of {$abbr} would invariably screw it up and my child theme would not work and I would spend hours trying to figure out why.
 <br><br>
-<h3>The Child Themes Helper plugin has 4 areas of primary functionality.</h3> For more information on each of these, review the information at the top of each tab.
+<h3>The Child Themes Helper plugin has 4 areas of primary functionality.</h3> For more information on each of these, review the information at the top of eachBookWriter.tab.
 <ol>
 	<li>Create a new child theme from any of the template themes installed on your website. {$abbr} requires the child theme to exist before you can copy files to it.</li>
 	<li>Copy files from the original theme to the child theme. {$abbr} guarantees that the folder structure in the child theme matches the folder structure in the original theme and that the file being copied is named the same as the original file, including capitalization. {$abbr} <i><b>makes this process point-and-click simple</b></i>.</li>
@@ -303,7 +303,7 @@ Before you can start copying files to your child theme, you have to specify whic
 Below you will find a list of themes installed on your {$blogName} website. The lines with a radio button at the beginning may be selected as the active theme.
 This selection <u>does not</u> change which theme is activated. It only specifies to {$abbr} which child/parent theme that it should manipulate.
 <br><br>
-Once selected, the page will reload and you will be on the Copy/Edit Theme Files tab.
+Once selected, the page will reload and you will be on the Copy/Edit Theme FilesBookWriter.tab.
 
 
 </div>

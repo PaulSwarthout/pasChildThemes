@@ -3,9 +3,9 @@ Contributors: paulswarthout
 Author URI: http://www.paulswarthout.com/child-themes-helper
 Donate link: https://paypal.me/PaulSwarthout
 Tags: child themes helper, child themes, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
-Requires at least: 4.7.0
-Tested up to: 5.1.1
-Stable tag: 2.2
+Requires at least: 5.0
+Tested up to: 5.8.2
+Stable tag: 2.2.4
 Requires PHP: 5.6.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -59,7 +59,7 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 	- *If you like the Child Themes Helper plugin, please consider writing a review [here](https://wordpress.org/support/plugin/child-themes-helper/reviews/#new-post). Thank you.*
 
 	- *Development versions*
-		Versions 2\.1, 1\.2 are available for download and install.
+		Versions 2\.2\.1, 2\.1, 1\.2 are available for download and install.
 
 	- *Screenshot*
 		The temporary graphic is referred to as the ScreenShot because the filename is "screenshot.png" and is located in the root folder of your theme. The filename and the location are defined by the WordPress core and cannot be changed by this (or any) plugin.
@@ -93,18 +93,13 @@ Copies parent theme files to a child theme while maintaining the correct folder/
 
 == Frequently Asked Questions ==
 
+= Sometimes the wait spinner gets stuck and doesn't end. What can I do?
+
+Yep. I've noticed that. I don't know why that happens. When I stumble on that, and I walk the code, it never happens. In the meantime, there's a really simple solution. Just click on the spinner with your primary mouse button (usually the left) and the wait spinner will disappear.
+
 = Do I have to keep the Child Themes Helper installed and/or activated? =
 
 No. You should at least deactivate all plugins and themes that you are not using. That will decrease your website's load times. The Child Themes Helper leaves nothing behind that is required for you to be able to use your child themes or temporary graphics files. Feel free to uninstall it and/or deactivate it once you've completed your child theme.
-
-= What is next? =
-
-I am glad you asked.
-
-- A pro version that encompasses even more features like:
-	- The ability to copy multiple files and/or folders at once, instead of a single file at a time.
-	- The ability to make a modified non-child theme into a child theme of itself.
-	- Some kind of feature to make stylesheets more manageable. Something to help the relative newcomers understand what they're changing and why, and more importantly, what to change.
 
 = Where I can see the Child Themes Helper in action? =
 
@@ -131,6 +126,30 @@ I hate the fact that nothing appears as a graphic in a newly created child theme
 9. You can change the font, the text color, and the background color of your temporary graphic. You can add fonts to the plugin's ~/assets/fonts folder and they will be automatically available. Click the Generate Screenshot button and a window will open with a copy of your new temporary graphic. Go to the website's themes page to see it as it was intended to be used.
 
 == Changelog ==
+
+= 2.2.4 =
+ - Tested the plugin with PHP 8.0.0 and WordPress 5.8.2.
+
+ - Cleaned up code.
+
+ - Fixed a problem with the spinning wait cursors. The code was originally copied from another plugin that I'm developing, but I inadvertantly got some code that doesn't work with this plugin.
+
+ - Introduced namespaces to my code. Slowly removing prefixes from all 'global' functions as they are now localized in the child-themes-helper namespace.
+
+= 2.2.3 =
+ - Bug fix: Format at the very bottom of the list of files didn't leave room for the popup menu. Extended the page with a bottom margin of 50px.
+
+= 2.2.2 =
+ - Oops. Forgot to include the new files before I committed the changes. Everything is included with this one.
+
+= 2.2.1 =
+ - Cleaned up a bunch of code.
+
+ - Fixed a problem where the script files weren't loading correctly.
+
+ - Updated the 'wait' cursors for places where there is a delay in processing. Instead of just a change to your cursor, now a spinner appears in the middle of the screen.
+
+ - Tested the plugin with PHP 8.0 and PHP 7.4.x and WordPress 5.7.2.
 
 = 2.2 =
  - Added "wait" cursors in the places where there is a delay in processing ... i.e., it's not immediate. It's lightning fast in the test environment, but not as fast when it has to move large quantities of data through the Internet.
@@ -214,6 +233,10 @@ I hate the fact that nothing appears as a graphic in a newly created child theme
 - *First public release*
 
 == Upgrade Notice ==
+
+= 2.2.4 =
+ - Fixed several bugs that were preventing the plugin from loading correctly.
+ - Please submit a trouble ticket when you encounter problems. I was embarrassed that this plugin was broken in the latest version on the WordPress Plugins repository.
 
 = 1.1.3 =
 - Fixed a bug: The path to the child theme's stylesheet in the functions.php was incorrect.

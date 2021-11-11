@@ -48,6 +48,7 @@
   color:black;
   padding: 20px;
   text-align: left;
+  margin-bottom:50px;
 }
 .pas-grid-item-child {
 	border-left:var(--default-border);

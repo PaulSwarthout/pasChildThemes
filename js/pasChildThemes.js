@@ -17,6 +17,8 @@ function pas_cth_js_selectFile(event) {
 	var jsInput;
 	var box;
 
+	pas_cth_spinner.wait_cursor();
+
 
 	// requires HTML5 global attribute support for "data-*"
 	jsInput = JSON.parse(element.getAttribute("data-jsdata"));
@@ -39,6 +41,9 @@ function pas_cth_js_selectFile(event) {
 		}
 		document.getElementById("pas_cth_actionBox").style.display = "inline";
 		windowFlag = true; // Prevents the window.onclick event from closing this prompt.
+
+		pas_cth_spinner.default_cursor();
+
 		return;
 	}
 
@@ -58,6 +63,8 @@ function pas_cth_js_selectFile(event) {
 			pas_cth_js_copyTemplateFile(element);
 			break;
 	}
+	pas_cth_spinner.default_cursor();
+
 }
 function pas_cth_js_showWait() {
 	pas_cth_spinner.wait_cursor();
@@ -133,6 +140,7 @@ function pas_cth_js_successCallback(response) {
 	if (response.length) {
 		pas_cth_js_processResponse(response);
 		pas_cth_js_hideWait();
+		pas_cth_spinner.default_cursor();
 	} else {
 		location.reload();
 	}
@@ -141,6 +149,7 @@ function pas_cth_js_failureCallback(status, response) {
 	var msg = "400 Error:<br>" + status;
 	pas_cth_js_showBox().innerHTML = msg;
 	pas_cth_js_hideWait();
+	pas_cth_spinner.default_cursor();
 }
 /*
  * pas_cth_js_copyTemplateFile() responds to an onclick event set up pas_cth_AJAXFunctions::selectFile()

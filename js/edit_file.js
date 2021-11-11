@@ -71,6 +71,8 @@ function pas_cth_js_findElement(element) {
 	return (element == document.getElementById("currentFileExtension").value);
 }
 function pas_cth_js_editFile(event) {
+	pas_cth_spinner.wait_cursor();
+
 	var element = document.getElementById(event.srcElement.dataset.elementid);
 	var dataBlock = {};
 	var jsInput = JSON.parse(element.getAttribute("data-jsdata"));
@@ -85,6 +87,7 @@ function pas_cth_js_editFile(event) {
 			jsInput['allowedFileTypes'].toString().split(",").join("<br>").toBold() +
 			"</div>";
 		pas_cth_js_createBox("invalidFileTypeMessage", "", document.getElementsByTagName("body")[0], true).innerHTML += msg;
+		pas_cth_spinner.default_cursor();
 		return;
 	}
 /*
@@ -252,6 +255,9 @@ function pas_cth_js_saveFile() {
 
 	var fileContents = "";
 	var dataBlock = {};
+	
+	pas_cth_spinner.wait_cursor();
+
 	fileContents = ee.editBox.innerText; // .replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 
 	dataBlock.fileContents	= fileContents;
@@ -262,10 +268,12 @@ function pas_cth_js_saveFile() {
 
 	pas_cth_js_closeEditFile(); // Closing only clears the div and hides it. Not destroyed.
 	var successCallback = function (response) {
+
 		if (response.length) {
 			pas_cth_js_processResponse(response);
 			pas_cth_js_hideWait();
 		}
+		pas_cth_spinner.default_cursor();
 	}
 	pas_cth_js_AJAXCall('saveFile', dataBlock, successCallback, pas_cth_js_failureCallback);
 }

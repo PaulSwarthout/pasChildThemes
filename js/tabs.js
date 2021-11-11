@@ -52,7 +52,6 @@ if (cthPage != null) {
 	var html = document.getElementsByTagName("html")[0];
 
 	body.style.overflow = "hidden";
-	html.style.overflow = "hidden";
 }
 function pas_cth_js_expertMode(element) {
 	var dataBlock = {};
@@ -93,9 +92,13 @@ function setDefaultChildTheme(element, childThemeName) {
 				}
 				this.remove();
 			}
+			pas_cth_spinner.default_cursor();
 		}
 	}
 	document.getElementsByTagName("body")[0].style.cursor = "wait";
+
+	pas_cth_spinner.wait_cursor();
+	
 	pas_cth_js_AJAXCall("setDefaultChildTheme", dataBlock, reloadFN);
 }
 window.addEventListener("load", function (event) {

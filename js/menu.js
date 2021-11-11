@@ -76,11 +76,20 @@ function pas_cth_js_openMenu(element, event) {
 	var pos = new elementInfo(element)
 	var position = { 'x'	:	event.clientX, 'y'	:	event.clientY };
 	var jsdata = JSON.parse(element.getAttribute("data-jsdata"));
-	var elementID = Date.now(); // clock ticks since midnight at the epoch. Guarantees a unique ID number.
+	/*
+	 * Originally used Date.now() for unique IDs. But too many operations are performed per clock tick to make these unique IDs.
+	 * Instead, I'm using Math.floor(Math.random() * 1000000.0 ).
+	 * Does not guarantee uniqueness, but picking 2 random numbers between 0 and 999,999 makes it highly unlikely
+	 * that they would be identical. For this purpose, it's good enough.
+	 */
+	var elementID = Math.floor(Math.random() * 1000000.0);
 	var childGrid = document.getElementById("childGrid");
 	var parentGrid = document.getElementById("parentGrid");
 	var themeType = "";
 
+	/*
+	 * Are we over a child file, a parent file, or no file?
+	 */
 	var obj = new elementInfo(childGrid);
 	if (obj.isMouseOver(position)) {
 		themeType = "child";
@@ -93,6 +102,10 @@ function pas_cth_js_openMenu(element, event) {
 	if (! themeType.length) {
 		return;
 	}
+
+	/*
+	 * Grab menu items with the appropriate themeType
+	 */	
 	var menuElements = [];
 	pas_cth_menu.forEach(function (cell) {
 		if (cell.themeType == themeType) {
@@ -101,11 +114,18 @@ function pas_cth_js_openMenu(element, event) {
 	});
 	element.setAttribute("id", "file_" + elementID);
 
+	/*
+	 * Look for an existing popup menu. If found, close it.
+	 */
 	var box = document.getElementById("popupMenu");
 	if (box != null) {
 		box.parentNode.removeChild(box);
 		box.remove();
 	}
+
+	/*
+	 * Create new popup menu.
+	 */
 	box = document.createElement("DIV");
 	var p = document.createElement("P");
 	p.id = "menuFileName";
@@ -113,15 +133,19 @@ function pas_cth_js_openMenu(element, event) {
 	p.appendChild(txt);
 
 	
-	
-	var rect = p.getBoundingClientRect();
-	var pHeight = rect.height;
-	rect = p.getBoundingClientRect();
+	/*
+	 * Position info the new popup menu.
+	 */
+//	var rect = p.getBoundingClientRect();
+//	var pHeight = rect.height;
+//	rect = p.getBoundingClientRect();
 
 	box.appendChild(p);
 
+	/*
+	 * Display selected menu items (Edit/Remove for child theme, Copy/View for parent theme)
+	 */
 	var anchor = [];
-
 	for (var ndx = 0; ndx < menuElements.length; ndx++) {
 		p = document.createElement("P");
 		p.className = "menuP";
@@ -137,19 +161,26 @@ function pas_cth_js_openMenu(element, event) {
 	}
 	box.id = "popupMenu";
 
+	/*
+	 * Position new popup menu
+	 */
 	var lft = position.x + 25;
 	var tp = position.y;
 	box.style.left = lft.px();
 	box.style.top = tp.px();
 	document.getElementsByTagName("body")[0].appendChild(box);
 
+	/*
+	 * Expand or contract the menu width depending upon its contents
+	 */
 	box.style.width = box.scrollWidth;
 
-	var pRect = p.getBoundingClientRect();
-	var boxRect = box.getBoundingClientRect();
+//	var pRect = p.getBoundingClientRect();
+//	var boxRect = box.getBoundingClientRect();
 
 	event.preventDefault();
 }
+/*
 function findCorners(objPos) {
 	this.adjustCorners = function (adjSize) {
 		this.UL.X -= adjSize;
@@ -165,3 +196,4 @@ function findCorners(objPos) {
 		this.LR.Y += adjSize;
 	}
 }
+*/
