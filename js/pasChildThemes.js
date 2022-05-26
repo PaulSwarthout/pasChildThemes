@@ -19,7 +19,6 @@ function pas_cth_js_selectFile(event) {
 
 	pas_cth_spinner.wait_cursor();
 
-
 	// requires HTML5 global attribute support for "data-*"
 	jsInput = JSON.parse(element.getAttribute("data-jsdata"));
 	/*

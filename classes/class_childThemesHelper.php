@@ -725,10 +725,11 @@ CLEARCACHE;
 
 		$parentFolder = $this->activeThemeInfo->getTemplateFolder( );
 
-
-		echo "<div class='innerCellRight'>";
-		$this->listFolderFiles( $parentFolder, PAS_CTH_TEMPLATETHEME );
-		echo "</div>";
+		if ($parentFolder !== false) {
+			echo "<div class='innerCellRight'>";
+			$this->listFolderFiles( $parentFolder, PAS_CTH_TEMPLATETHEME );
+			echo "</div>";
+		}
 	}
 	function showCreateChildThemeForm() {
 		$this->libraryFunctions->VerifyAuthorization();

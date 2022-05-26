@@ -3,7 +3,7 @@
 	Plugin Name: Child Themes Helper
 	Plugin URI: https://www.paulswarthout.com/Child-Themes-Helper/
 	Description: Tool to aid the child theme developer. Copies files from the parent theme to the child theme, duplicating the folder structure in the child theme. Directly edit the child theme's files. Create a new child theme from any template theme.
-	Version: 2.2.4
+	Version: 2.2.5
 	Author: Paul A. Swarthout
 	Author URI: https://www.PaulSwarthout.com
 	License: GPL2
@@ -57,6 +57,12 @@ if ($activeTheme !== false) {
 	if (wp_get_theme($activeTheme)->exists()) {
 		try {
 			$pas_cth_themeInfo = new pas_cth_activeThemeInfo();
+			if ($pas_cth_themeInfo == null || $pas_cth_themeInfo->childThemeName == "") {
+				\delete_option("pas_cth_active_theme");
+				error_log("Child Themes Helper: Active Child Theme is corrupt. Header seems to be missing in styles.css.");
+				$pas_cth_default_tab = "options";
+				return;
+			}
 		} catch (Exception $exc) {
 			if ($exc->getMessage() == "Active Theme Not Defined") {
 

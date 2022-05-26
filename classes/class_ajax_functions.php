@@ -262,8 +262,10 @@ MESSAGEID;
 						break;
 					}
 				}
+			/*
 				if ( !$allowed )
 					$filename .= '_';
+			*/
 			}
 		}
 		$filename .= '.' . $extension;
@@ -318,6 +320,13 @@ MESSAGEID;
 						$directory			. PAS_CTH_SEPARATOR .
 						$fileToCopy;
 
+		if (! is_file( $sourceFile )) {
+			error_log( "Source File Not Found:\n<pre>{$sourceFile}</pre>\n" );
+		}
+		$folder = $childThemeRoot . PAS_CTH_SEPARATOR . $childStylesheet . PAS_CTH_SEPARATOR . $directory;
+		if (! is_dir( $folder ) ) {
+			error_log( "Cannot find target folder: \n<pre>{$folder}</pre>\n");
+		}
 		$result = copy( $sourceFile, $targetFile );
 		if ( ! $result ) {
 			echo "Failed to copy<br>$sourceFile<hr>to<hr>$targetFile<br>";
