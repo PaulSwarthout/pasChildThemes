@@ -771,7 +771,7 @@ p.pas_cth_directory {
 .pctOptionHeading {
 	grid-column:1;
 	margin:0px 0px 2px 0px;
-	line-height:;
+	line-height:unset;
 	font-weight:bold;
 	font-size:14pt;
 	font-family:courier-new;
