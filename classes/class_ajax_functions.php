@@ -184,8 +184,10 @@ MESSAGEID;
 		}
 	}
 	/*
-		* The MyFilenameSanitize() is identical to sanitize_file_name except for a single change.
-		* The WordPress core function 'sanitize_file_name' strips leading underscores in file names.
+		* The MyFilenameSanitize() is identical to sanitize_file_name except for a two changes.
+		* The WordPress core function 'sanitize_file_name' strips leading underscores and commas in file names.
+		* The TwentyTwentyThree WordPress theme now has commas in the file names.
+		*
 		* FILE NAMES ARE ALLOWED TO HAVE LEADING UNDERSCORES.
 		* The TwentyNineteen theme, released with WordPress 5.0 demonstrates this.
 		* Because the Child Themes Helper plugin copies files from the template or parent theme to the child theme,
@@ -201,7 +203,7 @@ MESSAGEID;
 		*/
 	function MyFilenameSanitize($filename) {
 		$filename_raw = $filename;
-		$special_chars = array("?", "[", "]", "/", "\\", "=", "<", ">", ":", ";", ",", "'", "\"", "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}", "%", "+", chr(0));
+		$special_chars = array("?", "[", "]", "/", "\\", "=", "<", ">", ":", ";", "'", "\"", "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}", "%", "+", chr(0));
 		/**
 		 * Filters the list of characters to remove from a filename.
 		 *
@@ -327,10 +329,18 @@ MESSAGEID;
 		if (! is_dir( $folder ) ) {
 			error_log( "Cannot find target folder: \n<pre>{$folder}</pre>\n");
 		}
-		$result = copy( $sourceFile, $targetFile );
-		if ( ! $result ) {
-			echo "Failed to copy<br>$sourceFile<hr>to<hr>$targetFile<br>";
-		}
+		if (file_exists($sourceFile)) {
+			$result = copy( $sourceFile, $targetFile );
+			if ( ! $result ) {
+				echo "Failed to copy<br>$sourceFile<hr>to<hr>$targetFile<br>";
+			}
+		} else {
+			error_log("Source file does not exist.");
+			echo "Source file not found:<br>$sourceFile";
+			error_log("Failed to copy source to destination");
+			error_log("Source: " . $sourceFile);
+			error_log("Destination: " . $targetFaile);
+	}
 	}
 
 	/*

@@ -20,6 +20,9 @@ class pas_cth_ChildThemesHelper {
 	private $Themes;
 	private $defaultTab;
 	public $plugin_version;
+	private $allThemes;
+	private $fontSampleImages;
+
 
 	function __construct( $args ) {
 		$this->pluginDirectory	= $args['pluginDirectory'];

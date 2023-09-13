@@ -7,7 +7,7 @@ class pas_cth_themes {
 	private $pluginDirectory;
 	public	$childParentThemesList;
 	public	$listChildThemes;
-	public	$listTempateThemes;
+	public	$listTemplateThemes;
 	public	$pas_cth_active_theme;
 	public $WP_Active_Theme;
 
@@ -88,11 +88,28 @@ class pas_cth_themes {
 	private function theme_sort($a, $b) {
 		$a_up = $a;
 		$b_up = $b;
+		
+		foreach ($a_up as $key => $value) {
+			if ($value !== null) {
+				$a_up[$key] = strtoupper($value);
+			} else {
+				$a_up[$key] = '';
+			}
+		}
+		foreach ($b_up as $key => $value) {
+			if ($value !== null) {
+				$b_up[$key] = strtoupper($value);
+			} else {
+				$b_up[$key] = '';
+			}
+		}
+
+/*
 		$a_up['parent'] = strtoupper($a_up['parent']);
 		$a_up['child']	= strtoupper($a_up['child']);
 		$b_up['parent'] = strtoupper($b_up['parent']);
-		$b_up['child'] = strtoupper($b_up['child']);
-
+		$b_up['child']	= strtoupper($b_up['child']);
+*/
 
 		if ($a_up['parent'] == $b_up['parent'] && $a_up['child'] == $b_up['child']) {
 			return 0;

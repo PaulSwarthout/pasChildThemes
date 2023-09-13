@@ -4,8 +4,8 @@ Author URI: http://www.paulswarthout.com/child-themes-helper
 Donate link: https://paypal.me/PaulSwarthout
 Tags: child themes helper, child themes, child theme, child, theme, template theme, parent theme, developers, IIS, Linux, copy files to child theme, create a child theme
 Requires at least: 5.0
-Tested up to: 5.8.2
-Stable tag: 2.2.4
+Tested up to: 6.3.1
+Stable tag: 2.2.7
 Requires PHP: 5.6.31
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -126,6 +126,17 @@ I hate the fact that nothing appears as a graphic in a newly created child theme
 9. You can change the font, the text color, and the background color of your temporary graphic. You can add fonts to the plugin's ~/assets/fonts folder and they will be automatically available. Click the Generate Screenshot button and a window will open with a copy of your new temporary graphic. Go to the website's themes page to see it as it was intended to be used.
 
 == Changelog ==
+= 2.2.7 =
+ - Fixed a bug with sanitizing file names. Apparently, file names which contain commas are now valid. Fixed the filename sanitization to accept commas in the filename.
+
+ - Cleaned up some of the error messages that happen when copying files. Also, all messages will be written to the error log, now when WP_DEBUG is true. This problem arose because the TwentyTwentyThree theme has files which include commas in the file name. You will be able to copy these files now.
+
+ - Replaced some code which took advantage of things that are now deprecated. Didn't find these when I tested version 2.2.6 because I hadn't turned on WP_DEBUG.
+
+= 2.2.6 =
+ - Fixed a bug in style.css.
+
+ - Tested the plugin with PHP 8.2.10 and WordPress 6.3.1
 
 = 2.2.4 =
  - Tested the plugin with PHP 8.0.0 and WordPress 5.8.2.
